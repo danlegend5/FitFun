@@ -44,36 +44,15 @@ if (fd_type == 'Flow.Density') {
   curve_properties$dvdk_0 = (reconstructed_model_fit$mu[2] - reconstructed_model_fit$mu[1])/grid_density_step
 }
 
-# Determine the grid index where the "mu" curve first becomes non-negative (if at all), and then determine the grid index at one step before the
-# "mu" curve becomes negative again (if at all)
-index_mu_first_nonneg = -1
-index_mu_last_nonneg = -1
-for (i in 1:ngrid) {
-  if (reconstructed_model_fit$mu[i] < 0.0) { next }
-  index_mu_first_nonneg = i
-  index_mu_last_nonneg = ngrid
-  for (j in index_mu_first_nonneg:ngrid) {
-    if (reconstructed_model_fit$mu[j] >= 0.0) { next }
-    index_mu_last_nonneg = j - 1
-    break
-  }
-  break
-}
-
-# If all of the values in the "mu" curve are negative, then finish
-if (index_mu_first_nonneg == -1) {
-  return(curve_properties)
-}
-
-# In the first run of non-negative numbers in the "mu" curve, determine the grid index where the "mu" curve first becomes positive (if at all),
-# and then determine the grid index at one step before the "mu" curve becomes non-positive again (if at all)
+# Determine the grid index where the "mu" curve first becomes positive (if at all), and then determine the grid index at one step before the "mu"
+# curve becomes non-positive again (if at all)
 index_mu_first_pos = -1
 index_mu_last_pos = -1
-for (i in index_mu_first_nonneg:index_mu_last_nonneg) {
+for (i in 1:ngrid) {
   if (reconstructed_model_fit$mu[i] <= 0.0) { next }
   index_mu_first_pos = i
-  index_mu_last_pos = index_mu_last_nonneg
-  for (j in index_mu_first_pos:index_mu_last_nonneg) {
+  index_mu_last_pos = ngrid
+  for (j in index_mu_first_pos:ngrid) {
     if (reconstructed_model_fit$mu[j] > 0.0) { next }
     index_mu_last_pos = j - 1
     break
@@ -81,7 +60,7 @@ for (i in index_mu_first_nonneg:index_mu_last_nonneg) {
   break
 }
 
-# If all of the values in the first run of non-negative numbers in the "mu" curve are zero, then finish
+# If all of the values in the "mu" curve are non-positive, then finish
 if (index_mu_first_pos == -1) {
   return(curve_properties)
 }
@@ -90,9 +69,15 @@ if (index_mu_first_pos == -1) {
 #### ABOVE FULLY READ AND TESTED
 
 
+zlen = index_mu_last_pos - index_mu_first_pos + 1 + 2
+zvec = double(length = zlen)
+zvec[2:(zlen - 1)] = reconstructed_model_fit$mu[index_mu_first_pos:index_mu_last_pos]
+
+cat(zvec, '\n')
+
+
 
 cat('\n')
-cat(index_mu_first_nonneg, index_mu_last_nonneg, '\n')
 cat(index_mu_first_pos, index_mu_last_pos, '\n')
 q(save = 'no', status = 1)
 
