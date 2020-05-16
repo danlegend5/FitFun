@@ -1,3 +1,151 @@
+################################################################################################################################################
+get_npeaks_ntroughs = function(xvec, yvec, edge_value) {
+
+# Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function
+#              determines the number of peaks and troughs, and the coordinates of the highest peak and the lowest trough. A subtle but important
+#              requirement for this algorithm to work properly is that "edge_value" must not be not equal to the first or last elements of "yvec".
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create a temporary vector that starts with a single value "edge_value", followed by the vector of numbers "yvec", and ends with another single
+# value "edge_value"
+N_p2 = length(yvec) + 2
+tmpvec = double(length = N_p2)
+tmpvec[1] = edge_value
+tmpvec[2:(N_p2 - 1)] = yvec
+tmpvec[N_p2] = edge_value
+
+# Find the number of peaks and troughs in the temporary vector while also finding the highest peak and the lowest trough and their corresponding
+# x-values. In the case that two or more peaks are all equally the highest peak, then the peak with the lowest x-value is selected as the highest
+# peak. In the case that two or more troughs are all equally the lowest trough, then the trough with the lowest x-value is selected as the lowest
+# trough.
+curr_i = 2
+n_peaks = 0
+highest_peak_x = 0.0
+highest_peak_y = 0.0
+n_troughs = 0
+lowest_trough_x = 0.0
+lowest_trough_y = 0.0
+while (curr_i < N_p2) {
+
+  # Extract the previous, current, and next values from the temporary vector
+  prev_tmpvec = tmpvec[curr_i - 1]
+  curr_tmpvec = tmpvec[curr_i]
+  next_tmpvec = tmpvec[curr_i + 1]
+
+  # If the previous value in the temporary vector is greater than the current value, then there is no peak at the current value. However, it is
+  # possible that there is a trough at, or near, the current value.
+  if (prev_tmpvec > curr_tmpvec) {
+
+    # If the next value in the temporary vector is greater than the current value, then there is a trough at the current value. Count the trough
+    # and update the lowest trough if necessary. Move on to the next value.
+    if (next_tmpvec > curr_tmpvec) {
+      n_troughs = n_troughs + 1
+      if (n_troughs == 1) {
+        lowest_trough_x = xvec[curr_i - 1]
+        lowest_trough_y = curr_tmpvec
+      } else {
+        if (curr_tmpvec < lowest_trough_y) {
+          lowest_trough_x = xvec[curr_i - 1]
+          lowest_trough_y = curr_tmpvec
+        }
+      }
+      curr_i = curr_i + 1
+      next
+    }
+
+    # If the next value in the temporary vector is less than the current value, then there is no trough at the current value. Move on to the next
+    # value.
+    if (next_tmpvec < curr_tmpvec) {
+      curr_i = curr_i + 1
+      next
+    }
+
+    # If the next value in the temporary vector is equal to the current value, then find the next value that is not equal to the current value
+    start_i = curr_i
+    while (tmpvec[curr_i] == curr_tmpvec) { curr_i = curr_i + 1 }
+
+    # If the next value that is not equal to the current value is less than the current value, then there is no trough near to the current value.
+    # Move on to the next value that is less than the current value.
+    if (tmpvec[curr_i] < curr_tmpvec) { next }
+
+    # If the next value that is not equal to the current value is greater than the current value, then there is a trough near to the current value.
+    # Count the trough and update the lowest trough if necessary. Move on to the next value that is greater than the current value.
+    n_troughs = n_troughs + 1
+    if (n_troughs == 1) {
+      lowest_trough_x = 0.5*(xvec[start_i - 1] + xvec[curr_i - 2])
+      lowest_trough_y = curr_tmpvec
+    } else {
+      if (curr_tmpvec < lowest_trough_y) {
+        lowest_trough_x = 0.5*(xvec[start_i - 1] + xvec[curr_i - 2])
+        lowest_trough_y = curr_tmpvec
+      }
+    }
+    next
+
+  # If the previous value in the temporary vector is less than the current value, then there is no trough at the current value. However, it is
+  # possible that there is a peak at, or near, the current value (N.B: Due to the way that this algorithm is designed, it is impossible that the
+  # previous value in the temporary vector is equal to the current value)
+  } else {
+
+    # If the next value in the temporary vector is greater than the current value, then there is no peak at the current value. Move on to the next
+    # value.
+    if (next_tmpvec > curr_tmpvec) {
+      curr_i = curr_i + 1
+      next
+    }
+
+    # If the next value in the temporary vector is less than the current value, then there is a peak at the current value. Count the peak and update
+    # the highest peak if necessary. Move on to the next value.
+    if (next_tmpvec < curr_tmpvec) {
+      n_peaks = n_peaks + 1
+      if (n_peaks == 1) {
+        highest_peak_x = xvec[curr_i - 1]
+        highest_peak_y = curr_tmpvec
+      } else {
+        if (curr_tmpvec > highest_peak_y) {
+          highest_peak_x = xvec[curr_i - 1]
+          highest_peak_y = curr_tmpvec
+        }
+      }
+      curr_i = curr_i + 1
+      next
+    }
+
+    # If the next value in the temporary vector is equal to the current value, then find the next value that is not equal to the current value
+    start_i = curr_i
+    while (tmpvec[curr_i] == curr_tmpvec) { curr_i = curr_i + 1 }
+
+    # If the next value that is not equal to the current value is greater than the current value, then there is no peak near to the current value.
+    # Move on to the next value that is greater than the current value.
+    if (tmpvec[curr_i] > curr_tmpvec) { next }
+
+    # If the next value that is not equal to the current value is less than the current value, then there is a peak near to the current value.
+    # Count the peak and update the highest peak if necessary. Move on to the next value that is less than the current value.
+    n_peaks = n_peaks + 1
+    if (n_peaks == 1) {
+      highest_peak_x = 0.5*(xvec[start_i - 1] + xvec[curr_i - 2])
+      highest_peak_y = curr_tmpvec
+    } else {
+      if (curr_tmpvec > highest_peak_y) {
+        highest_peak_x = 0.5*(xvec[start_i - 1] + xvec[curr_i - 2])
+        highest_peak_y = curr_tmpvec
+      }
+    }
+  }
+}
+
+# Return the output parameter values
+return(list(n_peaks = n_peaks, highest_peak_x = highest_peak_x, highest_peak_y = highest_peak_y,
+            n_troughs = n_troughs, lowest_trough_x = lowest_trough_x, lowest_trough_y = lowest_trough_y))
+}
+
+
+################################################################################################################################################
 get_curve_properties_for_mu = function(reconstructed_model_fit, fd_type) {
 
 # Description: For a fitted model component for "mu" that has been reconstructed on a regular grid of density ranging from zero to some positive
@@ -56,100 +204,13 @@ if (index_mu_first_pos == -1) {
   return(curve_properties)
 }
 
-# Create a temporary vector that starts with a single zero value, followed by the first run of positive numbers in the "mu" curve, and ends with
-# another single zero value
-npos_p2 = index_mu_last_pos - index_mu_first_pos + 3
-tmpvec = double(length = npos_p2)
-tmpvec[2:(npos_p2 - 1)] = reconstructed_model_fit$mu[index_mu_first_pos:index_mu_last_pos]
+# Find the number of peaks in the first run of positive numbers in the "mu" curve while also finding the highest peak and its corresponding density
+info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2[index_mu_first_pos:index_mu_last_pos],
+                                         reconstructed_model_fit$mu[index_mu_first_pos:index_mu_last_pos], -1.0)
 
-# Find the number of peaks in the first run of positive numbers in the "mu" curve while also finding the highest peak and its corresponding density.
-# In the case that two or more peaks are all equally the highest peak, then the peak with the smallest density is selected as the highest peak.
-curr_i = 2
-n_peaks = 0
-max_peak_value = -1.0
-max_peak_density = -1.0
-while (curr_i < npos_p2) {
-
-  # Extract the previous, current, and next values from the temporary vector
-  prev_tmpvec = tmpvec[curr_i - 1]
-  curr_tmpvec = tmpvec[curr_i]
-  next_tmpvec = tmpvec[curr_i + 1]
-
-  # If the previous value in the temporary vector is greater than the current value, then there is no peak at the current value
-  if (prev_tmpvec > curr_tmpvec) {
-
-    # If the next value in the temporary vector is not equal to the current value, then move on to the next value
-    if (next_tmpvec != curr_tmpvec) {
-      curr_i = curr_i + 1
-      next
-    }
-
-    # If the next value in the temporary vector is equal to the current value, then move on to the next value that is not equal to the current
-    # value
-    while (tmpvec[curr_i] == curr_tmpvec) { curr_i = curr_i + 1 }
-    next
-
-  # If the previous value in the temporary vector is less than the current value, then it is possible that there is a peak at, or near, the current
-  # value (N.B: Due to the way that this algorithm is designed, it is impossible that the previous value in the temporary vector is equal to the
-  # current value)
-  } else {
-
-    # If the next value in the temporary vector is greater than the current value, then there is no peak at the current value. Move on to the next
-    # value.
-    if (next_tmpvec > curr_tmpvec) {
-      curr_i = curr_i + 1
-      next
-    }
-
-    # If the next value in the temporary vector is less than the current value, then there is a peak at the current value. Count the peak and update
-    # the highest peak if necessary. Move on to the next value.
-    if (next_tmpvec < curr_tmpvec) {
-      n_peaks = n_peaks + 1
-      if (curr_tmpvec > max_peak_value) {
-        max_peak_value = curr_tmpvec
-        max_peak_density = reconstructed_model_fit$V2[curr_i + index_mu_first_pos - 2]
-      }
-      curr_i = curr_i + 1
-      next
-    }
-
-    # If the next value in the temporary vector is equal to the current value, then find the next value that is not equal to the current value
-    start_i = curr_i
-    while (tmpvec[curr_i] == curr_tmpvec) { curr_i = curr_i + 1 }
-
-    # If the next value that is not equal to the current value is greater than the current value, then there is no peak near to the current value.
-    # Move on to the next value that is not equal to the current value.
-    if (tmpvec[curr_i] > curr_tmpvec) { next }
-
-    # If the next value that is not equal to the current value is less than the current value, then there is a peak near to the current value.
-    # Count the peak and update the highest peak if necessary. Move on to the next value that is not equal to the current value.
-    n_peaks = n_peaks + 1
-    if (curr_tmpvec > max_peak_value) {
-      max_peak_value = curr_tmpvec
-      max_peak_density = 0.5*(reconstructed_model_fit$V2[start_i + index_mu_first_pos - 2] + reconstructed_model_fit$V2[curr_i + index_mu_first_pos - 3])
-    }
-  }
-}
 
 
 #### ABOVE FULLY READ AND TESTED
-
-
-cat('\n')
-cat(index_mu_first_pos, index_mu_last_pos, '\n')
-
-cat('\n')
-cat(reconstructed_model_fit$V2[index_mu_first_pos:index_mu_last_pos], '\n')
-cat('\n')
-cat(tmpvec, '\n')
-
-
-cat('\n')
-cat(n_peaks, '\n')
-cat(max_peak_value, '\n')
-cat(max_peak_density, '\n')
-
-q(save = 'no', status = 1)
 
 
 
@@ -169,14 +230,6 @@ cat('v_bw   ', curve_properties$v_bw, '\n')
 
 q(save = 'no', status = 1)
 
-
-  # Estimate the flow capacity
-#  k_crit_sub = which.max(reconstructed_model_fit$mu)
-#  k_crit = reconstructed_model_fit$V2[k_crit_sub]
-#  q_cap = reconstructed_model_fit$mu[k_crit_sub]
-
-  #
-#  pp = findpeaks(reconstructed_model_fit$mu)
 
 
 
