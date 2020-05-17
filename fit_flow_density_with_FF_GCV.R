@@ -149,6 +149,7 @@ cat('v_max  ', curve_properties_for_mu_over_data_range$v_max, '\n')
 cat('n_peaks', curve_properties_for_mu_over_data_range$n_peaks, '\n')
 cat('k_jam  ', curve_properties_for_mu_over_data_range$k_jam, '\n')
 cat('v_bw   ', curve_properties_for_mu_over_data_range$v_bw, '\n')
+cat('dvdk_kj', curve_properties_for_mu_over_data_range$dvdk_kjam, '\n')
 
 cat('\n')
 cat('OUTSIDE', '\n')
@@ -163,7 +164,7 @@ cat('v_max  ', curve_properties_for_mu_over_full_range$v_max, '\n')
 cat('n_peaks', curve_properties_for_mu_over_full_range$n_peaks, '\n')
 cat('k_jam  ', curve_properties_for_mu_over_full_range$k_jam, '\n')
 cat('v_bw   ', curve_properties_for_mu_over_full_range$v_bw, '\n')
-
+cat('dvdk_kj', curve_properties_for_mu_over_full_range$dvdk_kjam, '\n')
 
 q(save = 'no', status = 1)
 

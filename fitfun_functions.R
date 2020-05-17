@@ -158,7 +158,8 @@ get_curve_properties_for_mu = function(reconstructed_model_fit, fd_type) {
 
 
 # Set the default output parameter values
-curve_properties = list(q_0 = -1.0, v_ff = -1.0, dvdk_0 = -1.0, k_crit = -1.0, k_vmax = -1.0, q_cap = -1.0, v_max = -1.0, n_peaks = -1, k_jam = -1.0, v_bw = -1.0)
+curve_properties = list(q_0 = NA, v_ff = NA, dvdk_0 = NA, k_crit = NA, k_vmax = NA, q_cap = NA,
+                        v_max = NA, n_peaks = NA, k_jam = NA, v_bw = NA, dvdk_kjam = NA)
 
 # Compute some useful quantities
 ngrid = nrow(reconstructed_model_fit)
@@ -229,7 +230,7 @@ curve_properties$n_peaks = info_peaks_troughs$n_peaks
 # If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
 if (index_mu_last_pos < ngrid) {
 
-  # Estimate the gradient at the end of the first run of positive numbers in the "mu" curve
+  # Estimate the gradient (with respect to density) at the end of the first run of positive numbers in the "mu" curve
   grad = (reconstructed_model_fit$mu[index_mu_last_pos + 1] - reconstructed_model_fit$mu[index_mu_last_pos])/grid_density_step
 
   # Estimate the jam density
@@ -241,11 +242,17 @@ if (index_mu_last_pos < ngrid) {
     # Estimate the back-propagating wave speed at jam density
     curve_properties$v_bw = -grad
 
+    # Estimate the gradient of the speed (with respect to density) at jam density
+    curve_properties$dvdk_kjam = grad/curve_properties$k_jam
+
   # If the fitted model component for "mu" corresponds to speed
   } else if (fd_type == 'Speed.Density') {
 
     # Estimate the back-propagating wave speed at jam density
     curve_properties$v_bw = -grad*curve_properties$k_jam
+
+    # Estimate the gradient of the speed (with respect to density) at jam density
+    curve_properties$dvdk_kjam = grad
   }
 }
 
