@@ -113,9 +113,23 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Determine useful properties of the fitted model over the density range from zero to the maximum observed density
-selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
-curve_properties = get_curve_properties_for_mu(reconstructed_model_fit[selection], 'Flow.Density')
+# Determine useful properties of the fitted model over the density range from zero to the maximum observed density using the reconstruction
+cat('Determining useful properties of the fitted model using the reconstruction...\n')
+tryCatch(
+  { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
+    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit[selection], 'Flow.Density') },
+  error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to the maximum observed density...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Determine useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
+tryCatch(
+  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density') },
+   error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to "upper_density"...\n')
+                            q(save = 'no', status = 1) }
+)
+
+
 
 
 
@@ -125,16 +139,31 @@ curve_properties = get_curve_properties_for_mu(reconstructed_model_fit[selection
 cat('\n')
 cat('OUTSIDE', '\n')
 
-cat('q_0    ', curve_properties$q_0, '\n')
-cat('v_ff   ', curve_properties$v_ff, '\n')
-cat('dvdk_0 ', curve_properties$dvdk_0, '\n')
-cat('k_crit ', curve_properties$k_crit, '\n')
-cat('k_vmax ', curve_properties$k_vmax, '\n')
-cat('q_cap  ', curve_properties$q_cap, '\n')
-cat('v_max  ', curve_properties$v_max, '\n')
-cat('n_peaks', curve_properties$n_peaks, '\n')
-cat('k_jam  ', curve_properties$k_jam, '\n')
-cat('v_bw   ', curve_properties$v_bw, '\n')
+cat('q_0    ', curve_properties_for_mu_over_data_range$q_0, '\n')
+cat('v_ff   ', curve_properties_for_mu_over_data_range$v_ff, '\n')
+cat('dvdk_0 ', curve_properties_for_mu_over_data_range$dvdk_0, '\n')
+cat('k_crit ', curve_properties_for_mu_over_data_range$k_crit, '\n')
+cat('k_vmax ', curve_properties_for_mu_over_data_range$k_vmax, '\n')
+cat('q_cap  ', curve_properties_for_mu_over_data_range$q_cap, '\n')
+cat('v_max  ', curve_properties_for_mu_over_data_range$v_max, '\n')
+cat('n_peaks', curve_properties_for_mu_over_data_range$n_peaks, '\n')
+cat('k_jam  ', curve_properties_for_mu_over_data_range$k_jam, '\n')
+cat('v_bw   ', curve_properties_for_mu_over_data_range$v_bw, '\n')
+
+cat('\n')
+cat('OUTSIDE', '\n')
+
+cat('q_0    ', curve_properties_for_mu_over_full_range$q_0, '\n')
+cat('v_ff   ', curve_properties_for_mu_over_full_range$v_ff, '\n')
+cat('dvdk_0 ', curve_properties_for_mu_over_full_range$dvdk_0, '\n')
+cat('k_crit ', curve_properties_for_mu_over_full_range$k_crit, '\n')
+cat('k_vmax ', curve_properties_for_mu_over_full_range$k_vmax, '\n')
+cat('q_cap  ', curve_properties_for_mu_over_full_range$q_cap, '\n')
+cat('v_max  ', curve_properties_for_mu_over_full_range$v_max, '\n')
+cat('n_peaks', curve_properties_for_mu_over_full_range$n_peaks, '\n')
+cat('k_jam  ', curve_properties_for_mu_over_full_range$k_jam, '\n')
+cat('v_bw   ', curve_properties_for_mu_over_full_range$v_bw, '\n')
+
 
 q(save = 'no', status = 1)
 
