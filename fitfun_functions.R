@@ -139,7 +139,7 @@ while (curr_i < N_p2) {
   }
 }
 
-# Return the output parameter values
+# Return the number of peaks and troughs, and the coordinates of the highest peak and the lowest trough
 return(list(n_peaks = n_peaks, highest_peak_x = highest_peak_x, highest_peak_y = highest_peak_y,
             n_troughs = n_troughs, lowest_trough_x = lowest_trough_x, lowest_trough_y = lowest_trough_y))
 }
@@ -199,7 +199,7 @@ for (i in 1:ngrid) {
   break
 }
 
-# If all of the values in the "mu" curve are non-positive, then finish
+# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "mu" curve so far
 if (index_mu_first_pos == -1) {
   return(curve_properties)
 }
@@ -208,33 +208,47 @@ if (index_mu_first_pos == -1) {
 info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2[index_mu_first_pos:index_mu_last_pos],
                                          reconstructed_model_fit$mu[index_mu_first_pos:index_mu_last_pos], -1.0)
 
+# If the fitted model component for "mu" corresponds to flow
+if (fd_type == 'Flow.Density') {
 
+  # Record the critical density and the capacity
+  curve_properties$k_crit = info_peaks_troughs$highest_peak_x
+  curve_properties$q_cap = info_peaks_troughs$highest_peak_y
 
-#### ABOVE FULLY READ AND TESTED
+# If the fitted model component for "mu" corresponds to speed
+} else if (fd_type == 'Speed.Density') {
 
+  # Record the maximum speed and the corresponding density
+  curve_properties$k_vmax = info_peaks_troughs$highest_peak_x
+  curve_properties$v_max = info_peaks_troughs$highest_peak_y
+}
 
+# Record the number of peaks
+curve_properties$n_peaks = info_peaks_troughs$n_peaks
 
-cat('\n')
-cat('HELLO', '\n')
+# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
+if (index_mu_last_pos < ngrid) {
 
-cat('q_0    ', curve_properties$q_0, '\n')
-cat('v_ff   ', curve_properties$v_ff, '\n')
-cat('dvdk_0 ', curve_properties$dvdk_0, '\n')
-cat('k_crit ', curve_properties$k_crit, '\n')
-cat('k_vmax ', curve_properties$k_vmax, '\n')
-cat('q_cap  ', curve_properties$q_cap, '\n')
-cat('v_max  ', curve_properties$v_max, '\n')
-cat('n_peaks', curve_properties$n_peaks, '\n')
-cat('k_jam  ', curve_properties$k_jam, '\n')
-cat('v_bw   ', curve_properties$v_bw, '\n')
+  # Estimate the gradient at the end of the first run of positive numbers in the "mu" curve
+  grad = (reconstructed_model_fit$mu[index_mu_last_pos + 1] - reconstructed_model_fit$mu[index_mu_last_pos])/grid_density_step
 
-q(save = 'no', status = 1)
+  # Estimate the jam density
+  curve_properties$k_jam = reconstructed_model_fit$V2[index_mu_last_pos] - (reconstructed_model_fit$mu[index_mu_last_pos]/grad)
 
+  # If the fitted model component for "mu" corresponds to flow
+  if (fd_type == 'Flow.Density') {
 
+    # Estimate the back-propagating wave speed at jam density
+    curve_properties$v_bw = -grad
 
+  # If the fitted model component for "mu" corresponds to speed
+  } else if (fd_type == 'Speed.Density') {
 
-a = 1
+    # Estimate the back-propagating wave speed at jam density
+    curve_properties$v_bw = -grad*curve_properties$k_jam
+  }
+}
 
-# Return the ....
-return(a)
+# Return the computed properties of the "mu" curve
+return(curve_properties)
 }
