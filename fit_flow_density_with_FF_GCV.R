@@ -117,20 +117,20 @@ tryCatch(
 cat('Determining useful properties of the fitted model using the reconstruction...\n')
 tryCatch(
   { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
-    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit[selection], 'Flow.Density') },
+    reconstructed_model_fit_selection = reconstructed_model_fit[selection]
+    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Flow.Density')
+    curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
   error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to the maximum observed density...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Determine useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
 tryCatch(
-  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density') },
+  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density')
+    curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
    error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to "upper_density"...\n')
                             q(save = 'no', status = 1) }
 )
-
-
-
 
 
 #### ABOVE FULLY READ AND TESTED
@@ -138,42 +138,62 @@ tryCatch(
 
 cat('\n')
 cat('OUTSIDE', '\n')
-
-cat('q_0    ', curve_properties_for_mu_over_data_range$q_0, '\n')
-cat('v_ff   ', curve_properties_for_mu_over_data_range$v_ff, '\n')
-cat('dvdk_0 ', curve_properties_for_mu_over_data_range$dvdk_0, '\n')
-cat('k_crit ', curve_properties_for_mu_over_data_range$k_crit, '\n')
-cat('k_vmax ', curve_properties_for_mu_over_data_range$k_vmax, '\n')
-cat('q_cap  ', curve_properties_for_mu_over_data_range$q_cap, '\n')
-cat('v_max  ', curve_properties_for_mu_over_data_range$v_max, '\n')
-cat('n_peaks', curve_properties_for_mu_over_data_range$n_peaks, '\n')
-cat('k_jam  ', curve_properties_for_mu_over_data_range$k_jam, '\n')
-cat('v_bw   ', curve_properties_for_mu_over_data_range$v_bw, '\n')
-cat('dvdk_kj', curve_properties_for_mu_over_data_range$dvdk_kjam, '\n')
+cat('MU\n')
+cat('q_0          ', curve_properties_for_mu_over_data_range$q_0, '\n')
+cat('v_ff         ', curve_properties_for_mu_over_data_range$v_ff, '\n')
+cat('dvdk_0       ', curve_properties_for_mu_over_data_range$dvdk_0, '\n')
+cat('k_crit       ', curve_properties_for_mu_over_data_range$k_crit, '\n')
+cat('k_vmax       ', curve_properties_for_mu_over_data_range$k_vmax, '\n')
+cat('q_cap        ', curve_properties_for_mu_over_data_range$q_cap, '\n')
+cat('v_max        ', curve_properties_for_mu_over_data_range$v_max, '\n')
+cat('n_peaks      ', curve_properties_for_mu_over_data_range$n_peaks, '\n')
+cat('k_jam        ', curve_properties_for_mu_over_data_range$k_jam, '\n')
+cat('v_bw         ', curve_properties_for_mu_over_data_range$v_bw, '\n')
+cat('dvdk_kjam    ', curve_properties_for_mu_over_data_range$dvdk_kjam, '\n')
+cat('ind_first_pos', curve_properties_for_mu_over_data_range$ind_first_pos, '\n')
+cat('ind_last_pos ', curve_properties_for_mu_over_data_range$ind_last_pos, '\n')
+cat('SIGMA\n')
+cat('sigma_0      ', curve_properties_for_sigma_over_data_range$sigma_0, '\n')
+cat('dsigmadk_0   ', curve_properties_for_sigma_over_data_range$dsigmadk_0, '\n')
+cat('k_sigmamax   ', curve_properties_for_sigma_over_data_range$k_sigmamax, '\n')
+cat('sigma_max    ', curve_properties_for_sigma_over_data_range$sigma_max, '\n')
+cat('k_sigmamin   ', curve_properties_for_sigma_over_data_range$k_sigmamin, '\n')
+cat('sigma_min    ', curve_properties_for_sigma_over_data_range$sigma_min, '\n')
+cat('n_peaks      ', curve_properties_for_sigma_over_data_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_sigma_over_data_range$n_troughs, '\n')
+cat('sigma_kjam   ', curve_properties_for_sigma_over_data_range$sigma_kjam, '\n')
+cat('dsigmadk_kjam', curve_properties_for_sigma_over_data_range$dsigmadk_kjam, '\n')
 
 cat('\n')
 cat('OUTSIDE', '\n')
+cat('MU\n')
+cat('q_0          ', curve_properties_for_mu_over_full_range$q_0, '\n')
+cat('v_ff         ', curve_properties_for_mu_over_full_range$v_ff, '\n')
+cat('dvdk_0       ', curve_properties_for_mu_over_full_range$dvdk_0, '\n')
+cat('k_crit       ', curve_properties_for_mu_over_full_range$k_crit, '\n')
+cat('k_vmax       ', curve_properties_for_mu_over_full_range$k_vmax, '\n')
+cat('q_cap        ', curve_properties_for_mu_over_full_range$q_cap, '\n')
+cat('v_max        ', curve_properties_for_mu_over_full_range$v_max, '\n')
+cat('n_peaks      ', curve_properties_for_mu_over_full_range$n_peaks, '\n')
+cat('k_jam        ', curve_properties_for_mu_over_full_range$k_jam, '\n')
+cat('v_bw         ', curve_properties_for_mu_over_full_range$v_bw, '\n')
+cat('dvdk_kjam    ', curve_properties_for_mu_over_full_range$dvdk_kjam, '\n')
+cat('ind_first_pos', curve_properties_for_mu_over_full_range$ind_first_pos, '\n')
+cat('ind_last_pos ', curve_properties_for_mu_over_full_range$ind_last_pos, '\n')
+cat('SIGMA\n')
+cat('sigma_0      ', curve_properties_for_sigma_over_full_range$sigma_0, '\n')
+cat('dsigmadk_0   ', curve_properties_for_sigma_over_full_range$dsigmadk_0, '\n')
+cat('k_sigmamax   ', curve_properties_for_sigma_over_full_range$k_sigmamax, '\n')
+cat('sigma_max    ', curve_properties_for_sigma_over_full_range$sigma_max, '\n')
+cat('k_sigmamin   ', curve_properties_for_sigma_over_full_range$k_sigmamin, '\n')
+cat('sigma_min    ', curve_properties_for_sigma_over_full_range$sigma_min, '\n')
+cat('n_peaks      ', curve_properties_for_sigma_over_full_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_sigma_over_full_range$n_troughs, '\n')
+cat('sigma_kjam   ', curve_properties_for_sigma_over_full_range$sigma_kjam, '\n')
+cat('dsigmadk_kjam', curve_properties_for_sigma_over_full_range$dsigmadk_kjam, '\n')
 
-cat('q_0    ', curve_properties_for_mu_over_full_range$q_0, '\n')
-cat('v_ff   ', curve_properties_for_mu_over_full_range$v_ff, '\n')
-cat('dvdk_0 ', curve_properties_for_mu_over_full_range$dvdk_0, '\n')
-cat('k_crit ', curve_properties_for_mu_over_full_range$k_crit, '\n')
-cat('k_vmax ', curve_properties_for_mu_over_full_range$k_vmax, '\n')
-cat('q_cap  ', curve_properties_for_mu_over_full_range$q_cap, '\n')
-cat('v_max  ', curve_properties_for_mu_over_full_range$v_max, '\n')
-cat('n_peaks', curve_properties_for_mu_over_full_range$n_peaks, '\n')
-cat('k_jam  ', curve_properties_for_mu_over_full_range$k_jam, '\n')
-cat('v_bw   ', curve_properties_for_mu_over_full_range$v_bw, '\n')
-cat('dvdk_kj', curve_properties_for_mu_over_full_range$dvdk_kjam, '\n')
 
 q(save = 'no', status = 1)
-
-
-
-# DO SIGMA TOO
-
-
-# Determine properties of the fitted model over the density range from zero to "upper_density"
 
 
 

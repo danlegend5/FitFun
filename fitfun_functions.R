@@ -285,27 +285,78 @@ curve_properties_for_sigma$sigma_0 = reconstructed_model_fit$sigma[1]
 # Estimate the gradient of the sigma (with respect to density) at zero density
 curve_properties_for_sigma$dsigmadk_0 = (reconstructed_model_fit$sigma[2] - reconstructed_model_fit$sigma[1])/grid_density_step
 
+# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "sigma" curve so far
+if (is.na(curve_properties_for_mu$ind_first_pos)) {
+  return(curve_properties_for_sigma)
+}
 
+# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
+if (curve_properties_for_mu$ind_last_pos < ngrid) {
 
+  # Estimate the gradient of the sigma (with respect to density) at jam density
+  curve_properties_for_sigma$dsigmadk_kjam = (reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos + 1] - reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos])/grid_density_step
 
-#### ABOVE FULLY READ AND TESTED
+  # Estimate the sigma at jam density
+  curve_properties_for_sigma$sigma_kjam = reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos] + curve_properties_for_sigma$dsigmadk_kjam*(curve_properties_for_mu$k_jam - reconstructed_model_fit$V2[curve_properties_for_mu$ind_last_pos])
 
+  # Create a temporary vector containing the "sigma" curve from zero to jam density
+  tmpvec2 = double(length = curve_properties_for_mu$ind_last_pos + 1)
+  tmpvec2[1:curve_properties_for_mu$ind_last_pos] = reconstructed_model_fit$sigma[1:curve_properties_for_mu$ind_last_pos]
+  tmpvec2[curve_properties_for_mu$ind_last_pos + 1] = curve_properties_for_sigma$sigma_kjam
 
-# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "mu" curve so far
-#if (ind_first_pos == -1) {
-#  return(curve_properties_for_sigma)
-#}
+  # If all of the values in the "sigma" curve from zero to jam density are the same
+  if (all(tmpvec2 == tmpvec2[1])) {
 
+    # Record that there are no peaks or troughs in the "sigma" curve from zero to jam density
+    curve_properties_for_sigma$sigma_max = tmpvec2[1]
+    curve_properties_for_sigma$sigma_min = tmpvec2[1]
+    curve_properties_for_sigma$n_peaks = 0
+    curve_properties_for_sigma$n_troughs = 0
 
-# Define the density range to be considered
-#if (is.na(k_jam)) {
-#  ind_last_pos = ngrid
-#} else {
-#  tmpvec = reconstructed_model_fit$V2[reconstructed_model_fit$V2 < k_jam]
-#  ind_last_pos = tmpvec[length(tmpvec)]
-#}
+  # If not all of the values in the "sigma" curve from zero to jam density are the same
+  } else {
 
+    # For the "sigma" curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak
+    # and the lowest trough
+    tmpvec1 = double(length = curve_properties_for_mu$ind_last_pos + 1)
+    tmpvec1[1:curve_properties_for_mu$ind_last_pos] = reconstructed_model_fit$V2[1:curve_properties_for_mu$ind_last_pos]
+    tmpvec1[curve_properties_for_mu$ind_last_pos + 1] = curve_properties_for_mu$k_jam
+    info_peaks_troughs = get_npeaks_ntroughs(tmpvec1, tmpvec2, -1.0)
+    curve_properties_for_sigma$k_sigmamax = info_peaks_troughs$highest_peak_x
+    curve_properties_for_sigma$sigma_max = info_peaks_troughs$highest_peak_y
+    curve_properties_for_sigma$n_peaks = info_peaks_troughs$n_peaks
+    info_peaks_troughs = get_npeaks_ntroughs(tmpvec1, tmpvec2, 1.1*curve_properties_for_sigma$sigma_max)
+    curve_properties_for_sigma$k_sigmamin = info_peaks_troughs$lowest_trough_x
+    curve_properties_for_sigma$sigma_min = info_peaks_troughs$lowest_trough_y
+    curve_properties_for_sigma$n_troughs = info_peaks_troughs$n_troughs
+  }
 
+# If the first run of positive numbers in the "mu" curve does not end before the end of the "mu" curve
+} else {
+
+  # If all of the values in the "sigma" curve are the same
+  if (all(reconstructed_model_fit$sigma == reconstructed_model_fit$sigma[1])) {
+
+    # Record that there are no peaks or troughs in the "sigma" curve
+    curve_properties_for_sigma$sigma_max = reconstructed_model_fit$sigma[1]
+    curve_properties_for_sigma$sigma_min = reconstructed_model_fit$sigma[1]
+    curve_properties_for_sigma$n_peaks = 0
+    curve_properties_for_sigma$n_troughs = 0
+
+  # If not all of the values in the "sigma" curve are the same
+  } else {
+
+    # Find the number of peaks and troughs in the "sigma" curve while also finding the coordinates of the highest peak and the lowest trough
+    info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2, reconstructed_model_fit$sigma, -1.0)
+    curve_properties_for_sigma$k_sigmamax = info_peaks_troughs$highest_peak_x
+    curve_properties_for_sigma$sigma_max = info_peaks_troughs$highest_peak_y
+    curve_properties_for_sigma$n_peaks = info_peaks_troughs$n_peaks
+    info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2, reconstructed_model_fit$sigma, 1.1*curve_properties_for_sigma$sigma_max)
+    curve_properties_for_sigma$k_sigmamin = info_peaks_troughs$lowest_trough_x
+    curve_properties_for_sigma$sigma_min = info_peaks_troughs$lowest_trough_y
+    curve_properties_for_sigma$n_troughs = info_peaks_troughs$n_troughs
+  }
+}
 
 # Return the computed properties of the "sigma" curve
 return(curve_properties_for_sigma)
