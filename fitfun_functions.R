@@ -409,11 +409,8 @@ return(list(sigma_0 = curve_properties$y_0, dsigmadk_0 = curve_properties$dydx_0
 }
 
 
-#### ABOVE FULLY READ AND TESTED
-
-
 ################################################################################################################################################
-#get_curve_properties_for_nu = function(reconstructed_model_fit, curve_properties_for_mu) {
+get_curve_properties_for_nu = function(reconstructed_model_fit, curve_properties_for_mu) {
 
 # Description: For a fitted model component for "nu" that has been reconstructed on a regular grid of density ranging from zero to some positive
 #              value, this function computes approximate values for some useful properties of the curve in this range.
@@ -424,3 +421,13 @@ return(list(sigma_0 = curve_properties$y_0, dsigmadk_0 = curve_properties$dydx_0
 #   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
 
 
+# Compute approximate values for some useful properties of the "nu" curve
+curve_properties = get_curve_properties(reconstructed_model_fit$V2, reconstructed_model_fit$nu, curve_properties_for_mu$ind_last_pos,
+                                        curve_properties_for_mu$k_jam)
+
+# Return the computed properties of the "nu" curve
+return(list(nu_0 = curve_properties$y_0, dnudk_0 = curve_properties$dydx_0, k_numax = curve_properties$x_ymax,
+            nu_max = curve_properties$y_max, k_numin = curve_properties$x_ymin, nu_min = curve_properties$y_min,
+            n_peaks = curve_properties$n_peaks, n_troughs = curve_properties$n_troughs, nu_kjam = curve_properties$y_kjam,
+            dnudk_kjam = curve_properties$dydx_kjam))
+}
