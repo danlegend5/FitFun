@@ -74,23 +74,8 @@ if (model_obj$converged != TRUE) {
   q(save = 'no', status = 1)
 }
 
-# Extract information from the fit model object for the fit summary
-cat('\n')
-cat('Extracting information from the fit model object for the fit summary...\n')
-tryCatch(
-  { npar_mu = model_obj$mu.df
-    npar_sigma = model_obj$sigma.df
-    npar_nu = 0
-    npar_tau = 0
-    npar_all = model_obj$df.fit
-    gdev = model_obj$G.deviance
-    aic = model_obj$aic
-    bic = model_obj$sbc },
-  error = function(cond) { cat('ERROR - Failed to extract information from the fit model object for the fit summary...\n')
-                           q(save = 'no', status = 1) }
-)
-
 # Reconstruct the fitted model over the density range from zero to "upper_density"
+cat('\n')
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
@@ -115,8 +100,8 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Determine useful properties of the fitted model over the density range from zero to the maximum observed density using the reconstruction
-cat('Determining useful properties of the fitted model using the reconstruction...\n')
+# Estimate useful properties of the fitted model over the density range from zero to the maximum observed density using the reconstruction
+cat('Estimating useful properties of the fitted model using the reconstruction...\n')
 tryCatch(
   { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
     reconstructed_model_fit_selection = reconstructed_model_fit[selection]
@@ -124,22 +109,73 @@ tryCatch(
     curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_nu_over_data_range = get_curve_properties_for_nu(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_tau_over_data_range = get_curve_properties_for_tau(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
-  error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to the maximum observed density...\n')
+  error = function(cond) { cat('ERROR - Failed to estimate useful properties of the fitted model over the density range from zero to the maximum observed density...\n')
                            q(save = 'no', status = 1) }
 )
 
-# Determine useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
+# Estimate useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
 tryCatch(
   { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density')
     curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_nu_over_full_range = get_curve_properties_for_nu(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_tau_over_full_range = get_curve_properties_for_tau(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
-  error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to "upper_density"...\n')
+  error = function(cond) { cat('ERROR - Failed to estimate useful properties of the fitted model over the density range from zero to "upper_density"...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Extract information from the fit model object for the fit summary
+cat('\n')
+cat('Extracting information from the fit model object for the fit summary...\n')
+tryCatch(
+  { npar_mu = model_obj$mu.df
+    npar_sigma = model_obj$sigma.df
+    npar_nu = 0
+    npar_tau = 0
+    npar_all = model_obj$df.fit
+    gdev = model_obj$G.deviance
+    aic = model_obj$aic
+    bic = model_obj$sbc },
+  error = function(cond) { cat('ERROR - Failed to extract information from the fit model object for the fit summary...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Where possible, extract physical parameter values from the fit model object for the fit summary
+tryCatch(
+  { q_0 = 0.0
+    v_ff = model_obj$mu.coefficients[1]
+    dvdk_0 = 0.0
+    k_crit = NA
+    k_vmax = NA
+    q_cap = NA
+    v_max = NA
+    k_jam = NA
+    v_bw = NA
+    dvdk_kjam = NA },
+  error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the fit model object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
 
 
+
 #### ABOVE FULLY READ AND TESTED
+
+
+cat('\n')
+cat('PHYSICAL\n')
+cat('q_0       ', q_0, '\n')
+cat('v_ff      ', v_ff, '\n')
+cat('dvdk_0    ', dvdk_0, '\n')
+cat('k_crit    ', k_crit, '\n')
+cat('k_vmax    ', k_vmax, '\n')
+cat('q_cap     ', q_cap, '\n')
+cat('v_max     ', v_max, '\n')
+cat('k_jam     ', k_jam, '\n')
+cat('v_bw      ', v_bw, '\n')
+cat('dvdk_kjam ', dvdk_kjam, '\n')
+
+q(save = 'no', status = 1)
+
+
 
 
 cat('\n')
@@ -272,11 +308,6 @@ cat('BIC (-2 ln L + Npar ln Ndat):       ', bic, '\n')
 
 
 
-#    v_ff = model_obj$mu.coefficients[1]
-#    sigma = exp(model_obj$sigma.coefficients[1]) },
-
-#cat(v_ff, '\n')
-#cat(sigma, '\n')
 
 
 # Write out information to the fit summary file "output_file1"
