@@ -146,120 +146,6 @@ return(list(n_peaks = n_peaks, highest_peak_x = highest_peak_x, highest_peak_y =
 
 
 ################################################################################################################################################
-get_curve_properties_for_mu = function(reconstructed_model_fit, fd_type) {
-
-# Description: For a fitted model component for "mu" that has been reconstructed on a regular grid of density ranging from zero to some positive
-#              value, this function computes approximate values for some useful properties of the curve in this range.
-#
-# Authors:
-#
-#   Dan Bramich (dan.bramich@hotmail.co.uk)
-#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
-
-
-# Set the default output parameter values
-curve_properties_for_mu = list(q_0 = NA, v_ff = NA, dvdk_0 = NA, k_crit = NA, k_vmax = NA, q_cap = NA, v_max = NA, n_peaks = NA,
-                               k_jam = NA, v_bw = NA, dvdk_kjam = NA, ind_first_pos = NA, ind_last_pos = NA)
-
-# Compute some useful quantities
-ngrid = nrow(reconstructed_model_fit)
-grid_density_step = reconstructed_model_fit$V2[2]
-
-# If the fitted model component for "mu" corresponds to flow
-if (fd_type == 'Flow.Density') {
-
-  # Determine the flow at zero density
-  curve_properties_for_mu$q_0 = reconstructed_model_fit$mu[1]
-
-  # Estimate the free-flow speed
-  curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[2]/grid_density_step
-
-# If the fitted model component for "mu" corresponds to speed
-} else if (fd_type == 'Speed.Density') {
-
-  # Determine the free-flow speed
-  curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[1]
-
-  # Estimate the gradient of the speed (with respect to density) at zero density
-  curve_properties_for_mu$dvdk_0 = (reconstructed_model_fit$mu[2] - reconstructed_model_fit$mu[1])/grid_density_step
-}
-
-# Determine the grid index where the "mu" curve first becomes positive (if at all), and then determine the grid index at one step before the "mu"
-# curve becomes non-positive again (if at all)
-for (i in 1:ngrid) {
-  if (reconstructed_model_fit$mu[i] <= 0.0) { next }
-  curve_properties_for_mu$ind_first_pos = i
-  curve_properties_for_mu$ind_last_pos = ngrid
-  for (j in curve_properties_for_mu$ind_first_pos:ngrid) {
-    if (reconstructed_model_fit$mu[j] > 0.0) { next }
-    curve_properties_for_mu$ind_last_pos = j - 1
-    break
-  }
-  break
-}
-
-# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "mu" curve so far
-if (is.na(curve_properties_for_mu$ind_first_pos)) {
-  return(curve_properties_for_mu)
-}
-
-# Find the number of peaks in the first run of positive numbers in the "mu" curve while also finding the highest peak and its corresponding density
-info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos],
-                                         reconstructed_model_fit$mu[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos], -1.0)
-
-# If the fitted model component for "mu" corresponds to flow
-if (fd_type == 'Flow.Density') {
-
-  # Record the critical density and the capacity
-  curve_properties_for_mu$k_crit = info_peaks_troughs$highest_peak_x
-  curve_properties_for_mu$q_cap = info_peaks_troughs$highest_peak_y
-
-# If the fitted model component for "mu" corresponds to speed
-} else if (fd_type == 'Speed.Density') {
-
-  # Record the maximum speed and the corresponding density
-  curve_properties_for_mu$k_vmax = info_peaks_troughs$highest_peak_x
-  curve_properties_for_mu$v_max = info_peaks_troughs$highest_peak_y
-}
-
-# Record the number of peaks
-curve_properties_for_mu$n_peaks = info_peaks_troughs$n_peaks
-
-# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
-if (curve_properties_for_mu$ind_last_pos < ngrid) {
-
-  # Estimate the gradient (with respect to density) at the end of the first run of positive numbers in the "mu" curve
-  grad = (reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos + 1] - reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos])/grid_density_step
-
-  # Estimate the jam density
-  curve_properties_for_mu$k_jam = reconstructed_model_fit$V2[curve_properties_for_mu$ind_last_pos] - (reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos]/grad)
-
-  # If the fitted model component for "mu" corresponds to flow
-  if (fd_type == 'Flow.Density') {
-
-    # Estimate the back-propagating wave speed at jam density
-    curve_properties_for_mu$v_bw = -grad
-
-    # Estimate the gradient of the speed (with respect to density) at jam density
-    curve_properties_for_mu$dvdk_kjam = grad/curve_properties_for_mu$k_jam
-
-  # If the fitted model component for "mu" corresponds to speed
-  } else if (fd_type == 'Speed.Density') {
-
-    # Estimate the back-propagating wave speed at jam density
-    curve_properties_for_mu$v_bw = -grad*curve_properties_for_mu$k_jam
-
-    # Estimate the gradient of the speed (with respect to density) at jam density
-    curve_properties_for_mu$dvdk_kjam = grad
-  }
-}
-
-# Return the computed properties of the "mu" curve
-return(curve_properties_for_mu)
-}
-
-
-################################################################################################################################################
 get_curve_properties = function(xvec, yvec, ind_hi, k_jam) {
 
 # Description: For a fitted model component (e.g. for "sigma", "nu", or "tau") that has been reconstructed on a regular grid of density ranging from
@@ -382,6 +268,120 @@ if (ind_hi < ngrid) {
 
 # Return the computed properties of the curve
 return(curve_properties)
+}
+
+
+################################################################################################################################################
+get_curve_properties_for_mu = function(reconstructed_model_fit, fd_type) {
+
+# Description: For a fitted model component for "mu" that has been reconstructed on a regular grid of density ranging from zero to some positive
+#              value, this function computes approximate values for some useful properties of the curve in this range.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Set the default output parameter values
+curve_properties_for_mu = list(q_0 = NA, v_ff = NA, dvdk_0 = NA, k_crit = NA, k_vmax = NA, q_cap = NA, v_max = NA, n_peaks = NA,
+                               k_jam = NA, v_bw = NA, dvdk_kjam = NA, ind_first_pos = NA, ind_last_pos = NA)
+
+# Compute some useful quantities
+ngrid = nrow(reconstructed_model_fit)
+grid_density_step = reconstructed_model_fit$V2[2]
+
+# If the fitted model component for "mu" corresponds to flow
+if (fd_type == 'Flow.Density') {
+
+  # Determine the flow at zero density
+  curve_properties_for_mu$q_0 = reconstructed_model_fit$mu[1]
+
+  # Estimate the free-flow speed
+  curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[2]/grid_density_step
+
+# If the fitted model component for "mu" corresponds to speed
+} else if (fd_type == 'Speed.Density') {
+
+  # Determine the free-flow speed
+  curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[1]
+
+  # Estimate the gradient of the speed (with respect to density) at zero density
+  curve_properties_for_mu$dvdk_0 = (reconstructed_model_fit$mu[2] - reconstructed_model_fit$mu[1])/grid_density_step
+}
+
+# Determine the grid index where the "mu" curve first becomes positive (if at all), and then determine the grid index at one step before the "mu"
+# curve becomes non-positive again (if at all)
+for (i in 1:ngrid) {
+  if (reconstructed_model_fit$mu[i] <= 0.0) { next }
+  curve_properties_for_mu$ind_first_pos = i
+  curve_properties_for_mu$ind_last_pos = ngrid
+  for (j in curve_properties_for_mu$ind_first_pos:ngrid) {
+    if (reconstructed_model_fit$mu[j] > 0.0) { next }
+    curve_properties_for_mu$ind_last_pos = j - 1
+    break
+  }
+  break
+}
+
+# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "mu" curve so far
+if (is.na(curve_properties_for_mu$ind_first_pos)) {
+  return(curve_properties_for_mu)
+}
+
+# Find the number of peaks in the first run of positive numbers in the "mu" curve while also finding the highest peak and its corresponding density
+info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos],
+                                         reconstructed_model_fit$mu[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos], -1.0)
+
+# If the fitted model component for "mu" corresponds to flow
+if (fd_type == 'Flow.Density') {
+
+  # Record the critical density and the capacity
+  curve_properties_for_mu$k_crit = info_peaks_troughs$highest_peak_x
+  curve_properties_for_mu$q_cap = info_peaks_troughs$highest_peak_y
+
+# If the fitted model component for "mu" corresponds to speed
+} else if (fd_type == 'Speed.Density') {
+
+  # Record the maximum speed and the corresponding density
+  curve_properties_for_mu$k_vmax = info_peaks_troughs$highest_peak_x
+  curve_properties_for_mu$v_max = info_peaks_troughs$highest_peak_y
+}
+
+# Record the number of peaks
+curve_properties_for_mu$n_peaks = info_peaks_troughs$n_peaks
+
+# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
+if (curve_properties_for_mu$ind_last_pos < ngrid) {
+
+  # Estimate the gradient (with respect to density) at the end of the first run of positive numbers in the "mu" curve
+  grad = (reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos + 1] - reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos])/grid_density_step
+
+  # Estimate the jam density
+  curve_properties_for_mu$k_jam = reconstructed_model_fit$V2[curve_properties_for_mu$ind_last_pos] - (reconstructed_model_fit$mu[curve_properties_for_mu$ind_last_pos]/grad)
+
+  # If the fitted model component for "mu" corresponds to flow
+  if (fd_type == 'Flow.Density') {
+
+    # Estimate the back-propagating wave speed at jam density
+    curve_properties_for_mu$v_bw = -grad
+
+    # Estimate the gradient of the speed (with respect to density) at jam density
+    curve_properties_for_mu$dvdk_kjam = grad/curve_properties_for_mu$k_jam
+
+  # If the fitted model component for "mu" corresponds to speed
+  } else if (fd_type == 'Speed.Density') {
+
+    # Estimate the back-propagating wave speed at jam density
+    curve_properties_for_mu$v_bw = -grad*curve_properties_for_mu$k_jam
+
+    # Estimate the gradient of the speed (with respect to density) at jam density
+    curve_properties_for_mu$dvdk_kjam = grad
+  }
+}
+
+# Return the computed properties of the "mu" curve
+return(curve_properties_for_mu)
 }
 
 
