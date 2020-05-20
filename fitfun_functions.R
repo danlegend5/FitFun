@@ -431,3 +431,27 @@ return(list(nu_0 = curve_properties$y_0, dnudk_0 = curve_properties$dydx_0, k_nu
             n_peaks = curve_properties$n_peaks, n_troughs = curve_properties$n_troughs, nu_kjam = curve_properties$y_kjam,
             dnudk_kjam = curve_properties$dydx_kjam))
 }
+
+
+################################################################################################################################################
+get_curve_properties_for_tau = function(reconstructed_model_fit, curve_properties_for_mu) {
+
+# Description: For a fitted model component for "tau" that has been reconstructed on a regular grid of density ranging from zero to some positive
+#              value, this function computes approximate values for some useful properties of the curve in this range.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Compute approximate values for some useful properties of the "tau" curve
+curve_properties = get_curve_properties(reconstructed_model_fit$V2, reconstructed_model_fit$tau, curve_properties_for_mu$ind_last_pos,
+                                        curve_properties_for_mu$k_jam)
+
+# Return the computed properties of the "tau" curve
+return(list(tau_0 = curve_properties$y_0, dtaudk_0 = curve_properties$dydx_0, k_taumax = curve_properties$x_ymax,
+            tau_max = curve_properties$y_max, k_taumin = curve_properties$x_ymin, tau_min = curve_properties$y_min,
+            n_peaks = curve_properties$n_peaks, n_troughs = curve_properties$n_troughs, tau_kjam = curve_properties$y_kjam,
+            dtaudk_kjam = curve_properties$dydx_kjam))
+}

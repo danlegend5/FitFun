@@ -108,7 +108,9 @@ tryCatch(
       q(save = 'no', status = 1)
     }
     reconstructed_model_fit[, mu := predicted_values$mu]
-    reconstructed_model_fit[, sigma := predicted_values$sigma] },
+    reconstructed_model_fit[, sigma := predicted_values$sigma]
+    reconstructed_model_fit[, nu := double(length = ngrid)]
+    reconstructed_model_fit[, tau := rep(3.0, ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -119,7 +121,9 @@ tryCatch(
   { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
     reconstructed_model_fit_selection = reconstructed_model_fit[selection]
     curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Flow.Density')
-    curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
+    curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
+    curve_properties_for_nu_over_data_range = get_curve_properties_for_nu(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
+    curve_properties_for_tau_over_data_range = get_curve_properties_for_tau(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
   error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to the maximum observed density...\n')
                            q(save = 'no', status = 1) }
 )
@@ -127,9 +131,11 @@ tryCatch(
 # Determine useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
 tryCatch(
   { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density')
-    curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
-   error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to "upper_density"...\n')
-                            q(save = 'no', status = 1) }
+    curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
+    curve_properties_for_nu_over_full_range = get_curve_properties_for_nu(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
+    curve_properties_for_tau_over_full_range = get_curve_properties_for_tau(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
+  error = function(cond) { cat('ERROR - Failed to determine useful properties of the fitted model over the density range from zero to "upper_density"...\n')
+                           q(save = 'no', status = 1) }
 )
 
 
@@ -163,6 +169,29 @@ cat('n_peaks      ', curve_properties_for_sigma_over_data_range$n_peaks, '\n')
 cat('n_troughs    ', curve_properties_for_sigma_over_data_range$n_troughs, '\n')
 cat('sigma_kjam   ', curve_properties_for_sigma_over_data_range$sigma_kjam, '\n')
 cat('dsigmadk_kjam', curve_properties_for_sigma_over_data_range$dsigmadk_kjam, '\n')
+cat('NU\n')
+cat('nu_0         ', curve_properties_for_nu_over_data_range$nu_0, '\n')
+cat('dnudk_0      ', curve_properties_for_nu_over_data_range$dnudk_0, '\n')
+cat('k_numax      ', curve_properties_for_nu_over_data_range$k_numax, '\n')
+cat('nu_max       ', curve_properties_for_nu_over_data_range$nu_max, '\n')
+cat('k_numin      ', curve_properties_for_nu_over_data_range$k_numin, '\n')
+cat('nu_min       ', curve_properties_for_nu_over_data_range$nu_min, '\n')
+cat('n_peaks      ', curve_properties_for_nu_over_data_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_nu_over_data_range$n_troughs, '\n')
+cat('nu_kjam      ', curve_properties_for_nu_over_data_range$nu_kjam, '\n')
+cat('dnudk_kjam   ', curve_properties_for_nu_over_data_range$dnudk_kjam, '\n')
+cat('TAU\n')
+cat('tau_0        ', curve_properties_for_tau_over_data_range$tau_0, '\n')
+cat('dtaudk_0     ', curve_properties_for_tau_over_data_range$dtaudk_0, '\n')
+cat('k_taumax     ', curve_properties_for_tau_over_data_range$k_taumax, '\n')
+cat('tau_max      ', curve_properties_for_tau_over_data_range$tau_max, '\n')
+cat('k_taumin     ', curve_properties_for_tau_over_data_range$k_taumin, '\n')
+cat('tau_min      ', curve_properties_for_tau_over_data_range$tau_min, '\n')
+cat('n_peaks      ', curve_properties_for_tau_over_data_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_tau_over_data_range$n_troughs, '\n')
+cat('tau_kjam     ', curve_properties_for_tau_over_data_range$tau_kjam, '\n')
+cat('dtaudk_kjam  ', curve_properties_for_tau_over_data_range$dtaudk_kjam, '\n')
+
 
 cat('\n')
 cat('OUTSIDE', '\n')
@@ -191,6 +220,28 @@ cat('n_peaks      ', curve_properties_for_sigma_over_full_range$n_peaks, '\n')
 cat('n_troughs    ', curve_properties_for_sigma_over_full_range$n_troughs, '\n')
 cat('sigma_kjam   ', curve_properties_for_sigma_over_full_range$sigma_kjam, '\n')
 cat('dsigmadk_kjam', curve_properties_for_sigma_over_full_range$dsigmadk_kjam, '\n')
+cat('NU\n')
+cat('nu_0         ', curve_properties_for_nu_over_full_range$nu_0, '\n')
+cat('dnudk_0      ', curve_properties_for_nu_over_full_range$dnudk_0, '\n')
+cat('k_numax      ', curve_properties_for_nu_over_full_range$k_numax, '\n')
+cat('nu_max       ', curve_properties_for_nu_over_full_range$nu_max, '\n')
+cat('k_numin      ', curve_properties_for_nu_over_full_range$k_numin, '\n')
+cat('nu_min       ', curve_properties_for_nu_over_full_range$nu_min, '\n')
+cat('n_peaks      ', curve_properties_for_nu_over_full_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_nu_over_full_range$n_troughs, '\n')
+cat('nu_kjam      ', curve_properties_for_nu_over_full_range$nu_kjam, '\n')
+cat('dnudk_kjam   ', curve_properties_for_nu_over_full_range$dnudk_kjam, '\n')
+cat('TAU\n')
+cat('tau_0        ', curve_properties_for_tau_over_full_range$tau_0, '\n')
+cat('dtaudk_0     ', curve_properties_for_tau_over_full_range$dtaudk_0, '\n')
+cat('k_taumax     ', curve_properties_for_tau_over_full_range$k_taumax, '\n')
+cat('tau_max      ', curve_properties_for_tau_over_full_range$tau_max, '\n')
+cat('k_taumin     ', curve_properties_for_tau_over_full_range$k_taumin, '\n')
+cat('tau_min      ', curve_properties_for_tau_over_full_range$tau_min, '\n')
+cat('n_peaks      ', curve_properties_for_tau_over_full_range$n_peaks, '\n')
+cat('n_troughs    ', curve_properties_for_tau_over_full_range$n_troughs, '\n')
+cat('tau_kjam     ', curve_properties_for_tau_over_full_range$tau_kjam, '\n')
+cat('dtaudk_kjam  ', curve_properties_for_tau_over_full_range$dtaudk_kjam, '\n')
 
 
 q(save = 'no', status = 1)
