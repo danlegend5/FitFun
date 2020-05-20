@@ -14,10 +14,8 @@ get_npeaks_ntroughs = function(xvec, yvec, edge_value) {
 # Create a temporary vector that starts with a single value "edge_value", followed by the vector of numbers "yvec", and ends with another single
 # value "edge_value"
 N_p2 = length(yvec) + 2
-tmpvec = double(length = N_p2)
-tmpvec[1] = edge_value
+tmpvec = rep_len(edge_value, N_p2)
 tmpvec[2:(N_p2 - 1)] = yvec
-tmpvec[N_p2] = edge_value
 
 # Find the number of peaks and troughs in the temporary vector while also finding the highest peak and the lowest trough and their corresponding
 # x-values. In the case that two or more peaks are all equally the highest peak, then the peak with the lowest x-value is selected as the highest
@@ -186,8 +184,7 @@ if (ind_hi < ngrid) {
   curve_properties$y_kjam = yvec[ind_hi] + curve_properties$dydx_kjam*(k_jam - xvec[ind_hi])
 
   # Create a temporary vector containing the y values from zero to jam density
-  tmp_yvec = double(length = ind_hi_p1)
-  tmp_yvec[1:ind_hi] = yvec[1:ind_hi]
+  tmp_yvec = yvec[1:ind_hi_p1]
   tmp_yvec[ind_hi_p1] = curve_properties$y_kjam
 
   # If all of the values in the y curve from zero to jam density are the same
@@ -204,8 +201,7 @@ if (ind_hi < ngrid) {
 
     # For the y curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak and the
     # lowest trough
-    tmp_xvec = double(length = ind_hi_p1)
-    tmp_xvec[1:ind_hi] = xvec[1:ind_hi]
+    tmp_xvec = xvec[1:ind_hi_p1]
     tmp_xvec[ind_hi_p1] = k_jam
     min_tmp_yvec = min(tmp_yvec)
     if (min_tmp_yvec >= 0.0) {
