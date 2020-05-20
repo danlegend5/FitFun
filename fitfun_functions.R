@@ -260,6 +260,132 @@ return(curve_properties_for_mu)
 
 
 ################################################################################################################################################
+get_curve_properties = function(xvec, yvec, ind_hi, k_jam) {
+
+# Description: For a fitted model component (e.g. for "sigma", "nu", or "tau") that has been reconstructed on a regular grid of density ranging from
+#              zero to some positive value, this function computes approximate values for some useful properties of the curve in this range.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Set the default output parameter values
+curve_properties = list(y_0 = NA, dydx_0 = NA, x_ymax = NA, y_max = NA, x_ymin = NA, y_min = NA, n_peaks = NA, n_troughs = NA, y_kjam = NA, dydx_kjam = NA)
+
+# Compute some useful quantities
+ngrid = length(xvec)
+grid_density_step = xvec[2]
+
+# Determine y at zero density
+curve_properties$y_0 = yvec[1]
+
+# Estimate the gradient of y (with respect to density) at zero density
+curve_properties$dydx_0 = (yvec[2] - yvec[1])/grid_density_step
+
+# If all of the values in the "mu" curve are non-positive, then return the computed properties of the y curve so far
+if (is.na(ind_hi)) {
+  return(curve_properties)
+}
+
+# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
+if (ind_hi < ngrid) {
+
+  # Estimate the gradient of y (with respect to density) at jam density
+  ind_hi_p1 = ind_hi + 1
+  curve_properties$dydx_kjam = (yvec[ind_hi_p1] - yvec[ind_hi])/grid_density_step
+
+  # Estimate y at jam density
+  curve_properties$y_kjam = yvec[ind_hi] + curve_properties$dydx_kjam*(k_jam - xvec[ind_hi])
+
+  # Create a temporary vector containing the y values from zero to jam density
+  tmp_yvec = double(length = ind_hi_p1)
+  tmp_yvec[1:ind_hi] = yvec[1:ind_hi]
+  tmp_yvec[ind_hi_p1] = curve_properties$y_kjam
+
+  # If all of the values in the y curve from zero to jam density are the same
+  if (all(tmp_yvec == tmp_yvec[1])) {
+
+    # Record that there are no peaks or troughs in the y curve from zero to jam density
+    curve_properties$y_max = tmp_yvec[1]
+    curve_properties$y_min = tmp_yvec[1]
+    curve_properties$n_peaks = 0
+    curve_properties$n_troughs = 0
+
+  # If not all of the values in the y curve from zero to jam density are the same
+  } else {
+
+    # For the y curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak and the
+    # lowest trough
+    tmp_xvec = double(length = ind_hi_p1)
+    tmp_xvec[1:ind_hi] = xvec[1:ind_hi]
+    tmp_xvec[ind_hi_p1] = k_jam
+    min_tmp_yvec = min(tmp_yvec)
+    if (min_tmp_yvec >= 0.0) {
+      edge_value = -1.0
+    } else {
+      edge_value = 1.1*min_tmp_yvec
+    }
+    info_peaks_troughs = get_npeaks_ntroughs(tmp_xvec, tmp_yvec, edge_value)
+    curve_properties$x_ymax = info_peaks_troughs$highest_peak_x
+    curve_properties$y_max = info_peaks_troughs$highest_peak_y
+    curve_properties$n_peaks = info_peaks_troughs$n_peaks
+    if (curve_properties$y_max <= 0.0) {
+      edge_value = 1.0
+    } else {
+      edge_value = 1.1*curve_properties$y_max
+    }
+    info_peaks_troughs = get_npeaks_ntroughs(tmp_xvec, tmp_yvec, edge_value)
+    curve_properties$x_ymin = info_peaks_troughs$lowest_trough_x
+    curve_properties$y_min = info_peaks_troughs$lowest_trough_y
+    curve_properties$n_troughs = info_peaks_troughs$n_troughs
+  }
+
+# If the first run of positive numbers in the "mu" curve does not end before the end of the "mu" curve
+} else {
+
+  # If all of the values in the y curve are the same
+  if (all(yvec == yvec[1])) {
+
+    # Record that there are no peaks or troughs in the y curve
+    curve_properties$y_max = yvec[1]
+    curve_properties$y_min = yvec[1]
+    curve_properties$n_peaks = 0
+    curve_properties$n_troughs = 0
+
+  # If not all of the values in the y curve are the same
+  } else {
+
+    # Find the number of peaks and troughs in the y curve while also finding the coordinates of the highest peak and the lowest trough
+    min_yvec = min(yvec)
+    if (min_yvec >= 0.0) {
+      edge_value = -1.0
+    } else {
+      edge_value = 1.1*min_yvec
+    }
+    info_peaks_troughs = get_npeaks_ntroughs(xvec, yvec, edge_value)
+    curve_properties$x_ymax = info_peaks_troughs$highest_peak_x
+    curve_properties$y_max = info_peaks_troughs$highest_peak_y
+    curve_properties$n_peaks = info_peaks_troughs$n_peaks
+    if (curve_properties$y_max <= 0.0) {
+      edge_value = 1.0
+    } else {
+      edge_value = 1.1*curve_properties$y_max
+    }
+    info_peaks_troughs = get_npeaks_ntroughs(xvec, yvec, edge_value)
+    curve_properties$x_ymin = info_peaks_troughs$lowest_trough_x
+    curve_properties$y_min = info_peaks_troughs$lowest_trough_y
+    curve_properties$n_troughs = info_peaks_troughs$n_troughs
+  }
+}
+
+# Return the computed properties of the curve
+return(curve_properties)
+}
+
+
+################################################################################################################################################
 get_curve_properties_for_sigma = function(reconstructed_model_fit, curve_properties_for_mu) {
 
 # Description: For a fitted model component for "sigma" that has been reconstructed on a regular grid of density ranging from zero to some positive
@@ -271,93 +397,30 @@ get_curve_properties_for_sigma = function(reconstructed_model_fit, curve_propert
 #   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
 
 
-# Set the default output parameter values
-curve_properties_for_sigma = list(sigma_0 = NA, dsigmadk_0 = NA, k_sigmamax = NA, sigma_max = NA, k_sigmamin = NA, sigma_min = NA,
-                                  n_peaks = NA, n_troughs = NA, sigma_kjam = NA, dsigmadk_kjam = NA)
-
-# Compute some useful quantities
-ngrid = nrow(reconstructed_model_fit)
-grid_density_step = reconstructed_model_fit$V2[2]
-
-# Determine the sigma at zero density
-curve_properties_for_sigma$sigma_0 = reconstructed_model_fit$sigma[1]
-
-# Estimate the gradient of the sigma (with respect to density) at zero density
-curve_properties_for_sigma$dsigmadk_0 = (reconstructed_model_fit$sigma[2] - reconstructed_model_fit$sigma[1])/grid_density_step
-
-# If all of the values in the "mu" curve are non-positive, then return the computed properties of the "sigma" curve so far
-if (is.na(curve_properties_for_mu$ind_first_pos)) {
-  return(curve_properties_for_sigma)
-}
-
-# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
-if (curve_properties_for_mu$ind_last_pos < ngrid) {
-
-  # Estimate the gradient of the sigma (with respect to density) at jam density
-  curve_properties_for_sigma$dsigmadk_kjam = (reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos + 1] - reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos])/grid_density_step
-
-  # Estimate the sigma at jam density
-  curve_properties_for_sigma$sigma_kjam = reconstructed_model_fit$sigma[curve_properties_for_mu$ind_last_pos] + curve_properties_for_sigma$dsigmadk_kjam*(curve_properties_for_mu$k_jam - reconstructed_model_fit$V2[curve_properties_for_mu$ind_last_pos])
-
-  # Create a temporary vector containing the "sigma" curve from zero to jam density
-  tmpvec2 = double(length = curve_properties_for_mu$ind_last_pos + 1)
-  tmpvec2[1:curve_properties_for_mu$ind_last_pos] = reconstructed_model_fit$sigma[1:curve_properties_for_mu$ind_last_pos]
-  tmpvec2[curve_properties_for_mu$ind_last_pos + 1] = curve_properties_for_sigma$sigma_kjam
-
-  # If all of the values in the "sigma" curve from zero to jam density are the same
-  if (all(tmpvec2 == tmpvec2[1])) {
-
-    # Record that there are no peaks or troughs in the "sigma" curve from zero to jam density
-    curve_properties_for_sigma$sigma_max = tmpvec2[1]
-    curve_properties_for_sigma$sigma_min = tmpvec2[1]
-    curve_properties_for_sigma$n_peaks = 0
-    curve_properties_for_sigma$n_troughs = 0
-
-  # If not all of the values in the "sigma" curve from zero to jam density are the same
-  } else {
-
-    # For the "sigma" curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak
-    # and the lowest trough
-    tmpvec1 = double(length = curve_properties_for_mu$ind_last_pos + 1)
-    tmpvec1[1:curve_properties_for_mu$ind_last_pos] = reconstructed_model_fit$V2[1:curve_properties_for_mu$ind_last_pos]
-    tmpvec1[curve_properties_for_mu$ind_last_pos + 1] = curve_properties_for_mu$k_jam
-    info_peaks_troughs = get_npeaks_ntroughs(tmpvec1, tmpvec2, -1.0)
-    curve_properties_for_sigma$k_sigmamax = info_peaks_troughs$highest_peak_x
-    curve_properties_for_sigma$sigma_max = info_peaks_troughs$highest_peak_y
-    curve_properties_for_sigma$n_peaks = info_peaks_troughs$n_peaks
-    info_peaks_troughs = get_npeaks_ntroughs(tmpvec1, tmpvec2, 1.1*curve_properties_for_sigma$sigma_max)
-    curve_properties_for_sigma$k_sigmamin = info_peaks_troughs$lowest_trough_x
-    curve_properties_for_sigma$sigma_min = info_peaks_troughs$lowest_trough_y
-    curve_properties_for_sigma$n_troughs = info_peaks_troughs$n_troughs
-  }
-
-# If the first run of positive numbers in the "mu" curve does not end before the end of the "mu" curve
-} else {
-
-  # If all of the values in the "sigma" curve are the same
-  if (all(reconstructed_model_fit$sigma == reconstructed_model_fit$sigma[1])) {
-
-    # Record that there are no peaks or troughs in the "sigma" curve
-    curve_properties_for_sigma$sigma_max = reconstructed_model_fit$sigma[1]
-    curve_properties_for_sigma$sigma_min = reconstructed_model_fit$sigma[1]
-    curve_properties_for_sigma$n_peaks = 0
-    curve_properties_for_sigma$n_troughs = 0
-
-  # If not all of the values in the "sigma" curve are the same
-  } else {
-
-    # Find the number of peaks and troughs in the "sigma" curve while also finding the coordinates of the highest peak and the lowest trough
-    info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2, reconstructed_model_fit$sigma, -1.0)
-    curve_properties_for_sigma$k_sigmamax = info_peaks_troughs$highest_peak_x
-    curve_properties_for_sigma$sigma_max = info_peaks_troughs$highest_peak_y
-    curve_properties_for_sigma$n_peaks = info_peaks_troughs$n_peaks
-    info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2, reconstructed_model_fit$sigma, 1.1*curve_properties_for_sigma$sigma_max)
-    curve_properties_for_sigma$k_sigmamin = info_peaks_troughs$lowest_trough_x
-    curve_properties_for_sigma$sigma_min = info_peaks_troughs$lowest_trough_y
-    curve_properties_for_sigma$n_troughs = info_peaks_troughs$n_troughs
-  }
-}
+# Compute approximate values for some useful properties of the "sigma" curve
+curve_properties = get_curve_properties(reconstructed_model_fit$V2, reconstructed_model_fit$sigma, curve_properties_for_mu$ind_last_pos,
+                                        curve_properties_for_mu$k_jam)
 
 # Return the computed properties of the "sigma" curve
-return(curve_properties_for_sigma)
+return(list(sigma_0 = curve_properties$y_0, dsigmadk_0 = curve_properties$dydx_0, k_sigmamax = curve_properties$x_ymax,
+            sigma_max = curve_properties$y_max, k_sigmamin = curve_properties$x_ymin, sigma_min = curve_properties$y_min,
+            n_peaks = curve_properties$n_peaks, n_troughs = curve_properties$n_troughs, sigma_kjam = curve_properties$y_kjam,
+            dsigmadk_kjam = curve_properties$dydx_kjam))
 }
+
+
+#### ABOVE FULLY READ AND TESTED
+
+
+################################################################################################################################################
+#get_curve_properties_for_nu = function(reconstructed_model_fit, curve_properties_for_mu) {
+
+# Description: For a fitted model component for "nu" that has been reconstructed on a regular grid of density ranging from zero to some positive
+#              value, this function computes approximate values for some useful properties of the curve in this range.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
