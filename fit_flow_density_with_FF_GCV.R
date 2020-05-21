@@ -80,11 +80,11 @@ cat('Reconstructing the fitted model over the density range from 0 to', upper_de
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
     predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = data)
-    if (any(!is.finite(predicted_values$mu))) {
+    if (!all(is.finite(predicted_values$mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (any(!is.finite(predicted_values$sigma))) {
+    if (!all(is.finite(predicted_values$sigma))) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
@@ -95,8 +95,22 @@ tryCatch(
     reconstructed_model_fit[, mu := predicted_values$mu]
     reconstructed_model_fit[, sigma := predicted_values$sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
-    reconstructed_model_fit[, tau := rep(3.0, ngrid)] },
+    reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Construct centile curves for the fitted model over the density range from zero to "upper_density"
+cat('Constructing centile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
+tryCatch(
+  { reconstructed_model_fit[, cent_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_m2sig := qNO(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_m1sig := qNO(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_0sig := qNO(0.5, mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_p1sig := qNO(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_p2sig := qNO(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, cent_p3sig := qNO(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)] },
+  error = function(cond) { cat('ERROR - Failed to construct centile curves for the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
 
@@ -124,7 +138,6 @@ tryCatch(
 )
 
 # Extract information from the fit model object for the fit summary
-cat('\n')
 cat('Extracting information from the fit model object for the fit summary...\n')
 tryCatch(
   { npar_mu = model_obj$mu.df
@@ -158,6 +171,10 @@ tryCatch(
 
 
 #### ABOVE FULLY READ AND TESTED
+
+
+
+
 
 
 cat('\n')
