@@ -6,7 +6,7 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #              with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
-#              and for determining certain properties of the fitted model that are not directly accessible from the fitted parameter values.
+#              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
 #                The function creates various output files including diagnostic plots ("output_file1"; see "FitFun.R" for details). If the function
 #              finishes successfully, then it returns the corresponding GAMLSS model fit object.
 #
@@ -14,6 +14,10 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #
 #   Dan Bramich (dan.bramich@hotmail.co.uk)
 #   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+#
+# Configuration Parameters:
+#
+#   NONE
 
 
 # Report on the GAMLSS model and the data                                                       #### FINISH ANY CLEANUPS

@@ -1,6 +1,12 @@
 # FitFun: Fitting Fundamental Diagrams Of Road Traffic
 #
 # Description: ???This script???                          #### FINISH
+#                The specific procedures for fitting each individual model that is available in this script are separated out into a single R
+#              module per model. These modules have names of the form "fit_flow_density_with_<functional_form_model>_<noise_model>.R" or
+#              "fit_speed_density_with_<functional_form_model>_<noise_model>.R", and they each contain a single function of the same name (see
+#              below under "Command-Line Arguments" for the definitions of <functional_form_model> and <noise_model>). Any parameters that are
+#              specific to a procedure for fitting a particular model are defined within the relevant module itself, and their default values
+#              can be modified if necessary.
 #
 # Usage:
 #
