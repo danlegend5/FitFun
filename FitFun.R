@@ -12,21 +12,21 @@
 #
 #   To run this script, issue the following command:
 #
-#   <path_to_binary>/Rscript --vanilla <path_to_script>/FitFun.R <path_to_functions> <data_file> <output_dir> <overwrite> <fd_type>
+#   <path_to_binary>/Rscript --vanilla <path_to_script>/FitFun.R <path_to_modules> <data_file> <output_dir> <overwrite> <fd_type>
 #                                      <functional_form_model> <noise_model> <ngrid> <upper_density>
 #
 #   where <path_to_binary> is the full directory path to the "Rscript" binary (usually "/usr/bin") and <path_to_script> is the full directory
-#   path to where the script "FitFun.R" is stored. The description of each of the command-line arguments <path_to_functions>, <data_file>,
+#   path to where the script "FitFun.R" is stored. The definition of each of the command-line arguments <path_to_modules>, <data_file>,
 #   <output_dir>, <overwrite>, <fd_type>, <functional_form_model>, <noise_model>, <ngrid>, and <upper_density> can be found below. If
 #   <path_to_binary> is in the user's path, then it can be dropped. Also, if the script is being run from the directory where it resides, then
 #   <path_to_script> can also be dropped. In this case, the command reduces to:
 #
-#   Rscript --vanilla FitFun.R <path_to_functions> <data_file> <output_dir> <overwrite> <fd_type> <functional_form_model> <noise_model>
-#                              <ngrid> <upper_density>
+#   Rscript --vanilla FitFun.R <path_to_modules> <data_file> <output_dir> <overwrite> <fd_type> <functional_form_model> <noise_model> <ngrid>
+#                              <upper_density>
 #
 # Command-Line Arguments:
 #
-#   path_to_functions - STRING - The full directory path to where the R functions required by this script are stored.
+#   path_to_modules - STRING - The full directory path to where the R modules required by this script are stored.
 #   data_file - STRING - File name of the input data file. This argument can be supplied with or without a full directory path. If this argument
 #                        is supplied without a full directory path, then the script will look for the input data file in the directory from where
 #                        the script is run. See below for the required format of the data file.
@@ -102,7 +102,7 @@ if (nargs < 9) {
   cat('ERROR - Too many command-line arguments specified...\n')
   q(save = 'no', status = 1)
 } else {
-  path_to_functions = args[1]
+  path_to_modules = args[1]
   data_file = args[2]
   output_dir = args[3]
   overwrite = args[4]
@@ -115,9 +115,9 @@ if (nargs < 9) {
 
 # Perform checks on the command-line arguments and report their values
 cat('\n')
-cat('Path to R functions:                                ', path_to_functions, '\n')
-if (!dir.exists(path_to_functions)) {
-  cat('ERROR - The directory path to the required R functions does not exist...\n')
+cat('Path to R modules:                                  ', path_to_modules, '\n')
+if (!dir.exists(path_to_modules)) {
+  cat('ERROR - The directory path to the required R modules does not exist...\n')
   q(save = 'no', status = 1)
 }
 cat('Input data file:                                    ', data_file, '\n')
@@ -183,7 +183,7 @@ tryCatch(
 cat('----------------------------------------------------------------\n')
 cat('Loading some R functions specific to this script...\n')
 tryCatch(
-  { source(file.path(path_to_functions, 'fitfun_functions.R')) },
+  { source(file.path(path_to_modules, 'fitfun_functions.R')) },
   error = function(cond) { cat('ERROR - Failed to load the R functions...\n')
                            q(save = 'no', status = 1) }
 )
@@ -298,7 +298,7 @@ cat('No. of lines read in:    ', ndata, '\n')
 
 # Make a further check on "upper_density"
 if (upper_density < max(data$V2)) {
-  cat('ERROR - The command-line argument "upper_density" is less than the maximum value of the density/occupancy data...\n')
+  cat('ERROR - The command-line argument "upper_density" is less than the maximum value of the density data...\n')
   q(save = 'no', status = 1)
 }
 
@@ -316,12 +316,12 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R function for performing the fit
+      # Load the required R module for performing the fit
       cat('\n')
-      cat('Calling the required R function for performing the fit...\n')
+      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
-        { source(file.path(path_to_functions, 'fit_flow_density_with_FF_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R function...\n')
+        { source(file.path(path_to_modules, 'fit_flow_density_with_FF_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
                                  q(save = 'no', status = 1) }
       )
 
