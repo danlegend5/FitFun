@@ -172,156 +172,28 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-
-
-#### ABOVE FULLY READ AND TESTED
-
-
-
-
-
-
+# Write out the fit summary file "output_file1"
 cat('\n')
-cat('PHYSICAL\n')
-cat('q_0       ', q_0, '\n')
-cat('v_ff      ', v_ff, '\n')
-cat('dvdk_0    ', dvdk_0, '\n')
-cat('k_crit    ', k_crit, '\n')
-cat('k_vmax    ', k_vmax, '\n')
-cat('q_cap     ', q_cap, '\n')
-cat('v_max     ', v_max, '\n')
-cat('k_jam     ', k_jam, '\n')
-cat('v_bw      ', v_bw, '\n')
-cat('dvdk_kjam ', dvdk_kjam, '\n')
-
-q(save = 'no', status = 1)
-
-
-
-
-cat('\n')
-cat('OUTSIDE', '\n')
-cat('MU\n')
-cat('q_0          ', curve_properties_for_mu_over_data_range$q_0, '\n')
-cat('v_ff         ', curve_properties_for_mu_over_data_range$v_ff, '\n')
-cat('dvdk_0       ', curve_properties_for_mu_over_data_range$dvdk_0, '\n')
-cat('k_crit       ', curve_properties_for_mu_over_data_range$k_crit, '\n')
-cat('k_vmax       ', curve_properties_for_mu_over_data_range$k_vmax, '\n')
-cat('q_cap        ', curve_properties_for_mu_over_data_range$q_cap, '\n')
-cat('v_max        ', curve_properties_for_mu_over_data_range$v_max, '\n')
-cat('n_peaks      ', curve_properties_for_mu_over_data_range$n_peaks, '\n')
-cat('k_jam        ', curve_properties_for_mu_over_data_range$k_jam, '\n')
-cat('v_bw         ', curve_properties_for_mu_over_data_range$v_bw, '\n')
-cat('dvdk_kjam    ', curve_properties_for_mu_over_data_range$dvdk_kjam, '\n')
-cat('ind_first_pos', curve_properties_for_mu_over_data_range$ind_first_pos, '\n')
-cat('ind_last_pos ', curve_properties_for_mu_over_data_range$ind_last_pos, '\n')
-cat('SIGMA\n')
-cat('sigma_0      ', curve_properties_for_sigma_over_data_range$sigma_0, '\n')
-cat('dsigmadk_0   ', curve_properties_for_sigma_over_data_range$dsigmadk_0, '\n')
-cat('k_sigmamax   ', curve_properties_for_sigma_over_data_range$k_sigmamax, '\n')
-cat('sigma_max    ', curve_properties_for_sigma_over_data_range$sigma_max, '\n')
-cat('k_sigmamin   ', curve_properties_for_sigma_over_data_range$k_sigmamin, '\n')
-cat('sigma_min    ', curve_properties_for_sigma_over_data_range$sigma_min, '\n')
-cat('n_peaks      ', curve_properties_for_sigma_over_data_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_sigma_over_data_range$n_troughs, '\n')
-cat('sigma_kjam   ', curve_properties_for_sigma_over_data_range$sigma_kjam, '\n')
-cat('dsigmadk_kjam', curve_properties_for_sigma_over_data_range$dsigmadk_kjam, '\n')
-cat('NU\n')
-cat('nu_0         ', curve_properties_for_nu_over_data_range$nu_0, '\n')
-cat('dnudk_0      ', curve_properties_for_nu_over_data_range$dnudk_0, '\n')
-cat('k_numax      ', curve_properties_for_nu_over_data_range$k_numax, '\n')
-cat('nu_max       ', curve_properties_for_nu_over_data_range$nu_max, '\n')
-cat('k_numin      ', curve_properties_for_nu_over_data_range$k_numin, '\n')
-cat('nu_min       ', curve_properties_for_nu_over_data_range$nu_min, '\n')
-cat('n_peaks      ', curve_properties_for_nu_over_data_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_nu_over_data_range$n_troughs, '\n')
-cat('nu_kjam      ', curve_properties_for_nu_over_data_range$nu_kjam, '\n')
-cat('dnudk_kjam   ', curve_properties_for_nu_over_data_range$dnudk_kjam, '\n')
-cat('TAU\n')
-cat('tau_0        ', curve_properties_for_tau_over_data_range$tau_0, '\n')
-cat('dtaudk_0     ', curve_properties_for_tau_over_data_range$dtaudk_0, '\n')
-cat('k_taumax     ', curve_properties_for_tau_over_data_range$k_taumax, '\n')
-cat('tau_max      ', curve_properties_for_tau_over_data_range$tau_max, '\n')
-cat('k_taumin     ', curve_properties_for_tau_over_data_range$k_taumin, '\n')
-cat('tau_min      ', curve_properties_for_tau_over_data_range$tau_min, '\n')
-cat('n_peaks      ', curve_properties_for_tau_over_data_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_tau_over_data_range$n_troughs, '\n')
-cat('tau_kjam     ', curve_properties_for_tau_over_data_range$tau_kjam, '\n')
-cat('dtaudk_kjam  ', curve_properties_for_tau_over_data_range$dtaudk_kjam, '\n')
-
-
-cat('\n')
-cat('OUTSIDE', '\n')
-cat('MU\n')
-cat('q_0          ', curve_properties_for_mu_over_full_range$q_0, '\n')
-cat('v_ff         ', curve_properties_for_mu_over_full_range$v_ff, '\n')
-cat('dvdk_0       ', curve_properties_for_mu_over_full_range$dvdk_0, '\n')
-cat('k_crit       ', curve_properties_for_mu_over_full_range$k_crit, '\n')
-cat('k_vmax       ', curve_properties_for_mu_over_full_range$k_vmax, '\n')
-cat('q_cap        ', curve_properties_for_mu_over_full_range$q_cap, '\n')
-cat('v_max        ', curve_properties_for_mu_over_full_range$v_max, '\n')
-cat('n_peaks      ', curve_properties_for_mu_over_full_range$n_peaks, '\n')
-cat('k_jam        ', curve_properties_for_mu_over_full_range$k_jam, '\n')
-cat('v_bw         ', curve_properties_for_mu_over_full_range$v_bw, '\n')
-cat('dvdk_kjam    ', curve_properties_for_mu_over_full_range$dvdk_kjam, '\n')
-cat('ind_first_pos', curve_properties_for_mu_over_full_range$ind_first_pos, '\n')
-cat('ind_last_pos ', curve_properties_for_mu_over_full_range$ind_last_pos, '\n')
-cat('SIGMA\n')
-cat('sigma_0      ', curve_properties_for_sigma_over_full_range$sigma_0, '\n')
-cat('dsigmadk_0   ', curve_properties_for_sigma_over_full_range$dsigmadk_0, '\n')
-cat('k_sigmamax   ', curve_properties_for_sigma_over_full_range$k_sigmamax, '\n')
-cat('sigma_max    ', curve_properties_for_sigma_over_full_range$sigma_max, '\n')
-cat('k_sigmamin   ', curve_properties_for_sigma_over_full_range$k_sigmamin, '\n')
-cat('sigma_min    ', curve_properties_for_sigma_over_full_range$sigma_min, '\n')
-cat('n_peaks      ', curve_properties_for_sigma_over_full_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_sigma_over_full_range$n_troughs, '\n')
-cat('sigma_kjam   ', curve_properties_for_sigma_over_full_range$sigma_kjam, '\n')
-cat('dsigmadk_kjam', curve_properties_for_sigma_over_full_range$dsigmadk_kjam, '\n')
-cat('NU\n')
-cat('nu_0         ', curve_properties_for_nu_over_full_range$nu_0, '\n')
-cat('dnudk_0      ', curve_properties_for_nu_over_full_range$dnudk_0, '\n')
-cat('k_numax      ', curve_properties_for_nu_over_full_range$k_numax, '\n')
-cat('nu_max       ', curve_properties_for_nu_over_full_range$nu_max, '\n')
-cat('k_numin      ', curve_properties_for_nu_over_full_range$k_numin, '\n')
-cat('nu_min       ', curve_properties_for_nu_over_full_range$nu_min, '\n')
-cat('n_peaks      ', curve_properties_for_nu_over_full_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_nu_over_full_range$n_troughs, '\n')
-cat('nu_kjam      ', curve_properties_for_nu_over_full_range$nu_kjam, '\n')
-cat('dnudk_kjam   ', curve_properties_for_nu_over_full_range$dnudk_kjam, '\n')
-cat('TAU\n')
-cat('tau_0        ', curve_properties_for_tau_over_full_range$tau_0, '\n')
-cat('dtaudk_0     ', curve_properties_for_tau_over_full_range$dtaudk_0, '\n')
-cat('k_taumax     ', curve_properties_for_tau_over_full_range$k_taumax, '\n')
-cat('tau_max      ', curve_properties_for_tau_over_full_range$tau_max, '\n')
-cat('k_taumin     ', curve_properties_for_tau_over_full_range$k_taumin, '\n')
-cat('tau_min      ', curve_properties_for_tau_over_full_range$tau_min, '\n')
-cat('n_peaks      ', curve_properties_for_tau_over_full_range$n_peaks, '\n')
-cat('n_troughs    ', curve_properties_for_tau_over_full_range$n_troughs, '\n')
-cat('tau_kjam     ', curve_properties_for_tau_over_full_range$tau_kjam, '\n')
-cat('dtaudk_kjam  ', curve_properties_for_tau_over_full_range$dtaudk_kjam, '\n')
-
-
-q(save = 'no', status = 1)
-
-
-
-# Report the fit summary
-cat('\n')
-cat('Fit summary:\n')
-cat('\n')
-cat('No. of data points used (Ndat):     ', ndata, '\n')
-cat('No. of free parameters (mu):        ', npar_mu, '\n')
-cat('No. of free parameters (sigma):     ', npar_sigma, '\n')
-cat('No. of free parameters (nu):        ', npar_nu, '\n')
-cat('No. of free parameters (tau):       ', npar_tau, '\n')
-cat('Total no. of free parameters (Npar):', npar_all, '\n')
-cat('Global deviance (-2 ln L):          ', gdev, '\n')
-cat('AIC (-2 ln L + 2 Npar):             ', aic, '\n')
-cat('BIC (-2 ln L + Npar ln Ndat):       ', bic, '\n')
-
-
-
-
+cat('Writing out the fit summary file:', output_file1, '\n')
+write_fit_summary(output_file1, 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
+                  npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
+                  q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
+                  curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
+                  curve_properties_for_nu_over_data_range, curve_properties_for_tau_over_data_range,
+                  curve_properties_for_mu_over_full_range, curve_properties_for_sigma_over_full_range,
+                  curve_properties_for_nu_over_full_range, curve_properties_for_tau_over_full_range)
+cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+cat('# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n', file = output_file1, append = TRUE)
+cat('# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n', file = output_file1, append = TRUE)
+cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+cat(model_obj$mu.coefficients[1], '          # v_ff\n', file = output_file1, append = TRUE)
+cat(exp(model_obj$sigma.coefficients[1]), '          # sigma_con\n', file = output_file1, append = TRUE)
+cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+cat('# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n', file = output_file1, append = TRUE)
+cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+sink(file = output_file1, append = TRUE)
+summary(model_obj)
+sink()
 
 
 
@@ -329,9 +201,11 @@ cat('BIC (-2 ln L + Npar ln Ndat):       ', bic, '\n')
 
 
 
+q(save = 'no', status = 1)
 
 
-# Write out information to the fit summary file "output_file1"
+
+
 
 
 
@@ -339,6 +213,59 @@ cat('BIC (-2 ln L + Npar ln Ndat):       ', bic, '\n')
 #cat("<routes>\n", file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),append=F)
 #write.table(trip,append = T,file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),col.names = F,row.names = F,quote = F)
 #cat("</routes>\n", file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),append=T)
+
+
+#The R base function write.table() can be used to export a data frame or a matrix to a file.
+#A simplified format is as follow:
+#write.table(x, file, append = FALSE, sep = " ", dec = ".",
+#            row.names = TRUE, col.names = TRUE)
+#    x: a matrix or a data frame to be written.
+#    file: a character specifying the name of the result file.
+#    sep: the field separator string, e.g., sep = “\t” (for tab-separated value).
+#    dec: the string to be used as decimal separator. Default is “.”
+#    row.names: either a logical value indicating whether the row names of x are to be written along with x, or a character vector of row names to be written.
+#    col.names: either a logical value indicating whether the column names of x are to be written along with x, or a character vector of column names to
+#                be written. If col.names = NA and
+#                    row.names = TRUE a blank column name is added, which is the convention used for CSV files to be read by spreadsheets.
+
+
+# Loading mtcars data
+#data("mtcars")
+# Writing mtcars data
+#write.table(mtcars, file = "mtcars.txt", sep = "\t",
+#            row.names = TRUE, col.names = NA)
+#
+#If you don’t want to write row names, use row.names = FALSE as follow:
+#
+#write.table(mtcars, file = "mtcars.txt", sep = "\t",
+#            row.names = FALSE)
+
+
+
+
+#write.table(data, output_file1)
+#                           if (file.exists(output_file1)) { file.remove(output_file1) }
+
+
+
+
+# Report the fit summary
+cat('\n')
+cat('Fit summary:\n')
+cat('\n')
+cat('No. of flow-density measurement pairs (Ndat):', ndata, '\n')
+cat('No. of free parameters (mu):                 ', npar_mu, '\n')
+cat('No. of free parameters (sigma):              ', npar_sigma, '\n')
+cat('No. of free parameters (nu):                 ', npar_nu, '\n')
+cat('No. of free parameters (tau):                ', npar_tau, '\n')
+cat('Total no. of free parameters (Npar):         ', npar_all, '\n')
+cat('Global deviance (-2 ln L):                   ', gdev, '\n')
+cat('AIC (-2 ln L + 2 Npar):                      ', aic, '\n')
+cat('BIC (-2 ln L + Npar ln Ndat):                ', bic, '\n')
+
+
+
+q(save = 'no', status = 1)
 
 
 
@@ -355,27 +282,10 @@ return(model_obj)
 #### ABOVE FULLY READ AND TESTED
 
 
-#write.table(data, output_file1)
 
-
-#                           if (file.exists(output_file1)) { file.remove(output_file1) }
-
-
-
-#cat('DONE:\n')
 
 #return(list(model_obj = model_obj, status = 1, errstr = errstr))
 
-      # Report a fit summary
-#      cat('\n')
-#      cat('Fit summary:\n')
-#      summary(model_obj)
-
-#      cat('\n')
-#      attributes(model_obj)
-
-#      cat('\n')
-#      cat(model_obj$mu.coefficients)
 
 
 #library(ggplot2)
