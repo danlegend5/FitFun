@@ -344,6 +344,18 @@ if (ndata < 5) {
   cat('ERROR - The data file has less than 5 data lines...\n')
   q(save = 'no', status = 1)
 }
+if (!all(is.finite(data$V1))) {
+  cat('ERROR - At least one data value in the first column is infinite...\n')
+  q(save = 'no', status = 1)
+}
+if (!all(is.finite(data$V2))) {
+  cat('ERROR - At least one data value in the second column is infinite...\n')
+  q(save = 'no', status = 1)
+}
+if (!all(is.finite(data$V3))) {
+  cat('ERROR - At least one data value in the third column is infinite...\n')
+  q(save = 'no', status = 1)
+}
 if (any(data$V2 < 0.0)) {
   cat('ERROR - At least one data value in the second column is negative...\n')
   q(save = 'no', status = 1)
