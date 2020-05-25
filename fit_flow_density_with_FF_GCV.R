@@ -1,4 +1,4 @@
-fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1) {
+fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
 #              "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The model
@@ -7,8 +7,8 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
-#                The function creates various output files including diagnostic plots ("output_file1"; see "FitFun.R" for details). If the function
-#              finishes successfully, then it returns the corresponding GAMLSS model fit object.
+#                The function creates various output files including diagnostic plots ("output_file1", "output_file2", and "output_file3" - see
+#              "FitFun.R" for details). If the function finishes successfully, then it returns the corresponding GAMLSS model fit object.
 #
 # Authors:
 #
@@ -78,8 +78,36 @@ if (model_obj$converged != TRUE) {
   q(save = 'no', status = 1)
 }
 
-# Reconstruct the fitted model over the density range from zero to "upper_density"
+# Store the predicted values for the model at the density values in the data, along with the normalised quantile residuals, in the data table
 cat('\n')
+cat('Storing the predicted values for the model, along with the normalised quantile residuals, in the data table...\n')
+tryCatch(
+  { if (!all(is.finite(model_obj$mu.fv))) {
+      cat('ERROR - The predicted values for "mu" at the density values in the data include at least one value that is infinite...\n')
+      q(save = 'no', status = 1)
+    }
+    if (!all(is.finite(model_obj$sigma.fv))) {
+      cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is infinite...\n')
+      q(save = 'no', status = 1)
+    }
+    if (!all(is.finite(model_obj$residuals))) {
+      cat('ERROR - The normalised quantile residuals include at least one value that is infinite...\n')
+      q(save = 'no', status = 1)
+    }
+    if (any(model_obj$sigma.fv <= 0.0)) {
+      cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is zero or negative...\n')
+      q(save = 'no', status = 1)
+    }
+    data[, fitted_values_mu := model_obj$mu.fv]
+    data[, fitted_values_sigma := model_obj$sigma.fv]
+    data[, fitted_values_nu := double(length = ndata)]
+    data[, fitted_values_tau := rep_len(3.0, ndata)]
+    data[, normalised_quantile_residuals := model_obj$residuals] },
+  error = function(cond) { cat('ERROR - Failed to store the predicted values for the model and the normalised quantile residuals...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
@@ -104,17 +132,17 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Construct centile curves for the fitted model over the density range from zero to "upper_density"
-cat('Constructing centile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
+# Construct percentile curves for the fitted model over the density range from zero to "upper_density"
+cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit[, cent_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_m2sig := qNO(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_m1sig := qNO(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_0sig := qNO(0.5, mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_p1sig := qNO(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_p2sig := qNO(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
-    reconstructed_model_fit[, cent_p3sig := qNO(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)] },
-  error = function(cond) { cat('ERROR - Failed to construct centile curves for the fitted model over the required density range...\n')
+  { reconstructed_model_fit[, percentile_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_m2sig := qNO(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_m1sig := qNO(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_0sig := qNO(0.5, mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_p1sig := qNO(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_p2sig := qNO(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
+    reconstructed_model_fit[, percentile_p3sig := qNO(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)] },
+  error = function(cond) { cat('ERROR - Failed to construct percentile curves for the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
 
@@ -141,8 +169,8 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Extract information from the fit model object for the fit summary
-cat('Extracting information from the fit model object for the fit summary...\n')
+# Extract information from the model fit object for the fit summary
+cat('Extracting information from the model fit object for the fit summary...\n')
 tryCatch(
   { npar_mu = model_obj$mu.df
     npar_sigma = model_obj$sigma.df
@@ -152,11 +180,11 @@ tryCatch(
     gdev = model_obj$G.deviance
     aic = model_obj$aic
     bic = model_obj$sbc },
-  error = function(cond) { cat('ERROR - Failed to extract information from the fit model object for the fit summary...\n')
+  error = function(cond) { cat('ERROR - Failed to extract information from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
 
-# Where possible, extract physical parameter values from the fit model object for the fit summary
+# Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
   { q_0 = 0.0
     v_ff = model_obj$mu.coefficients[1]
@@ -168,38 +196,65 @@ tryCatch(
     k_jam = NA
     v_bw = NA
     dvdk_kjam = NA },
-  error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the fit model object for the fit summary...\n')
+  error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Write out the fit summary file "output_file1"
 cat('\n')
-cat('Writing out the fit summary file:', output_file1, '\n')
-write_fit_summary(output_file1, 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
-                  npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
-                  q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
-                  curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
-                  curve_properties_for_nu_over_data_range, curve_properties_for_tau_over_data_range,
-                  curve_properties_for_mu_over_full_range, curve_properties_for_sigma_over_full_range,
-                  curve_properties_for_nu_over_full_range, curve_properties_for_tau_over_full_range)
-cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-cat('# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n', file = output_file1, append = TRUE)
-cat('# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n', file = output_file1, append = TRUE)
-cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-cat(model_obj$mu.coefficients[1], '          # v_ff\n', file = output_file1, append = TRUE)
-cat(exp(model_obj$sigma.coefficients[1]), '          # sigma_con\n', file = output_file1, append = TRUE)
-cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-cat('# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n', file = output_file1, append = TRUE)
-cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-sink(file = output_file1, append = TRUE)
-summary(model_obj)
-sink()
+cat('Writing out the fit summary file:    ', output_file1, '\n')
+tryCatch(
+  { write_fit_summary(output_file1, 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
+                      npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
+                      q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
+                      curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
+                      curve_properties_for_nu_over_data_range, curve_properties_for_tau_over_data_range,
+                      curve_properties_for_mu_over_full_range, curve_properties_for_sigma_over_full_range,
+                      curve_properties_for_nu_over_full_range, curve_properties_for_tau_over_full_range)
+    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+    cat('# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n', file = output_file1, append = TRUE)
+    cat('# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n', file = output_file1, append = TRUE)
+    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+    cat(model_obj$mu.coefficients[1], '          # v_ff\n', file = output_file1, append = TRUE)
+    cat(exp(model_obj$sigma.coefficients[1]), '          # sigma_con\n', file = output_file1, append = TRUE)
+    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+    cat('# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n', file = output_file1, append = TRUE)
+    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+    sink(file = output_file1, append = TRUE)
+    summary(model_obj)
+    sink() },
+  error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
+                           q(save = 'no', status = 1) }
+)
 
+# Write out the fit curves file "output_file2"
+cat('Writing out the fit curves file:     ', output_file2, '\n')
+tryCatch(
+  { cat('# Density : Mu : Sigma : Nu : Tau : 0.135 Percentile (Corresponding To -3*Sigma In A Normal Distribution) : 2.28 Percentile (Corresponding To -2*Sigma In A',
+        'Normal Distribution) : 15.87 Percentile (Corresponding To -1*Sigma In A Normal Distribution) : 50.00 Percentile (Median) : 84.13 Percentile (Corresponding',
+        'To 1*Sigma In A Normal Distribution) : 97.72 Percentile (Corresponding To 2*Sigma In A Normal Distribution) : 99.865 Percentile (Corresponding To 3*Sigma',
+        'In A Normal Distribution)\n', file = output_file2)
+    write.table(reconstructed_model_fit, file = output_file2, append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
+  error = function(cond) { cat('ERROR - Failed to write out the fit curves file...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Write out the fit predictions file "output_file3"
+cat('Writing out the fit predictions file:', output_file3, '\n')
+tryCatch(
+  { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
+        'Normalised Quantile Residual\n', file = output_file3)
+    write.table(data, file = output_file3, append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
+   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
+                            q(save = 'no', status = 1) }
+)
 
 
 #### ABOVE FULLY READ AND TESTED
 
 
+cat('\n')
+cat('HERE\n')
 
 q(save = 'no', status = 1)
 
@@ -207,43 +262,6 @@ q(save = 'no', status = 1)
 
 
 
-
-
-
-#cat("<routes>\n", file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),append=F)
-#write.table(trip,append = T,file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),col.names = F,row.names = F,quote = F)
-#cat("</routes>\n", file=paste0("C:/Users/ambuehll/Networks/LIS_2/trips24h_smoothed.rou.xml"),append=T)
-
-
-#The R base function write.table() can be used to export a data frame or a matrix to a file.
-#A simplified format is as follow:
-#write.table(x, file, append = FALSE, sep = " ", dec = ".",
-#            row.names = TRUE, col.names = TRUE)
-#    x: a matrix or a data frame to be written.
-#    file: a character specifying the name of the result file.
-#    sep: the field separator string, e.g., sep = “\t” (for tab-separated value).
-#    dec: the string to be used as decimal separator. Default is “.”
-#    row.names: either a logical value indicating whether the row names of x are to be written along with x, or a character vector of row names to be written.
-#    col.names: either a logical value indicating whether the column names of x are to be written along with x, or a character vector of column names to
-#                be written. If col.names = NA and
-#                    row.names = TRUE a blank column name is added, which is the convention used for CSV files to be read by spreadsheets.
-
-
-# Loading mtcars data
-#data("mtcars")
-# Writing mtcars data
-#write.table(mtcars, file = "mtcars.txt", sep = "\t",
-#            row.names = TRUE, col.names = NA)
-#
-#If you don’t want to write row names, use row.names = FALSE as follow:
-#
-#write.table(mtcars, file = "mtcars.txt", sep = "\t",
-#            row.names = FALSE)
-
-
-
-
-#write.table(data, output_file1)
 #                           if (file.exists(output_file1)) { file.remove(output_file1) }
 
 
@@ -265,7 +283,6 @@ cat('BIC (-2 ln L + Npar ln Ndat):                ', bic, '\n')
 
 
 
-q(save = 'no', status = 1)
 
 
 
@@ -280,11 +297,6 @@ return(model_obj)
 
 
 #### ABOVE FULLY READ AND TESTED
-
-
-
-
-#return(list(model_obj = model_obj, status = 1, errstr = errstr))
 
 
 

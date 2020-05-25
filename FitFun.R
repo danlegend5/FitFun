@@ -36,9 +36,12 @@
 #                         output directory:
 #
 #                         Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt
+#                         Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt
+#                         Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt
 #                         ???               #### FINISH
 #                         ???               #### FINISH
 #
+#                         See below for a description of each of the output files.
 #   overwrite - STRING - If this argument is set to 'yes', then the script will overwrite any of the output files that already exist in the output
 #                        directory "output_dir". If this argument is set to 'no', then the script will stop without doing anything if it finds
 #                        that any of the output files already exist in the output directory "output_dir". If this argument is set to any other
@@ -55,7 +58,7 @@
 #                           the purpose of reconstructing the fitted model. This argument must be a positive number, and it must also be greater
 #                           than or equal to the maximum value of the independent variable (i.e. density or occupancy) in the data.
 #
-# Input Data File Format:
+# Input Data File:
 #
 #   The input data file "data_file" should be a non-empty ASCII text file with exactly three columns separated by white space of any length. The
 #   data file should not contain any header lines, or any lines that are not data lines, and it should have at least 5 data lines. The required
@@ -69,6 +72,21 @@
 #                              values in this column must be non-negative, and there must be at least one value that is non-zero.
 #   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed) in the corresponding time interval. All values in
 #                              this column must be non-negative, and there must be at least one value that is non-zero.
+#
+# Output Files:
+#
+#   Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides a set of summary information for the fitted
+#                                                                     model. The contents of the file are fully documented within the file itself.
+#   Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the reconstructed fitted model, along with
+#                                                                    percentile curves, for the equally spaced grid of "ngrid" density values
+#                                                                    covering the range from zero to "upper_density". A header line provides the
+#                                                                    column descriptions.
+#   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the model,
+#                                                                         along with the normalised quantile residuals, at the density values in
+#                                                                         the data. A header line provides the column descriptions. For more
+#                                                                         information on what a normalised quantile residual is, please see
+#                                                                         Chapter 12 in the book "Flexible Regression and Smoothing: Using GAMLSS
+#                                                                         in R" by Stasinopoulos et al.
 #
 # Requirements:
 #
@@ -190,8 +208,10 @@ tryCatch(
 
 # Define the names of the output files
 output_file1 = file.path(output_dir, paste0('Fit.Summary.', fd_type, '.', functional_form_model, '.', noise_model, '.txt'))
-#output_file2 = ???                                                                                                           #### FINISH
-#output_file3 = ???                                                                                                           #### FINISH
+output_file2 = file.path(output_dir, paste0('Fit.Curves.', fd_type, '.', functional_form_model, '.', noise_model, '.txt'))
+output_file3 = file.path(output_dir, paste0('Fit.Predictions.', fd_type, '.', functional_form_model, '.', noise_model, '.txt'))
+#output_file4 = ???                                                                                                           #### FINISH
+#output_file5 = ???                                                                                                           #### FINISH
 
 # If the output directory "output_dir" already exists
 if (dir.exists(output_dir)) {
@@ -220,6 +240,52 @@ if (dir.exists(output_dir)) {
 
       # Stop the script without doing anything
       cat('ERROR - The following output file already exists:', output_file1, '\n')
+      q(save = 'no', status = 1)
+    }
+  }
+
+  # If the output file "Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt" already exists
+  if (file.exists(output_file2)) {
+
+    # If the command-line argument "overwrite" is set to 'yes'
+    if (overwrite == 'yes') {
+
+      # Remove the output file "Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt"
+      cat('Removing the output file:', output_file2, '\n')
+      tryCatch(
+        { file.remove(output_file2) },
+        error = function(cond) { cat('ERROR - Failed to remove the output file...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+    # If the command-line argument "overwrite" is set to 'no'
+    } else {
+
+      # Stop the script without doing anything
+      cat('ERROR - The following output file already exists:', output_file2, '\n')
+      q(save = 'no', status = 1)
+    }
+  }
+
+  # If the output file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt" already exists
+  if (file.exists(output_file3)) {
+
+    # If the command-line argument "overwrite" is set to 'yes'
+    if (overwrite == 'yes') {
+
+      # Remove the output file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt"
+      cat('Removing the output file:', output_file3, '\n')
+      tryCatch(
+        { file.remove(output_file3) },
+        error = function(cond) { cat('ERROR - Failed to remove the output file...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+    # If the command-line argument "overwrite" is set to 'no'
+    } else {
+
+      # Stop the script without doing anything
+      cat('ERROR - The following output file already exists:', output_file3, '\n')
       q(save = 'no', status = 1)
     }
   }
@@ -327,9 +393,11 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data                                      #### FINISH CLEANUPS IN THIS SECTION
       tryCatch(
-        { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_file1) },
+        { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_file1, output_file2, output_file3) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  if (file.exists(output_file1)) { file.remove(output_file1) }
+                                 if (file.exists(output_file2)) { file.remove(output_file2) }
+                                 if (file.exists(output_file3)) { file.remove(output_file3) }
                                  q(save = 'no', status = 1) }
       )
     }
