@@ -93,6 +93,8 @@
 #   R (Version >= 3.6.1)
 #   R Package: data.table (Version >= 1.12.8)
 #   R Package: gamlss (Version >= 5.1-5)
+#   R Package: ggplot2 (Version >= 3.2.1)
+#   R Package: ggpubr (Version >= 0.2.5)
 #
 # Authors:
 #
@@ -195,6 +197,21 @@ cat('----------------------------------------------------------------\n')
 tryCatch(
   { library(gamlss) },
   error = function(cond) { cat('ERROR - Failed to load the "gamlss" R library...\n') 
+                           cat('----------------------------------------------------------------\n')
+                           q(save = 'no', status = 1) }
+)
+cat('----------------------------------------------------------------\n')
+cat('Loading the "ggplot2" R library...\n')
+tryCatch(
+  { library(ggplot2) },
+  error = function(cond) { cat('ERROR - Failed to load the "ggplot2" R library...\n')
+                           q(save = 'no', status = 1) }
+)
+cat('Loading the "ggpubr" R library...\n')
+cat('----------------------------------------------------------------\n')
+tryCatch(
+  { library(ggpubr) },
+  error = function(cond) { cat('ERROR - Failed to load the "ggpubr" R library...\n')
                            cat('----------------------------------------------------------------\n')
                            q(save = 'no', status = 1) }
 )
