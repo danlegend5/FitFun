@@ -471,9 +471,10 @@ write_fit_summary = function(output_file, fd_type, ndata, data_min_density, data
 
 
 # Write out the fit summary file "output_file"
-cat('######################################################################################################################\n', file = output_file)
-cat('# DATA PROPERTIES\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
+cat('######################################################################################################################\n',
+    '# DATA PROPERTIES\n',
+    '######################################################################################################################\n',
+    file = output_file, sep = '')
 if (fd_type == 'Flow.Density') {
   cat(ndata, '          # No. of flow-density measurement pairs (Ndat)\n', file = output_file, append = TRUE)
 } else if (fd_type == 'Speed.Density') {
@@ -488,145 +489,156 @@ if (fd_type == 'Flow.Density') {
   cat(data_min_y, '          # Minimum speed in the data\n', file = output_file, append = TRUE)
   cat(data_max_y, '          # Maximum speed in the data\n', file = output_file, append = TRUE)
 }
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# MODEL PARAMETER COUNTS\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(npar_mu, '          # No. of free parameters for "mu"\n', file = output_file, append = TRUE)
-cat(npar_sigma, '          # No. of free parameters for "sigma"\n', file = output_file, append = TRUE)
-cat(npar_nu, '          # No. of free parameters for "nu"\n', file = output_file, append = TRUE)
-cat(npar_tau, '          # No. of free parameters for "tau"\n', file = output_file, append = TRUE)
-cat(npar_all, '          # Total no. of free parameters (Npar)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# FIT QUALITY\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(gdev, '          # Global deviance (-2 ln L)\n', file = output_file, append = TRUE)
-cat(aic, '          # AIC (-2 ln L + 2 Npar)\n', file = output_file, append = TRUE)
-cat(bic, '          # BIC (-2 ln L + Npar ln Ndat)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# FITTED PHYSICAL PARAMETERS\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(q_0, '          # Flow at zero density\n', file = output_file, append = TRUE)
-cat(v_ff, '          # Free-flow speed (i.e. the speed as density tends to zero)\n', file = output_file, append = TRUE)
-cat(dvdk_0, '          # Gradient of the speed (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(k_crit, '          # Critical density (i.e. the density at maximum flow)\n', file = output_file, append = TRUE)
-cat(k_vmax, '          # Density at maximum speed\n', file = output_file, append = TRUE)
-cat(q_cap, '          # Capacity (i.e. the maximum flow)\n', file = output_file, append = TRUE)
-cat(v_max, '          # Maximum speed\n', file = output_file, append = TRUE)
-cat(k_jam, '          # Jam density (i.e. the density at zero speed)\n', file = output_file, append = TRUE)
-cat(v_bw, '          # Back-propagating wave speed at jam density\n', file = output_file, append = TRUE)
-cat(dvdk_kjam, '          # Gradient of the speed (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "MU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE FIRST RUN OF POSITIVE NUMBERS IN THE "MU" CURVE\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$q_0, '          # Flow at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$v_ff, '          # Free-flow speed (i.e. the speed as density tends to zero)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$dvdk_0, '          # Gradient of the speed (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$k_crit, '          # *Critical density (i.e. the density at maximum flow)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$k_vmax, '          # *Density at maximum speed\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$q_cap, '          # *Capacity (i.e. the maximum flow)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$v_max, '          # *Maximum speed\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$k_jam, '          # *Jam density (i.e. the density at zero speed)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$v_bw, '          # *Back-propagating wave speed at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_data_range$dvdk_kjam, '          # *Gradient of the speed (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "SIGMA" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$sigma_0, '          # Sigma at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$dsigmadk_0, '          # Gradient of the sigma (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$k_sigmamax, '          # *Density at maximum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$sigma_max, '          # *Maximum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$k_sigmamin, '          # *Density at minimum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$sigma_min, '          # *Minimum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$sigma_kjam, '          # Sigma at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_data_range$dsigmadk_kjam, '          # Gradient of the sigma (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "NU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$nu_0, '          # Nu at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$dnudk_0, '          # Gradient of the nu (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$k_numax, '          # *Density at maximum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$nu_max, '          # *Maximum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$k_numin, '          # *Density at minimum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$nu_min, '          # *Minimum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$nu_kjam, '          # Nu at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_data_range$dnudk_kjam, '          # Gradient of the nu (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "TAU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$tau_0, '          # Tau at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$dtaudk_0, '          # Gradient of the tau (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$k_taumax, '          # *Density at maximum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$tau_max, '          # *Maximum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$k_taumin, '          # *Density at minimum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$tau_min, '          # *Minimum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$tau_kjam, '          # Tau at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_data_range$dtaudk_kjam, '          # Gradient of the tau (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "MU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE FIRST RUN OF POSITIVE NUMBERS IN THE "MU" CURVE\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$q_0, '          # Flow at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$v_ff, '          # Free-flow speed (i.e. the speed as density tends to zero)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$dvdk_0, '          # Gradient of the speed (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$k_crit, '          # *Critical density (i.e. the density at maximum flow)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$k_vmax, '          # *Density at maximum speed\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$q_cap, '          # *Capacity (i.e. the maximum flow)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$v_max, '          # *Maximum speed\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$k_jam, '          # *Jam density (i.e. the density at zero speed)\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$v_bw, '          # *Back-propagating wave speed at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_mu_over_full_range$dvdk_kjam, '          # *Gradient of the speed (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "SIGMA" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$sigma_0, '          # Sigma at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$dsigmadk_0, '          # Gradient of the sigma (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$k_sigmamax, '          # *Density at maximum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$sigma_max, '          # *Maximum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$k_sigmamin, '          # *Density at minimum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$sigma_min, '          # *Minimum sigma\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$sigma_kjam, '          # Sigma at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_sigma_over_full_range$dsigmadk_kjam, '          # Gradient of the sigma (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "NU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$nu_0, '          # Nu at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$dnudk_0, '          # Gradient of the nu (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$k_numax, '          # *Density at maximum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$nu_max, '          # *Maximum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$k_numin, '          # *Density at minimum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$nu_min, '          # *Minimum nu\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$nu_kjam, '          # Nu at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_nu_over_full_range$dnudk_kjam, '          # Gradient of the nu (with respect to density) at jam density\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat('# ESTIMATED PROPERTIES OF THE FITTED "TAU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n', file = output_file, append = TRUE)
-cat('# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n', file = output_file, append = TRUE)
-cat('######################################################################################################################\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$tau_0, '          # Tau at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$dtaudk_0, '          # Gradient of the tau (with respect to density) at zero density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$k_taumax, '          # *Density at maximum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$tau_max, '          # *Maximum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$k_taumin, '          # *Density at minimum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$tau_min, '          # *Minimum tau\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$n_peaks, '          # *No. of peaks\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$n_troughs, '          # *No. of troughs\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$tau_kjam, '          # Tau at jam density\n', file = output_file, append = TRUE)
-cat(curve_properties_for_tau_over_full_range$dtaudk_kjam, '          # Gradient of the tau (with respect to density) at jam density\n', file = output_file, append = TRUE)
+cat('######################################################################################################################\n',
+    '# MODEL PARAMETER COUNTS\n',
+    '######################################################################################################################\n',
+    npar_mu, '           # No. of free parameters for "mu"\n',
+    npar_sigma, '           # No. of free parameters for "sigma"\n',
+    npar_nu, '           # No. of free parameters for "nu"\n',
+    npar_tau, '           # No. of free parameters for "tau"\n',
+    npar_all, '           # Total no. of free parameters (Npar)\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# FIT QUALITY\n',
+    '######################################################################################################################\n',
+    gdev, '           # Global deviance (-2 ln L)\n',
+    aic, '           # AIC (-2 ln L + 2 Npar)\n',
+    bic, '           # BIC (-2 ln L + Npar ln Ndat)\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# FITTED PHYSICAL PARAMETERS\n',
+    '######################################################################################################################\n',
+    q_0, '           # Flow at zero density\n',
+    v_ff, '           # Free-flow speed (i.e. the speed as density tends to zero)\n',
+    dvdk_0, '           # Gradient of the speed (with respect to density) at zero density\n',
+    k_crit, '           # Critical density (i.e. the density at maximum flow)\n',
+    k_vmax, '           # Density at maximum speed\n',
+    q_cap, '           # Capacity (i.e. the maximum flow)\n',
+    v_max, '           # Maximum speed\n',
+    k_jam, '           # Jam density (i.e. the density at zero speed)\n',
+    v_bw, '           # Back-propagating wave speed at jam density\n',
+    dvdk_kjam, '           # Gradient of the speed (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "MU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n',
+    '# * = ESTIMATED FOR THE FIRST RUN OF POSITIVE NUMBERS IN THE "MU" CURVE\n',
+    '######################################################################################################################\n',
+    curve_properties_for_mu_over_data_range$q_0, '           # Flow at zero density\n',
+    curve_properties_for_mu_over_data_range$v_ff, '           # Free-flow speed (i.e. the speed as density tends to zero)\n',
+    curve_properties_for_mu_over_data_range$dvdk_0, '           # Gradient of the speed (with respect to density) at zero density\n',
+    curve_properties_for_mu_over_data_range$k_crit, '           # *Critical density (i.e. the density at maximum flow)\n',
+    curve_properties_for_mu_over_data_range$k_vmax, '           # *Density at maximum speed\n',
+    curve_properties_for_mu_over_data_range$q_cap, '           # *Capacity (i.e. the maximum flow)\n',
+    curve_properties_for_mu_over_data_range$v_max, '           # *Maximum speed\n',
+    curve_properties_for_mu_over_data_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_mu_over_data_range$k_jam, '           # *Jam density (i.e. the density at zero speed)\n',
+    curve_properties_for_mu_over_data_range$v_bw, '           # *Back-propagating wave speed at jam density\n',
+    curve_properties_for_mu_over_data_range$dvdk_kjam, '           # *Gradient of the speed (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "SIGMA" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_sigma_over_data_range$sigma_0, '           # Sigma at zero density\n',
+    curve_properties_for_sigma_over_data_range$dsigmadk_0, '           # Gradient of the sigma (with respect to density) at zero density\n',
+    curve_properties_for_sigma_over_data_range$k_sigmamax, '           # *Density at maximum sigma\n',
+    curve_properties_for_sigma_over_data_range$sigma_max, '           # *Maximum sigma\n',
+    curve_properties_for_sigma_over_data_range$k_sigmamin, '           # *Density at minimum sigma\n',
+    curve_properties_for_sigma_over_data_range$sigma_min, '           # *Minimum sigma\n',
+    curve_properties_for_sigma_over_data_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_sigma_over_data_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_sigma_over_data_range$sigma_kjam, '           # Sigma at jam density\n',
+    curve_properties_for_sigma_over_data_range$dsigmadk_kjam, '           # Gradient of the sigma (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "NU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_nu_over_data_range$nu_0, '           # Nu at zero density\n',
+    curve_properties_for_nu_over_data_range$dnudk_0, '           # Gradient of the nu (with respect to density) at zero density\n',
+    curve_properties_for_nu_over_data_range$k_numax, '           # *Density at maximum nu\n',
+    curve_properties_for_nu_over_data_range$nu_max, '           # *Maximum nu\n',
+    curve_properties_for_nu_over_data_range$k_numin, '           # *Density at minimum nu\n',
+    curve_properties_for_nu_over_data_range$nu_min, '           # *Minimum nu\n',
+    curve_properties_for_nu_over_data_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_nu_over_data_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_nu_over_data_range$nu_kjam, '           # Nu at jam density\n',
+    curve_properties_for_nu_over_data_range$dnudk_kjam, '           # Gradient of the nu (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "TAU" MODEL OVER THE DENSITY RANGE FROM ZERO TO THE MAXIMUM DENSITY IN THE DATA\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_tau_over_data_range$tau_0, '           # Tau at zero density\n',
+    curve_properties_for_tau_over_data_range$dtaudk_0, '           # Gradient of the tau (with respect to density) at zero density\n',
+    curve_properties_for_tau_over_data_range$k_taumax, '           # *Density at maximum tau\n',
+    curve_properties_for_tau_over_data_range$tau_max, '           # *Maximum tau\n',
+    curve_properties_for_tau_over_data_range$k_taumin, '           # *Density at minimum tau\n',
+    curve_properties_for_tau_over_data_range$tau_min, '           # *Minimum tau\n',
+    curve_properties_for_tau_over_data_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_tau_over_data_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_tau_over_data_range$tau_kjam, '           # Tau at jam density\n',
+    curve_properties_for_tau_over_data_range$dtaudk_kjam, '           # Gradient of the tau (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "MU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n',
+    '# * = ESTIMATED FOR THE FIRST RUN OF POSITIVE NUMBERS IN THE "MU" CURVE\n',
+    '######################################################################################################################\n',
+    curve_properties_for_mu_over_full_range$q_0, '           # Flow at zero density\n',
+    curve_properties_for_mu_over_full_range$v_ff, '           # Free-flow speed (i.e. the speed as density tends to zero)\n',
+    curve_properties_for_mu_over_full_range$dvdk_0, '           # Gradient of the speed (with respect to density) at zero density\n',
+    curve_properties_for_mu_over_full_range$k_crit, '           # *Critical density (i.e. the density at maximum flow)\n',
+    curve_properties_for_mu_over_full_range$k_vmax, '           # *Density at maximum speed\n',
+    curve_properties_for_mu_over_full_range$q_cap, '           # *Capacity (i.e. the maximum flow)\n',
+    curve_properties_for_mu_over_full_range$v_max, '           # *Maximum speed\n',
+    curve_properties_for_mu_over_full_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_mu_over_full_range$k_jam, '           # *Jam density (i.e. the density at zero speed)\n',
+    curve_properties_for_mu_over_full_range$v_bw, '           # *Back-propagating wave speed at jam density\n',
+    curve_properties_for_mu_over_full_range$dvdk_kjam, '           # *Gradient of the speed (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "SIGMA" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_sigma_over_full_range$sigma_0, '           # Sigma at zero density\n',
+    curve_properties_for_sigma_over_full_range$dsigmadk_0, '           # Gradient of the sigma (with respect to density) at zero density\n',
+    curve_properties_for_sigma_over_full_range$k_sigmamax, '           # *Density at maximum sigma\n',
+    curve_properties_for_sigma_over_full_range$sigma_max, '           # *Maximum sigma\n',
+    curve_properties_for_sigma_over_full_range$k_sigmamin, '           # *Density at minimum sigma\n',
+    curve_properties_for_sigma_over_full_range$sigma_min, '           # *Minimum sigma\n',
+    curve_properties_for_sigma_over_full_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_sigma_over_full_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_sigma_over_full_range$sigma_kjam, '           # Sigma at jam density\n',
+    curve_properties_for_sigma_over_full_range$dsigmadk_kjam, '           # Gradient of the sigma (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "NU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_nu_over_full_range$nu_0, '           # Nu at zero density\n',
+    curve_properties_for_nu_over_full_range$dnudk_0, '           # Gradient of the nu (with respect to density) at zero density\n',
+    curve_properties_for_nu_over_full_range$k_numax, '           # *Density at maximum nu\n',
+    curve_properties_for_nu_over_full_range$nu_max, '           # *Maximum nu\n',
+    curve_properties_for_nu_over_full_range$k_numin, '           # *Density at minimum nu\n',
+    curve_properties_for_nu_over_full_range$nu_min, '           # *Minimum nu\n',
+    curve_properties_for_nu_over_full_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_nu_over_full_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_nu_over_full_range$nu_kjam, '           # Nu at jam density\n',
+    curve_properties_for_nu_over_full_range$dnudk_kjam, '           # Gradient of the nu (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
+cat('######################################################################################################################\n',
+    '# ESTIMATED PROPERTIES OF THE FITTED "TAU" MODEL OVER THE DENSITY RANGE FROM ZERO TO "upper_density"\n',
+    '# * = ESTIMATED FOR THE RESTRICTED DENSITY RANGE FROM ZERO TO THE ESTIMATED JAM DENSITY (IF DEFINED)\n',
+    '######################################################################################################################\n',
+    curve_properties_for_tau_over_full_range$tau_0, '           # Tau at zero density\n',
+    curve_properties_for_tau_over_full_range$dtaudk_0, '           # Gradient of the tau (with respect to density) at zero density\n',
+    curve_properties_for_tau_over_full_range$k_taumax, '           # *Density at maximum tau\n',
+    curve_properties_for_tau_over_full_range$tau_max, '           # *Maximum tau\n',
+    curve_properties_for_tau_over_full_range$k_taumin, '           # *Density at minimum tau\n',
+    curve_properties_for_tau_over_full_range$tau_min, '           # *Minimum tau\n',
+    curve_properties_for_tau_over_full_range$n_peaks, '           # *No. of peaks\n',
+    curve_properties_for_tau_over_full_range$n_troughs, '           # *No. of troughs\n',
+    curve_properties_for_tau_over_full_range$tau_kjam, '           # Tau at jam density\n',
+    curve_properties_for_tau_over_full_range$dtaudk_kjam, '           # Gradient of the tau (with respect to density) at jam density\n',
+    file = output_file, sep = '', append = TRUE)
 }

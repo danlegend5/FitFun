@@ -211,15 +211,17 @@ tryCatch(
                       curve_properties_for_nu_over_data_range, curve_properties_for_tau_over_data_range,
                       curve_properties_for_mu_over_full_range, curve_properties_for_sigma_over_full_range,
                       curve_properties_for_nu_over_full_range, curve_properties_for_tau_over_full_range)
-    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-    cat('# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n', file = output_file1, append = TRUE)
-    cat('# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n', file = output_file1, append = TRUE)
-    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-    cat(model_obj$mu.coefficients[1], '          # v_ff\n', file = output_file1, append = TRUE)
-    cat(exp(model_obj$sigma.coefficients[1]), '          # sigma_con\n', file = output_file1, append = TRUE)
-    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
-    cat('# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n', file = output_file1, append = TRUE)
-    cat('######################################################################################################################\n', file = output_file1, append = TRUE)
+    cat('######################################################################################################################\n',
+        '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
+        '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
+        '######################################################################################################################\n',
+        model_obj$mu.coefficients[1], '           # v_ff\n',
+        exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
+        file = output_file1, sep = '', append = TRUE)
+    cat('######################################################################################################################\n',
+        '# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n',
+        '######################################################################################################################\n',
+        file = output_file1, sep = '', append = TRUE)
     sink(file = output_file1, append = TRUE)
     summary(model_obj)
     sink() },
@@ -245,8 +247,8 @@ tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
         'Normalised Quantile Residual\n', file = output_file3)
     write.table(data, file = output_file3, append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
-   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
-                            q(save = 'no', status = 1) }
+  error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
+                           q(save = 'no', status = 1) }
 )
 
 
