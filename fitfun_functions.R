@@ -642,3 +642,34 @@ cat('###########################################################################
     curve_properties_for_tau_over_full_range$dtaudk_kjam, '           # Gradient of the tau (with respect to density) at jam density\n',
     file = output_file, sep = '', append = TRUE)
 }
+
+
+################################################################################################################################################
+plotA = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create the plot object
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(expand = expand_scale(mult = 0.03)) +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+           geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit, size = 0.5)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}

@@ -628,8 +628,8 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data                                                                             #### FINISH CLEANUPS IN THIS SECTION
       tryCatch(
-        { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4,
-                                                   output_file5, output_file6, output_file7, output_file8, output_file9) },                 #### PLOT FINISH
+        { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
+                                                   output_file6, output_file7, output_file8, output_file9) },                                       #### PLOT FINISH
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  if (file.exists(output_file1)) { file.remove(output_file1) }
                                  if (file.exists(output_file2)) { file.remove(output_file2) }

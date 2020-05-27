@@ -1,4 +1,5 @@
-fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3) {
+fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
+                                        output_file6, output_file7, output_file8, output_file9) {                                               #### PLOT FINISH
 
 # Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
 #              "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The model
@@ -7,8 +8,8 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
-#                The function creates various output files including diagnostic plots ("output_file1", "output_file2", and "output_file3" - see
-#              "FitFun.R" for details). If the function finishes successfully, then it returns the corresponding GAMLSS model fit object.
+#                The function creates various output files including diagnostic plots (see "FitFun.R" for details). If the function finishes
+#              successfully, then it returns the corresponding GAMLSS model fit object.
 #
 # Authors:
 #
@@ -251,6 +252,50 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
+# Create the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('\n')
+cat('Creating the plot:', output_file4, '\n')
+tryCatch(
+  { npts = nrow(reconstructed_model_fit_selection)
+    if (npts > 4000) {
+      ind = ceiling((4000.0/npts)*seq(from = 1, to = npts))
+      selection = rep_len(TRUE, npts)
+      selection[2:(npts - 1)] = ind[2:(npts - 1)] != ind[1:(npts - 2)]
+      reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
+    }
+    plotA(data, reconstructed_model_fit_selection, 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range', 'Density', 'Flow', output_file4) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+
+
+
+# Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+
+
+# Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file7, '\n')
+tryCatch(
+  { if (ngrid > 4000) {
+      ind = ceiling((4000.0/ngrid)*seq(from = 1, to = ngrid))
+      selection = rep_len(TRUE, ngrid)
+      selection[2:(ngrid - 1)] = ind[2:(ngrid - 1)] != ind[1:(ngrid - 2)]
+      reconstructed_model_fit = reconstructed_model_fit[selection]
+    }
+    plotA(data, reconstructed_model_fit, 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range', 'Density', 'Flow', output_file7) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+
+# Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+
+
 
 #### ABOVE FULLY READ AND TESTED
 
@@ -262,12 +307,35 @@ q(save = 'no', status = 1)
 
 
 
+plot3 = ggplot() +
+        theme_pubr(base_size = 16, border = TRUE) +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m3sig, ymax = percentile_m2sig), data = reconstructed_model_fit_selection, fill = 'grey90') +
+        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m2sig, ymax = percentile_m1sig), data = reconstructed_model_fit_selection, fill = 'grey80') +
+        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m1sig, ymax = percentile_p1sig), data = reconstructed_model_fit_selection, fill = 'grey70') +
+        geom_ribbon(mapping = aes(x = V2, ymin = percentile_p1sig, ymax = percentile_p2sig), data = reconstructed_model_fit_selection, fill = 'grey80') +
+        geom_ribbon(mapping = aes(x = V2, ymin = percentile_p2sig, ymax = percentile_p3sig), data = reconstructed_model_fit_selection, fill = 'grey90') +
+        geom_hline(yintercept = 0, linetype = 'dotted') +
+        geom_vline(xintercept = 0, linetype = 'dotted') +
+        geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+        geom_line(mapping = aes(x = V2, y = percentile_0sig), data = reconstructed_model_fit_selection, colour = 'blue', linetype = 'dashed', size = 0.5) +
+        geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit_selection, size = 0.5) +
+        scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+        scale_y_continuous(expand = expand_scale(mult = 0.03)) +
+        ggtitle('Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range') +
+        xlab('Density') +
+        ylab('Flow')
+
+ggsave('/home/dmb20/FitFun/plot3.ps', plot = plot3, scale = 2, width = 6.0, height = 4.0, units = 'in')
+
+cat('\n')
+cat('HERE3\n')
+
+q(save = 'no', status = 1)
+
 
 
 #                           if (file.exists(output_file1)) { file.remove(output_file1) }
-
-
-
 
 # Report the fit summary
 cat('\n')
@@ -284,10 +352,6 @@ cat('AIC (-2 ln L + 2 Npar):                      ', aic, '\n')
 cat('BIC (-2 ln L + Npar ln Ndat):                ', bic, '\n')
 
 
-
-
-
-
 #### BELOW FULLY READ AND TESTED
 
 
@@ -302,38 +366,10 @@ return(model_obj)
 
 
 
-#library(ggplot2)
 #library(gamlss.nl)
 #library(gamlss.util)
 #library(colorspace)
-#library(ggpubr)
 
-#plot1 = ggplot(data) + geom_point(aes(x = V2, y = V3))
-#ggsave('plot1.png', plot1)
-
-# Exclude zeros
-#dataD = data[V2 > 0]
-##############
-
-#dataD[, V2_2 := V2^2]
-
-# MODEL 1
-#m0 = gamlss(V3 ~ 0 + V2 + V2_2, data = dataD, family = NO)
-
-#summary(m0)
-
-#model_values = data.table(V2 = seq(0.001, 1.0, 0.001))
-#model_values[, V2_2 := V2^2]
-
-
-#model_values[, y_pred := predict(m0, newdata = model_values, type = "response", data = dataD)]
-
-#print(model_values)
-
-#plot1 = ggplot() +
-#        geom_point(data = dataD, aes(V2, V3), color = "red") +
-#        geom_line(data = model_values, aes(V2, y_pred))
-#ggsave('plot1.png', plot1)
 
 # MODEL 1
 #cat('\n')
@@ -376,19 +412,6 @@ return(model_obj)
 #ggsave('plot3.png', plot3, width = 6.0, height = 4.0, scale = 2.0)
 
 
-#q()
-
-
-#plotSimpleGamlss(V3, exp(V2_L), model = m1, data = dataD, x.val = seq(0.0, 1.0, 0.2), val = 5, N = 1000, ylim = c(0.0, 1000.0))
-
-#q()
-
-#plot2 = ggplot() +
-#        geom_point(data = dataD, aes(V2, V3), color = "red") +
-#        geom_line(data = model_values, aes(V2, y_pred))
-#ggsave('plot2.png', plot2)
-
-#q()
 
 # MODEL 2
 
@@ -397,10 +420,6 @@ return(model_obj)
 
 #m2 = nlgamlss(y = V3, mu.formula = ~ V2 + V2_2, mu.start = c(0.0, 1000.0, -1000.0), sigma.start = 1.0, family = NO, data = data)
 #summary(m2)
-
-
-#q()
-
 
 # fit
 
@@ -414,19 +433,8 @@ return(model_obj)
 
 #pred <- pred[,y_pred:=predict(res,newdata = pred,type="response")]
 
-
-
 # fit on x (orignal data)
 
 #tt[,y_hat:=fitted(res)]
 
 #tt[,residuals:=residuals(res)]
-
-
-
-
-#ggplot(tt)+geom_point(aes(occ,flow),color="red")+
-
-  # geom_line(aes(occ,y_hat))+
-
-#  geom_line(data=pred,aes(occ,y_pred),colour="blue")
