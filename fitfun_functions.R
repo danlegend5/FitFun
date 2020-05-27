@@ -647,7 +647,7 @@ cat('###########################################################################
 ################################################################################################################################################
 plotA = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
 
-# Description: This function creates the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+# Description: This function creates the plot "Plot.Of.Fitted.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
 #
 # Authors:
@@ -668,6 +668,43 @@ plot_obj = ggplot() +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
            geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+           geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit, size = 0.5)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
+plotC = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Percentiles.And.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create the plot object
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(expand = expand_scale(mult = 0.03)) +
+           geom_ribbon(mapping = aes(x = V2, ymin = percentile_m3sig, ymax = percentile_m2sig), data = reconstructed_model_fit, fill = 'grey90') +
+           geom_ribbon(mapping = aes(x = V2, ymin = percentile_m2sig, ymax = percentile_m1sig), data = reconstructed_model_fit, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = V2, ymin = percentile_m1sig, ymax = percentile_p1sig), data = reconstructed_model_fit, fill = 'grey70') +
+           geom_ribbon(mapping = aes(x = V2, ymin = percentile_p1sig, ymax = percentile_p2sig), data = reconstructed_model_fit, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = V2, ymin = percentile_p2sig, ymax = percentile_p3sig), data = reconstructed_model_fit, fill = 'grey90') +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+           geom_line(mapping = aes(x = V2, y = percentile_0sig), data = reconstructed_model_fit, colour = 'blue', linetype = 'dashed', size = 0.5) +
            geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit, size = 0.5)
 
 # Save the plot to the file "output_file"

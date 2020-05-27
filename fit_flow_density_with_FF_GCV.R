@@ -263,7 +263,8 @@ tryCatch(
       selection[2:(npts - 1)] = ind[2:(npts - 1)] != ind[1:(npts - 2)]
       reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
     }
-    plotA(data, reconstructed_model_fit_selection, 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range', 'Density', 'Flow', output_file4) },
+    title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range'
+    plotA(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_file4) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
@@ -273,8 +274,16 @@ tryCatch(
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 
-# Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 
+
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file6, '\n')
+tryCatch(
+  { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range'
+    plotC(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_file6) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
 
 # Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_file7, '\n')
@@ -285,7 +294,8 @@ tryCatch(
       selection[2:(ngrid - 1)] = ind[2:(ngrid - 1)] != ind[1:(ngrid - 2)]
       reconstructed_model_fit = reconstructed_model_fit[selection]
     }
-    plotA(data, reconstructed_model_fit, 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range', 'Density', 'Flow', output_file7) },
+    title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range'
+    plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file7) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
@@ -293,8 +303,15 @@ tryCatch(
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 
-# Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file9, '\n')
+tryCatch(
+  { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Full Density Range'
+    plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file9) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
 
 
 #### ABOVE FULLY READ AND TESTED
@@ -306,32 +323,6 @@ cat('HERE\n')
 q(save = 'no', status = 1)
 
 
-
-plot3 = ggplot() +
-        theme_pubr(base_size = 16, border = TRUE) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m3sig, ymax = percentile_m2sig), data = reconstructed_model_fit_selection, fill = 'grey90') +
-        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m2sig, ymax = percentile_m1sig), data = reconstructed_model_fit_selection, fill = 'grey80') +
-        geom_ribbon(mapping = aes(x = V2, ymin = percentile_m1sig, ymax = percentile_p1sig), data = reconstructed_model_fit_selection, fill = 'grey70') +
-        geom_ribbon(mapping = aes(x = V2, ymin = percentile_p1sig, ymax = percentile_p2sig), data = reconstructed_model_fit_selection, fill = 'grey80') +
-        geom_ribbon(mapping = aes(x = V2, ymin = percentile_p2sig, ymax = percentile_p3sig), data = reconstructed_model_fit_selection, fill = 'grey90') +
-        geom_hline(yintercept = 0, linetype = 'dotted') +
-        geom_vline(xintercept = 0, linetype = 'dotted') +
-        geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
-        geom_line(mapping = aes(x = V2, y = percentile_0sig), data = reconstructed_model_fit_selection, colour = 'blue', linetype = 'dashed', size = 0.5) +
-        geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit_selection, size = 0.5) +
-        scale_x_continuous(expand = expand_scale(mult = 0.02)) +
-        scale_y_continuous(expand = expand_scale(mult = 0.03)) +
-        ggtitle('Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range') +
-        xlab('Density') +
-        ylab('Flow')
-
-ggsave('/home/dmb20/FitFun/plot3.ps', plot = plot3, scale = 2, width = 6.0, height = 4.0, units = 'in')
-
-cat('\n')
-cat('HERE3\n')
-
-q(save = 'no', status = 1)
 
 
 
