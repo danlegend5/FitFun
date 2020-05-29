@@ -657,6 +657,7 @@ plotA = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, o
 
 
 # Create the plot object
+ylo = min(0.0, data$V3, reconstructed_model_fit$mu)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -664,7 +665,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(ylo, NA), expand = expand_scale(mult = 0.03)) +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
            geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
@@ -689,8 +690,8 @@ plotB = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Create the plot object
 range_resid = range(data$V3 - data$fitted_values_mu)
-min_y = min(0.0, range_resid[1])
-max_y = max(0.0, range_resid[2])
+ylo = min(0.0, range_resid[1])
+yhi = max(0.0, range_resid[2])
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -698,7 +699,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(limits = c(0.0, density_hi), expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(limits = c(min_y, max_y), expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
            geom_point(mapping = aes(x = V2, y = V3 - fitted_values_mu), data = data, colour = 'red', shape = 'circle small', size = 0.1)
@@ -721,6 +722,7 @@ plotC = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, o
 
 
 # Create the plot object
+ylo = min(0.0, data$V3, reconstructed_model_fit$mu, reconstructed_model_fit$percentile_m3sig)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -728,7 +730,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(ylo, NA), expand = expand_scale(mult = 0.03)) +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_m3sig, ymax = percentile_m2sig), data = reconstructed_model_fit, fill = 'grey90') +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_m2sig, ymax = percentile_m1sig), data = reconstructed_model_fit, fill = 'grey80') +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_m1sig, ymax = percentile_p1sig), data = reconstructed_model_fit, fill = 'grey70') +
