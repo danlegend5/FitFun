@@ -269,12 +269,14 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-
-
-
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-
-
+cat('Creating the plot:', output_file5, '\n')
+tryCatch(
+  { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Data Density Range'
+    plotB(data, data_max_density, title_str, 'Density', 'Flow Residuals', output_file5) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_file6, '\n')
@@ -300,9 +302,14 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-
+cat('Creating the plot:', output_file8, '\n')
+tryCatch(
+  { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Full Density Range'
+    plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_file8) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_file9, '\n')

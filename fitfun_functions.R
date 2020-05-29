@@ -676,6 +676,39 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
+plotB = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Residuals.From.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create the plot object
+range_resid = range(data$V3 - data$fitted_values_mu)
+min_y = min(0.0, range_resid[1])
+max_y = max(0.0, range_resid[2])
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(limits = c(0.0, density_hi), expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(limits = c(min_y, max_y), expand = expand_scale(mult = 0.03)) +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_point(mapping = aes(x = V2, y = V3 - fitted_values_mu), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
 plotC = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Percentiles.And.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
