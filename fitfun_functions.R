@@ -786,3 +786,91 @@ plot_obj = ggplot() +
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
 }
+
+
+################################################################################################################################################
+plotE = function(data, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create the plot object
+range_mu = range(data$fitted_values_mu)
+xlo = min(0.0, range_mu[1])
+xhi = max(0.0, range_mu[2])
+range_nqr = range(data$normalised_quantile_residuals)
+ylo = min(-3.0, range_nqr[1])
+yhi = max(3.0, range_nqr[2])
+background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
+background_area[, ylo := rep_len(-1.0, 2)]
+background_area[, yhi := rep_len(1.0, 2)]
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(limits = c(xlo, xhi), expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo - 2.0, ymax = yhi - 3.0), data = background_area, fill = 'grey90') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo - 1.0, ymax = yhi - 2.0), data = background_area, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo, ymax = yhi), data = background_area, fill = 'grey70') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo + 2.0, ymax = yhi + 1.0), data = background_area, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo + 3.0, ymax = yhi + 2.0), data = background_area, fill = 'grey90') +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_point(mapping = aes(x = fitted_values_mu, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
+plotF = function(data, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Create the plot object
+range_time = range(data$V1)
+xlo = range_time[1]
+xhi = range_time[2]
+range_nqr = range(data$normalised_quantile_residuals)
+ylo = min(-3.0, range_nqr[1])
+yhi = max(3.0, range_nqr[2])
+background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
+background_area[, ylo := rep_len(-1.0, 2)]
+background_area[, yhi := rep_len(1.0, 2)]
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(limits = c(xlo, xhi), expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo - 2.0, ymax = yhi - 3.0), data = background_area, fill = 'grey90') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo - 1.0, ymax = yhi - 2.0), data = background_area, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo, ymax = yhi), data = background_area, fill = 'grey70') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo + 2.0, ymax = yhi + 1.0), data = background_area, fill = 'grey80') +
+           geom_ribbon(mapping = aes(x = x, ymin = ylo + 3.0, ymax = yhi + 2.0), data = background_area, fill = 'grey90') +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_point(mapping = aes(x = V1, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}

@@ -1,5 +1,6 @@
 fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
-                                        output_file6, output_file7, output_file8, output_file9, output_file10, output_file11) {                     #### PLOT FINISH
+                                        output_file6, output_file7, output_file8, output_file9, output_file10, output_file11, output_file12,
+                                        output_file13) {                                                                                        #### PLOT FINISH
 
 # Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
 #              "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The model
@@ -201,7 +202,7 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Write out the fit summary file "output_file1"
+# Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
 cat('Writing out the fit summary file:    ', output_file1, '\n')
 tryCatch(
@@ -230,7 +231,7 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Write out the fit curves file "output_file2"
+# Write out the fit curves file "Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('Writing out the fit curves file:     ', output_file2, '\n')
 tryCatch(
   { cat('# Density : Mu : Sigma : Nu : Tau : 0.135 Percentile (Corresponding To -3*Sigma In A Normal Distribution) : 2.28 Percentile (Corresponding To -2*Sigma In A',
@@ -242,7 +243,7 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Write out the fit predictions file "output_file3"
+# Write out the fit predictions file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('Writing out the fit predictions file:', output_file3, '\n')
 tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
@@ -334,6 +335,24 @@ cat('Creating the plot:', output_file11, '\n')
 tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Full Density Range'
     plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_file11) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file12, '\n')
+tryCatch(
+  { title_str = 'Normalised Quantile Residuals (Flow) vs Fitted Mu Values : FF : GCV'
+    plotE(data, title_str, 'Fitted Mu', 'Normalised Quantile Residuals (Flow)', output_file12) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file13, '\n')
+tryCatch(
+  { title_str = 'Normalised Quantile Residuals (Flow) vs Time : FF : GCV'
+    plotF(data, title_str, 'Time', 'Normalised Quantile Residuals (Flow)', output_file13) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )

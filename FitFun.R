@@ -46,6 +46,8 @@
 #                         Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                         Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                         Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
+#                         Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
+#                         Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                         Plot.Of                                                                                                                #### PLOT FINISH
 #
 #                         See below for a description of each of the output files.
@@ -118,7 +120,9 @@
 #   Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
 #                                                                    density (red points). The plot density range is from zero to the maximum
-#                                                                    observed density.
+#                                                                    observed density. The grey regions are percentile ranges as described for
+#                                                                    previous plots while the median line is coincident with the horizontal dotted
+#                                                                    line.
 #   Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to "upper_density" is
@@ -141,6 +145,18 @@
 #   Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
 #                                                                    density (red points). The plot density range is from zero to "upper_density".
+#                                                                    The grey regions are percentile ranges as described for previous plots while
+#                                                                    the median line is coincident with the horizontal dotted line.
+#   Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
+#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
+#                                                                    the fitted values for "mu" (red points). The grey regions are percentile
+#                                                                    ranges as described for previous plots while the median line is coincident
+#                                                                    with the horizontal dotted line.
+#   Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
+#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
+#                                                                    time (red points). The grey regions are percentile ranges as described for
+#                                                                    previous plots while the median line is coincident with the horizontal dotted
+#                                                                    line.
 #   Plot.Of.                                                                                                                                      #### PLOT FINISH
 #
 # Requirements:
@@ -197,6 +213,10 @@ if (!dir.exists(path_to_modules)) {
   q(save = 'no', status = 1)
 }
 cat('Input data file:                                    ', data_file, '\n')
+if (!file.exists(data_file)) {
+  cat('ERROR - The input data file does not exist...\n')
+  q(save = 'no', status = 1)
+}
 cat('Output directory:                                   ', output_dir, '\n')
 if ((overwrite != 'yes') && (overwrite != 'no')) {
   cat('ERROR - The command-line argument "overwrite" does not have an acceptable value...\n')
@@ -299,8 +319,10 @@ output_file8 = file.path(output_dir, paste0('Plot.Of.Fitted.Mu.For.Full.Density.
 output_file9 = file.path(output_dir, paste0('Plot.Of.Residuals.From.Mu.For.Full.Density.Range.', tmpstr2))
 output_file10 = file.path(output_dir, paste0('Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.', tmpstr2))
 output_file11 = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.', tmpstr2))
-#output_file12 = ???                                                                                                              #### PLOT FINISH
-#output_file13 = ???                                                                                                              #### PLOT FINISH
+output_file12 = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.', tmpstr2))
+output_file13 = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Time.', tmpstr2))
+#output_file14 = ???                                                                                                              #### PLOT FINISH
+#output_file15 = ???                                                                                                              #### PLOT FINISH
 
 # If the output directory "output_dir" already exists
 if (dir.exists(output_dir)) {
@@ -569,6 +591,55 @@ if (dir.exists(output_dir)) {
     }
   }
 
+  # If the output file "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" already
+  # exists
+  if (file.exists(output_file12)) {
+
+    # If the command-line argument "overwrite" is set to 'yes'
+    if (overwrite == 'yes') {
+
+      # Remove the output file "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+      cat('Removing the output file:', output_file12, '\n')
+      tryCatch(
+        { file.remove(output_file12) },
+        error = function(cond) { cat('ERROR - Failed to remove the output file...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+    # If the command-line argument "overwrite" is set to 'no'
+    } else {
+
+      # Stop the script without doing anything
+      cat('ERROR - The following output file already exists:', output_file12, '\n')
+      q(save = 'no', status = 1)
+    }
+  }
+
+  # If the output file "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" already
+  # exists
+  if (file.exists(output_file13)) {
+
+    # If the command-line argument "overwrite" is set to 'yes'
+    if (overwrite == 'yes') {
+
+      # Remove the output file "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+      cat('Removing the output file:', output_file13, '\n')
+      tryCatch(
+        { file.remove(output_file13) },
+        error = function(cond) { cat('ERROR - Failed to remove the output file...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+    # If the command-line argument "overwrite" is set to 'no'
+    } else {
+
+      # Stop the script without doing anything
+      cat('ERROR - The following output file already exists:', output_file13, '\n')
+      q(save = 'no', status = 1)
+    }
+  }
+
+
 ####################################################################### PLOT FINISH
 
 
@@ -585,15 +656,9 @@ if (dir.exists(output_dir)) {
   )
 }
 
-# Check that the data file "data_file" exists
+# Read in the data file "data_file"
 cat('\n')
 cat('Reading in the data file:', data_file, '\n')
-if (!file.exists(data_file)) {
-  cat('ERROR - The data file does not exist...\n')
-  q(save = 'no', status = 1)
-}
-
-# Read in the data file "data_file"
 tryCatch(
   { data = fread(data_file, header = FALSE) },
   error = function(cond) { cat('ERROR - Failed to read in the data file...\n')
@@ -688,7 +753,8 @@ if (fd_type == 'Flow.Density') {
       # Fit the chosen GAMLSS model to the data                                                                             #### FINISH CLEANUPS IN THIS SECTION
       tryCatch(
         { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
-                                                   output_file6, output_file7, output_file8, output_file9, output_file10, output_file11) },                     #### PLOT FINISH
+                                                   output_file6, output_file7, output_file8, output_file9, output_file10, output_file11, output_file12,
+                                                   output_file13) },                                                                                     #### PLOT FINISH
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  if (file.exists(output_file1)) { file.remove(output_file1) }
                                  if (file.exists(output_file2)) { file.remove(output_file2) }
@@ -701,6 +767,8 @@ if (fd_type == 'Flow.Density') {
                                  if (file.exists(output_file9)) { file.remove(output_file9) }
                                  if (file.exists(output_file10)) { file.remove(output_file10) }
                                  if (file.exists(output_file11)) { file.remove(output_file11) }
+                                 if (file.exists(output_file12)) { file.remove(output_file12) }
+                                 if (file.exists(output_file13)) { file.remove(output_file13) }
                                  q(save = 'no', status = 1) }
       )
     }
