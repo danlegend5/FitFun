@@ -1,5 +1,5 @@
 fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
-                                        output_file6, output_file7, output_file8, output_file9) {                                               #### PLOT FINISH
+                                        output_file6, output_file7, output_file8, output_file9, output_file10, output_file11) {                     #### PLOT FINISH
 
 # Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
 #              "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The model
@@ -287,8 +287,17 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_file7, '\n')
+tryCatch(
+  { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Data Density Range'
+    plotD(data, data_max_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_file7) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file8, '\n')
 tryCatch(
   { if (ngrid > 4000) {
       ind = ceiling((4000.0/ngrid)*seq(from = 1, to = ngrid))
@@ -297,25 +306,34 @@ tryCatch(
       reconstructed_model_fit = reconstructed_model_fit[selection]
     }
     title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range'
-    plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file7) },
+    plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file8) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file8, '\n')
+cat('Creating the plot:', output_file9, '\n')
 tryCatch(
   { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Full Density Range'
-    plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_file8) },
+    plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_file9) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file9, '\n')
+cat('Creating the plot:', output_file10, '\n')
 tryCatch(
   { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Full Density Range'
-    plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file9) },
+    plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file10) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file11, '\n')
+tryCatch(
+  { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Full Density Range'
+    plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_file11) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
