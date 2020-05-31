@@ -760,9 +760,8 @@ plotD = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-range_nqr = range(data$normalised_quantile_residuals)
-ylo = min(-3.0, range_nqr[1])
-yhi = max(3.0, range_nqr[2])
+max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
+yhi = max(3.0, max_abs_nqr)
 background_area = data.table(x = seq(from = 0.0, to = density_hi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -773,7 +772,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(limits = c(0.0, density_hi), expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(-yhi, yhi), expand = expand_scale(mult = 0.03)) +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 2.0, ymax = yhi - 3.0), data = background_area, fill = 'grey90') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 1.0, ymax = yhi - 2.0), data = background_area, fill = 'grey80') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo, ymax = yhi), data = background_area, fill = 'grey70') +
@@ -804,9 +803,8 @@ plotE = function(data, title_str, xlab_str, ylab_str, output_file) {
 range_mu = range(data$fitted_values_mu)
 xlo = min(0.0, range_mu[1])
 xhi = max(0.0, range_mu[2])
-range_nqr = range(data$normalised_quantile_residuals)
-ylo = min(-3.0, range_nqr[1])
-yhi = max(3.0, range_nqr[2])
+max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
+yhi = max(3.0, max_abs_nqr)
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -817,7 +815,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(limits = c(xlo, xhi), expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(-yhi, yhi), expand = expand_scale(mult = 0.03)) +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 2.0, ymax = yhi - 3.0), data = background_area, fill = 'grey90') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 1.0, ymax = yhi - 2.0), data = background_area, fill = 'grey80') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo, ymax = yhi), data = background_area, fill = 'grey70') +
@@ -848,9 +846,8 @@ plotF = function(data, title_str, xlab_str, ylab_str, output_file) {
 range_time = range(data$V1)
 xlo = range_time[1]
 xhi = range_time[2]
-range_nqr = range(data$normalised_quantile_residuals)
-ylo = min(-3.0, range_nqr[1])
-yhi = max(3.0, range_nqr[2])
+max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
+yhi = max(3.0, max_abs_nqr)
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -861,7 +858,7 @@ plot_obj = ggplot() +
            xlab(xlab_str) +
            ylab(ylab_str) +
            scale_x_continuous(limits = c(xlo, xhi), expand = expand_scale(mult = 0.02)) +
-           scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+           scale_y_continuous(limits = c(-yhi, yhi), expand = expand_scale(mult = 0.03)) +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 2.0, ymax = yhi - 3.0), data = background_area, fill = 'grey90') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo - 1.0, ymax = yhi - 2.0), data = background_area, fill = 'grey80') +
            geom_ribbon(mapping = aes(x = x, ymin = ylo, ymax = yhi), data = background_area, fill = 'grey70') +
@@ -870,6 +867,53 @@ plot_obj = ggplot() +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
            geom_point(mapping = aes(x = V1, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
+plotG = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" (see
+#              FitFun.R for details). The paper describing the detrended normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
+#              (2001, Statistics in Medicine, 20, 1259).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Prepare the data for plotting
+zvals = qnorm(seq(from = 0.5/ndata, to = (ndata - 0.5)/ndata, length.out = ndata))
+data_plot = data.table(zvals = zvals, detrended_nqr = sort(data$normalised_quantile_residuals) - zvals)
+
+# Compute the 95% confidence interval
+level = 0.95
+fac = qnorm(0.5*(1.0 - level))
+zseq = seq(from = min(-3.0, zvals[1]), to = max(3.0, zvals[ndata]), length.out = 1000)
+pseq = pnorm(zseq)
+ciseq = (fac/dnorm(zseq))*sqrt((pseq*(1 - pseq))/ndata)
+ci_plot = data.table(zseq = zseq, ciseq = ciseq)
+
+# Create the plot object
+max_abs_detrended_nqr = max(abs(range(data_plot$detrended_nqr)))
+yhi = max(12.0/sqrt(ndata), max_abs_detrended_nqr)
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str) +
+           scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+           scale_y_continuous(limits = c(-yhi, yhi), expand = expand_scale(mult = 0.03)) +
+           geom_hline(yintercept = 0, linetype = 'dotted') +
+           geom_vline(xintercept = 0, linetype = 'dotted') +
+           geom_line(mapping = aes(x = zseq, y = ciseq), data = ci_plot, linetype = 'dashed', size = 0.5) +
+           geom_line(mapping = aes(x = zseq, y = -ciseq), data = ci_plot, linetype = 'dashed', size = 0.5) +
+           geom_point(mapping = aes(x = zvals, y = detrended_nqr), data = data_plot, colour = 'red', shape = 'circle small', size = 0.1)
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')

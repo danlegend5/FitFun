@@ -358,6 +358,21 @@ tryCatch(
 )
 
 
+
+output_file14 = '/home/dmb20/FitFun/results/Plot.Of.Detrended.Normal.QQ.Flow.Density.FF.GCV.ps'
+
+
+
+# Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_file14, '\n')
+tryCatch(
+  { title_str = 'Detrended Normal Q-Q Plot : FF : GCV : 95% Confidence Interval'
+    plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_file14) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+
 #### ABOVE FULLY READ AND TESTED
 
 
@@ -365,8 +380,6 @@ cat('\n')
 cat('HERE\n')
 
 q(save = 'no', status = 1)
-
-
 
 
 
