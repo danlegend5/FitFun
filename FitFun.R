@@ -78,7 +78,8 @@
 #   Column 1 - INTEGER/FLOAT - A time stamp corresponding to the start/midpoint/end of the time interval over which the traffic measurements were
 #                              taken. The units of time, and the point within the time interval to which the time stamp corresponds, are not
 #                              important, so long as they are consistent over all of the traffic measurement intervals, since this allows reliable
-#                              time differences to be computed. (??? WOULD ONLY BE USED FOR NOISE MODEL WITH COVARIANCE ???)                            #### FINISH
+#                              time differences to be computed. USED FOR COMPUTATION OF THE SLOTTED AUTO-CORRELATION FUNCTION (??? WOULD ONLY BE
+#                              USED FOR NOISE MODEL WITH COVARIANCE ???)                                                                           #### FINISH
 #   Column 2 - INTEGER/FLOAT - The measured value of the independent variable (i.e. density or occupancy) in the corresponding time interval. All
 #                              values in this column must be non-negative, and there must be at least one value that is non-zero.
 #   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed) in the corresponding time interval. All values in
@@ -720,6 +721,14 @@ if (all(data$V3 == 0.0)) {
   q(save = 'no', status = 1)
 }
 cat('No. of lines read in:    ', ndata, '\n')
+
+# Sort the data into increasing time order
+cat('Sorting the data by time...\n')
+tryCatch(
+  { setorder(data, V1) },
+  error = function(cond) { cat('ERROR - Failed to sort the data...\n')
+                           q(save = 'no', status = 1) }
+)
 
 # Make a further check on "upper_density"
 if (upper_density < max(data$V2)) {
