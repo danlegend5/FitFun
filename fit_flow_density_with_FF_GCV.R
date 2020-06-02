@@ -1,6 +1,4 @@
-fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1, output_file2, output_file3, output_file4, output_file5,
-                                        output_file6, output_file7, output_file8, output_file9, output_file10, output_file11, output_file12,
-                                        output_file13) {                                                                                        #### PLOT FINISH
+fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
 #              "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The model
@@ -9,8 +7,8 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
-#                The function creates various output files including diagnostic plots (see "FitFun.R" for details). If the function finishes
-#              successfully, then it returns the corresponding GAMLSS model fit object.
+#                The function creates various output files "output_files" including diagnostic plots (see "FitFun.R" for details). If the function
+#              finishes successfully, then it returns the corresponding GAMLSS model fit object.
 #
 # Authors:
 #
@@ -22,7 +20,7 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_file1
 #   NONE
 
 
-# Report on the GAMLSS model and the data                                                       #### FINISH ANY CLEANUPS
+# Report on the GAMLSS model and the data
 cat('\n')
 cat('>-----------------------------------------------------------------------------<\n')
 cat('\n')
@@ -204,9 +202,9 @@ tryCatch(
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
-cat('Writing out the fit summary file:    ', output_file1, '\n')
+cat('Writing out the fit summary file:    ', output_files[1], '\n')
 tryCatch(
-  { write_fit_summary(output_file1, 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
+  { write_fit_summary(output_files[1], 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
                       npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
                       q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
                       curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
@@ -219,12 +217,12 @@ tryCatch(
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
-        file = output_file1, sep = '', append = TRUE)
+        file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',
         '# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n',
         '######################################################################################################################\n',
-        file = output_file1, sep = '', append = TRUE)
-    sink(file = output_file1, append = TRUE)
+        file = output_files[1], sep = '', append = TRUE)
+    sink(file = output_files[1], append = TRUE)
     summary(model_obj)
     sink() },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
@@ -232,30 +230,30 @@ tryCatch(
 )
 
 # Write out the fit curves file "Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt"
-cat('Writing out the fit curves file:     ', output_file2, '\n')
+cat('Writing out the fit curves file:     ', output_files[2], '\n')
 tryCatch(
   { cat('# Density : Mu : Sigma : Nu : Tau : 0.135 Percentile (Corresponding To -3*Sigma In A Normal Distribution) : 2.28 Percentile (Corresponding To -2*Sigma In A',
         'Normal Distribution) : 15.87 Percentile (Corresponding To -1*Sigma In A Normal Distribution) : 50.00 Percentile (Median) : 84.13 Percentile (Corresponding',
         'To 1*Sigma In A Normal Distribution) : 97.72 Percentile (Corresponding To 2*Sigma In A Normal Distribution) : 99.865 Percentile (Corresponding To 3*Sigma',
-        'In A Normal Distribution)\n', file = output_file2)
-    write.table(reconstructed_model_fit, file = output_file2, append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
+        'In A Normal Distribution)\n', file = output_files[2])
+    write.table(reconstructed_model_fit, file = output_files[2], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit curves file...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Write out the fit predictions file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt"
-cat('Writing out the fit predictions file:', output_file3, '\n')
+cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
-        'Normalised Quantile Residual\n', file = output_file3)
-    write.table(data, file = output_file3, append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
+        'Normalised Quantile Residual\n', file = output_files[3])
+    write.table(data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('\n')
-cat('Creating the plot:', output_file4, '\n')
+cat('Creating the plot:', output_files[4], '\n')
 tryCatch(
   { npts = nrow(reconstructed_model_fit_selection)
     if (npts > 4000) {
@@ -265,40 +263,40 @@ tryCatch(
       reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
     }
     title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range'
-    plotA(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_file4) },
+    plotA(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[4]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file5, '\n')
+cat('Creating the plot:', output_files[5], '\n')
 tryCatch(
   { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Data Density Range'
-    plotB(data, data_max_density, title_str, 'Density', 'Flow Residuals', output_file5) },
+    plotB(data, data_max_density, title_str, 'Density', 'Flow Residuals', output_files[5]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file6, '\n')
+cat('Creating the plot:', output_files[6], '\n')
 tryCatch(
   { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range'
-    plotC(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_file6) },
+    plotC(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[6]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file7, '\n')
+cat('Creating the plot:', output_files[7], '\n')
 tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Data Density Range'
-    plotD(data, data_max_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_file7) },
+    plotD(data, data_max_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[7]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file8, '\n')
+cat('Creating the plot:', output_files[8], '\n')
 tryCatch(
   { if (ngrid > 4000) {
       ind = ceiling((4000.0/ngrid)*seq(from = 1, to = ngrid))
@@ -307,73 +305,79 @@ tryCatch(
       reconstructed_model_fit = reconstructed_model_fit[selection]
     }
     title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range'
-    plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file8) },
+    plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[8]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file9, '\n')
+cat('Creating the plot:', output_files[9], '\n')
 tryCatch(
   { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Full Density Range'
-    plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_file9) },
+    plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_files[9]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file10, '\n')
+cat('Creating the plot:', output_files[10], '\n')
 tryCatch(
   { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Full Density Range'
-    plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_file10) },
+    plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[10]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file11, '\n')
+cat('Creating the plot:', output_files[11], '\n')
 tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Full Density Range'
-    plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_file11) },
+    plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[11]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file12, '\n')
+cat('Creating the plot:', output_files[12], '\n')
 tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Fitted Mu Values : FF : GCV'
-    plotE(data, title_str, 'Fitted Mu', 'Normalised Quantile Residuals (Flow)', output_file12) },
+    plotE(data, title_str, 'Fitted Mu', 'Normalised Quantile Residuals (Flow)', output_files[12]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file13, '\n')
+cat('Creating the plot:', output_files[13], '\n')
 tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Time : FF : GCV'
-    plotF(data, title_str, 'Time', 'Normalised Quantile Residuals (Flow)', output_file13) },
+    plotF(data, title_str, 'Time', 'Normalised Quantile Residuals (Flow)', output_files[13]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
-
-
-
-output_file14 = '/home/dmb20/FitFun/results/Plot.Of.Detrended.Normal.QQ.Flow.Density.FF.GCV.ps'
-
-
 
 # Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_file14, '\n')
+cat('Creating the plot:', output_files[14], '\n')
 tryCatch(
   { title_str = 'Detrended Normal Q-Q Plot : FF : GCV : 95% Confidence Interval'
-    plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_file14) },
+    plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            q(save = 'no', status = 1) }
 )
+
+# Create the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[15], '\n')
+tryCatch(
+  { title_str = 'Slotted Auto-Correlation Function For Normalised Quantile Residuals : FF : GCV'
+    plotH(data, ndata, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15]) },
+  error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           q(save = 'no', status = 1) }
+)
+
+
 
 
 #### ABOVE FULLY READ AND TESTED
+
 
 
 cat('\n')
@@ -381,9 +385,8 @@ cat('HERE\n')
 
 q(save = 'no', status = 1)
 
+#### CLEAN UPS
 
-
-#                           if (file.exists(output_file1)) { file.remove(output_file1) }
 
 # Report the fit summary
 cat('\n')
