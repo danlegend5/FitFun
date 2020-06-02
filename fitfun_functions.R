@@ -146,8 +146,8 @@ return(list(n_peaks = n_peaks, highest_peak_x = highest_peak_x, highest_peak_y =
 ################################################################################################################################################
 get_curve_properties = function(xvec, yvec, ind_hi, k_jam) {
 
-# Description: For a fitted model component (e.g. for "sigma", "nu", or "tau") that has been reconstructed on a regular grid of density ranging from
-#              zero to some positive value, this function computes approximate values for some useful properties of the curve in this range.
+# Description: For a fitted model component (e.g. for "sigma", "nu", or "tau") that has been reconstructed on a regular grid of density ranging
+#              from zero to some positive value, this function computes approximate values for some useful properties of the curve in this range.
 #
 # Authors:
 #
@@ -450,6 +450,106 @@ return(list(tau_0 = curve_properties$y_0, dtaudk_0 = curve_properties$dydx_0, k_
             tau_max = curve_properties$y_max, k_taumin = curve_properties$x_ymin, tau_min = curve_properties$y_min,
             n_peaks = curve_properties$n_peaks, n_troughs = curve_properties$n_troughs, tau_kjam = curve_properties$y_kjam,
             dtaudk_kjam = curve_properties$dydx_kjam))
+}
+
+
+################################################################################################################################################
+compute_slotted_acf = function(tvec, yvec, tlag_bin_size, tlag_nbins) {
+
+# Description: This function computes the slotted auto-correlation function (slotted ACF) for a set of time series data "yvec" observed at
+#              irregular times "tvec". The time series data must be sorted such that the values in "tvec" are in ascending order. The value of
+#              the slotted ACF for a specific time lag bin is computed by averaging the cross products of sample pairs whose time differences
+#              fall in the given bin (Edelson & Krolik 1988, Astrophysical Journal, 333, 646). As part of the computation, this function employs
+#              the algorithm for calculating the running mean and variance invented by Welford (1962, Technometrics, 4, 419). The time lag bin
+#              size "tlag_bin_size" in combination with the number of time lag bins "tlag_nbins" specifies the maximum time difference to consider
+#              in the computation of the slotted ACF.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Determine the time lag bin limits
+tlag_upper_bin_limits = tlag_bin_size*seq(from = 0.5, to = tlag_nbins - 0.5, length.out = tlag_nbins)
+
+# Set up some vectors and arrays
+ndata = length(tvec)
+npairs_per_bin = double(length = tlag_nbins)
+obsflag_per_bin = array(0, dim = c(tlag_nbins, ndata))
+acf = double(length = tlag_nbins)
+acf_err = double(length = tlag_nbins)
+
+# For each time series observation
+max_tlag = tlag_upper_bin_limits[tlag_nbins]
+for (curr_i in 1:ndata) {
+
+  # Extract the current data values
+  t_curr_i = tvec[curr_i]
+  y_curr_i = yvec[curr_i]
+
+  # Determine the cutoff time
+  t_cutoff = t_curr_i + max_tlag
+
+  # Step forwards through the time series observations from the current observation
+  curr_j = curr_i
+  curr_bin = 1
+  while (curr_j <= ndata) {
+
+    # If the time of the future observation is beyond the cutoff time, then break out of the loop
+    t_curr_j = tvec[curr_j]
+    if (t_curr_j >= t_cutoff) { break }
+
+    # Calculate the time lag
+    tlag = t_curr_j - t_curr_i
+
+    # Find the corresponding time lag bin
+    while (curr_bin <= tlag_nbins) {
+      if (tlag < tlag_upper_bin_limits[curr_bin]) { break }
+      curr_bin = curr_bin + 1
+    }
+
+    # Compute the product of the observations
+    y_cross = y_curr_i*yvec[curr_j]
+
+    # Update the relevant vectors and arrays
+    new_val_npairs = npairs_per_bin[curr_bin] + 1.0
+    npairs_per_bin[curr_bin] = new_val_npairs
+    obsflag_per_bin[curr_bin, curr_i] = 1
+    if (new_val_npairs == 1.0) {
+      acf[curr_bin] = y_cross
+    } else {
+      prev_val_acf = acf[curr_bin]
+      tmp_resid = y_cross - prev_val_acf
+      new_val_acf = prev_val_acf + (tmp_resid/new_val_npairs)
+      acf[curr_bin] = new_val_acf
+      acf_err[curr_bin] = acf_err[curr_bin] + (tmp_resid*(y_cross - new_val_acf))
+    }
+
+    # Move on to the next future observation
+    curr_j = curr_j + 1
+  }
+}
+
+# Compute the uncertainties on the slotted ACF values
+obsflag_per_bin = apply(obsflag_per_bin, 1, sum)
+selection_good = obsflag_per_bin > 1
+ngood = sum(selection_good)
+if (ngood == tlag_nbins) {
+  acf_err = sqrt(acf_err/((npairs_per_bin - 1.0)*(obsflag_per_bin - 1.0)))
+} else if (ngood == 0) {
+  acf[1:tlag_nbins] = 0.0
+  acf_err[1:tlag_nbins] = -1.0
+} else {
+  acf_err[selection_good] = sqrt(acf_err[selection_good]/((npairs_per_bin[selection_good] - 1.0)*(obsflag_per_bin[selection_good] - 1.0)))
+  selection_bad = obsflag_per_bin <= 1
+  acf[selection_bad] = 0.0
+  acf_err[selection_bad] = -1.0
+}
+
+# Return the slotted ACF
+return(data.table(tlag_bin_mid = tlag_upper_bin_limits - 0.5*tlag_bin_size, tlag_bin_lo = tlag_upper_bin_limits - tlag_bin_size,
+                  tlag_bin_hi = tlag_upper_bin_limits, acf = acf, acf_err = acf_err))
 }
 
 
@@ -760,8 +860,7 @@ plotD = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
-yhi = max(3.0, max_abs_nqr)
+yhi = max(3.0, abs(data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = 0.0, to = density_hi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -803,8 +902,7 @@ plotE = function(data, title_str, xlab_str, ylab_str, output_file) {
 range_mu = range(data$fitted_values_mu)
 xlo = min(0.0, range_mu[1])
 xhi = max(0.0, range_mu[2])
-max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
-yhi = max(3.0, max_abs_nqr)
+yhi = max(3.0, abs(data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -846,8 +944,7 @@ plotF = function(data, title_str, xlab_str, ylab_str, output_file) {
 range_time = range(data$V1)
 xlo = range_time[1]
 xhi = range_time[2]
-max_abs_nqr = max(abs(range(data$normalised_quantile_residuals)))
-yhi = max(3.0, max_abs_nqr)
+yhi = max(3.0, abs(data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -899,8 +996,7 @@ ciseq = (fac/dnorm(zseq))*sqrt((pseq*(1 - pseq))/ndata)
 ci_plot = data.table(zseq = zseq, ciseq = ciseq)
 
 # Create the plot object
-max_abs_detrended_nqr = max(abs(range(data_plot$detrended_nqr)))
-yhi = max(12.0/sqrt(ndata), max_abs_detrended_nqr)
+yhi = max(12.0/sqrt(ndata), abs(data_plot$detrended_nqr))
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -914,6 +1010,59 @@ plot_obj = ggplot() +
            geom_line(mapping = aes(x = zseq, y = ciseq), data = ci_plot, linetype = 'dashed', size = 0.5) +
            geom_line(mapping = aes(x = zseq, y = -ciseq), data = ci_plot, linetype = 'dashed', size = 0.5) +
            geom_point(mapping = aes(x = zvals, y = detrended_nqr), data = data_plot, colour = 'red', shape = 'circle small', size = 0.1)
+
+# Save the plot to the file "output_file"
+ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
+plotH = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
+
+# Description: This function creates the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+#              (see FitFun.R for details).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Determine the time lag bin size and compute the slotted auto-correlation function (slotted ACF). Note that for a small enough time lag bin size,
+# the expected value of the slotted ACF in the zero time lag bin is unity since the slotted ACF is computed for a time-series of normalised quantile
+# residuals (i.e. E(X^2) = 1 for X ~ N(0,1)).
+tvec = data$V1
+yvec = data$normalised_quantile_residuals
+time_lag_bin_size = median(tvec[2:ndata] -  tvec[1:(ndata - 1)])
+time_lag_nbins = 26
+slotted_acf = compute_slotted_acf(tvec, yvec, time_lag_bin_size, time_lag_nbins)
+
+# Create the plot object
+plot_obj = ggplot() +
+           theme_pubr(base_size = 16, border = TRUE) +
+           theme(plot.title = element_text(hjust = 0.5)) +
+           ggtitle(title_str) +
+           xlab(xlab_str) +
+           ylab(ylab_str)
+
+# Determine which values in the ACF data table should be plotted
+selection_good = slotted_acf$acf_err > 0.0
+
+# If there is at least one data point to be plotted
+if (sum(selection_good) > 0) {
+
+  # Update the plot object
+  xlo = slotted_acf$tlag_bin_lo[1]
+  xhi = slotted_acf$tlag_bin_hi[time_lag_nbins]
+  slotted_acf = slotted_acf[selection_good]
+  ylo = min(-1.0, slotted_acf$acf - slotted_acf$acf_err)
+  yhi = max(1.0, slotted_acf$acf + slotted_acf$acf_err)
+  plot_obj = plot_obj + scale_x_continuous(limits = c(xlo, xhi), expand = expand_scale(mult = 0.02)) +
+                        scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
+                        geom_col(mapping = aes(x = tlag_bin_mid, y = acf), data = slotted_acf, width = time_lag_bin_size, fill = 'grey80') +
+                        geom_hline(yintercept = 0, linetype = 'dotted') +
+                        geom_errorbar(mapping = aes(x = tlag_bin_mid, ymin = acf - acf_err, ymax = acf + acf_err), data = slotted_acf, width = 0.3*time_lag_bin_size)
+}
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
