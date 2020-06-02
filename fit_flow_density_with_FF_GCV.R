@@ -226,6 +226,7 @@ tryCatch(
     summary(model_obj)
     sink() },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -238,6 +239,7 @@ tryCatch(
         'In A Normal Distribution)\n', file = output_files[2])
     write.table(reconstructed_model_fit, file = output_files[2], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit curves file...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -248,6 +250,7 @@ tryCatch(
         'Normalised Quantile Residual\n', file = output_files[3])
     write.table(data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -265,6 +268,7 @@ tryCatch(
     title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range'
     plotA(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[4]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -274,6 +278,7 @@ tryCatch(
   { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Data Density Range'
     plotB(data, data_max_density, title_str, 'Density', 'Flow Residuals', output_files[5]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -283,6 +288,7 @@ tryCatch(
   { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range'
     plotC(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[6]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -292,6 +298,7 @@ tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Data Density Range'
     plotD(data, data_max_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[7]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -307,6 +314,7 @@ tryCatch(
     title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range'
     plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[8]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -316,6 +324,7 @@ tryCatch(
   { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Full Density Range'
     plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_files[9]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -325,6 +334,7 @@ tryCatch(
   { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Full Density Range'
     plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[10]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -334,6 +344,7 @@ tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Full Density Range'
     plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[11]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -343,6 +354,7 @@ tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Fitted Mu Values : FF : GCV'
     plotE(data, title_str, 'Fitted Mu', 'Normalised Quantile Residuals (Flow)', output_files[12]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -352,6 +364,7 @@ tryCatch(
   { title_str = 'Normalised Quantile Residuals (Flow) vs Time : FF : GCV'
     plotF(data, title_str, 'Time', 'Normalised Quantile Residuals (Flow)', output_files[13]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -361,6 +374,7 @@ tryCatch(
   { title_str = 'Detrended Normal Q-Q Plot : FF : GCV : 95% Confidence Interval'
     plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -370,6 +384,7 @@ tryCatch(
   { title_str = 'Slotted Auto-Correlation Function For Normalised Quantile Residuals : FF : GCV'
     plotH(data, ndata, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
+                           remove_file_list(output_files)
                            q(save = 'no', status = 1) }
 )
 
@@ -411,81 +426,3 @@ cat('\n')
 cat('>-----------------------------------------------------------------------------<\n')
 return(model_obj)
 }
-
-
-#### ABOVE FULLY READ AND TESTED
-
-
-
-#library(gamlss.nl)
-#library(gamlss.util)
-#library(colorspace)
-
-
-# MODEL 1
-#cat('\n')
-#cat('Non-linear...\n')
-
-#dataD[, V2_L := V2*log(V2)]
-
-#m1 = gamlss(V3 ~ 0 + V2 + V2_L, sigma.formula = ~ pb(V2), data = dataD, family = NO)
-#m1 = gamlss(V3 ~ 0 + V2 + V2_L, sigma.formula = ~ pb(V2), nu.formula = ~ pb(V2), data = dataD, family = exGAUS)
-
-#summary(m1)
-
-#model_values = data.table(V2 = seq(0.001, 1.0, 0.001))
-#model_values[, V2_2 := V2^2]
-#model_values[, V2_L := V2*log(V2)]
-#model_values[, y_pred := predict(m1, newdata = model_values, type = "response", data = dataD)]
-
-#print(model_values)
-#print(dataD)
-
-#mu_coeff = m1$mu.coefficients
-#sig_coeff = m1$sigma.coefficients
-
-#flow_dat = data.table(V3=rep(seq(1,1000,1),10),V2=rep(seq(0.07,0.87,length.out=10),each=1000))
-#flow_dat[,sig := predict(m1, what = 'sigma', newdata = flow_dat, type = "response", data = dataD)]
-#flow_dat[,mu := mu_coeff[1]+ mu_coeff[2]*V2*log(V2)]
-#flow_dat[,flow_mod := 20.0*(1.0/sqrt(2.0*pi*sig*sig))*exp(-0.5*(((V3 - mu)/sig)^2))]
-
-
-#print(flow_dat)
-
-#plot3 = ggplot(dataD) + geom_point(aes(V2,V3),colour='grey70', size=0.5) +
-#        geom_line(data = model_values, aes(V2, y_pred), size = 1.0) +
-#        geom_path(data = flow_dat, aes(V2 - flow_mod,V3,group=V2), colour='red') +
-#        theme_pubr(base_size = 16, border = TRUE) + scale_y_continuous(expand = c(0,0)) +
-#        xlab('Occupancy') + ylab('Flow (veh/hour)') + ggtitle('uk : london : primary : CNTR_N01_523b1') +
-#        theme(plot.title = element_text(hjust = 0.5)) +
-#        geom_vline(xintercept = seq(0.07,0.87,length.out=10), linetype = 'dashed', color = 'red')
-
-#ggsave('plot3.png', plot3, width = 6.0, height = 4.0, scale = 2.0)
-
-
-
-# MODEL 2
-
-#cat('\n')
-#cat('Non-linear...\n')
-
-#m2 = nlgamlss(y = V3, mu.formula = ~ V2 + V2_2, mu.start = c(0.0, 1000.0, -1000.0), sigma.start = 1.0, family = NO, data = data)
-#summary(m2)
-
-# fit
-
-#res <- gamlss(y~cs(data$V2, df = 5), sigma.fo = ~cs(data$V2, df = 5), family = NO, data = data$V3)
-
-#summary(res)
-
-# predict on grid
-
-#pred <- data.table(occ=seq(0,0.8,0.001))
-
-#pred <- pred[,y_pred:=predict(res,newdata = pred,type="response")]
-
-# fit on x (orignal data)
-
-#tt[,y_hat:=fitted(res)]
-
-#tt[,residuals:=residuals(res)]
