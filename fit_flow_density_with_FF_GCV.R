@@ -20,6 +20,10 @@ fit_flow_density_with_FF_GCV = function(data, ngrid, upper_density, output_files
 #   NONE
 
 
+# Define some useful variables
+functional_form_model = 'FF'
+noise_model = 'GCV'
+
 # Report on the GAMLSS model and the data
 cat('\n')
 cat('>-----------------------------------------------------------------------------<\n')
@@ -265,7 +269,7 @@ tryCatch(
       selection[2:(npts - 1)] = ind[2:(npts - 1)] != ind[1:(npts - 2)]
       reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
     }
-    title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Data Density Range'
+    title_str = paste0('Flow vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Data Density Range')
     plotA(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[4]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -275,7 +279,7 @@ tryCatch(
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[5], '\n')
 tryCatch(
-  { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Data Density Range'
+  { title_str = paste0('Flow Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
     plotB(data, data_max_density, title_str, 'Density', 'Flow Residuals', output_files[5]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -285,7 +289,7 @@ tryCatch(
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[6], '\n')
 tryCatch(
-  { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Data Density Range'
+  { title_str = paste0('Flow vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Data Density Range')
     plotC(data, reconstructed_model_fit_selection, title_str, 'Density', 'Flow', output_files[6]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -295,7 +299,7 @@ tryCatch(
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[7], '\n')
 tryCatch(
-  { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Data Density Range'
+  { title_str = paste0('Normalised Quantile Residuals (Flow) vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
     plotD(data, data_max_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[7]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -311,7 +315,7 @@ tryCatch(
       selection[2:(ngrid - 1)] = ind[2:(ngrid - 1)] != ind[1:(ngrid - 2)]
       reconstructed_model_fit = reconstructed_model_fit[selection]
     }
-    title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Full Density Range'
+    title_str = paste0('Flow vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Full Density Range')
     plotA(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[8]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -321,7 +325,7 @@ tryCatch(
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[9], '\n')
 tryCatch(
-  { title_str = 'Flow Residuals From Fitted Mu Curve vs Density : FF : GCV : Full Density Range'
+  { title_str = paste0('Flow Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
     plotB(data, upper_density, title_str, 'Density', 'Flow Residuals', output_files[9]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -331,7 +335,7 @@ tryCatch(
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[10], '\n')
 tryCatch(
-  { title_str = 'Flow vs Density : FF : GCV : Fitted Mu Curve : Percentile Regions : Full Density Range'
+  { title_str = paste0('Flow vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Full Density Range')
     plotC(data, reconstructed_model_fit, title_str, 'Density', 'Flow', output_files[10]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -341,7 +345,7 @@ tryCatch(
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[11], '\n')
 tryCatch(
-  { title_str = 'Normalised Quantile Residuals (Flow) vs Density : FF : GCV : Full Density Range'
+  { title_str = paste0('Normalised Quantile Residuals (Flow) vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
     plotD(data, upper_density, title_str, 'Density', 'Normalised Quantile Residuals (Flow)', output_files[11]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -351,7 +355,7 @@ tryCatch(
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[12], '\n')
 tryCatch(
-  { title_str = 'Normalised Quantile Residuals (Flow) vs Fitted Mu Values : FF : GCV'
+  { title_str = paste0('Normalised Quantile Residuals (Flow) vs Fitted Mu Values : ', functional_form_model, ' : ', noise_model)
     plotE(data, title_str, 'Fitted Mu', 'Normalised Quantile Residuals (Flow)', output_files[12]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -361,7 +365,7 @@ tryCatch(
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[13], '\n')
 tryCatch(
-  { title_str = 'Normalised Quantile Residuals (Flow) vs Time : FF : GCV'
+  { title_str = paste0('Normalised Quantile Residuals (Flow) vs Time : ', functional_form_model, ' : ', noise_model)
     plotF(data, title_str, 'Time', 'Normalised Quantile Residuals (Flow)', output_files[13]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -371,7 +375,7 @@ tryCatch(
 # Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[14], '\n')
 tryCatch(
-  { title_str = 'Detrended Normal Q-Q Plot : FF : GCV : 95% Confidence Interval'
+  { title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
     plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -381,7 +385,7 @@ tryCatch(
 # Create the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[15], '\n')
 tryCatch(
-  { title_str = 'Slotted Auto-Correlation Function For Normalised Quantile Residuals : FF : GCV'
+  { title_str = paste0('Slotted Auto-Correlation Function For Normalised Quantile Residuals : ', functional_form_model, ' : ', noise_model)
     plotH(data, ndata, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15]) },
   error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                            remove_file_list(output_files)
@@ -400,7 +404,6 @@ cat('HERE\n')
 
 q(save = 'no', status = 1)
 
-#### CLEAN UPS
 
 
 # Report the fit summary
