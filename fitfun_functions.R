@@ -974,7 +974,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotG = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" (see
-#              FitFun.R for details). The paper describing the detrended normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
+#              FitFun.R for details). The paper describing the detrended Normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
 #              (2001, Statistics in Medicine, 20, 1259).
 #
 # Authors:
@@ -1066,4 +1066,24 @@ if (sum(selection_good) > 0) {
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
+}
+
+
+################################################################################################################################################
+remove_file_list = function(file_list) {
+
+# Description: This function deletes the files listed in "file_list".
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Delete the files in the file list "file_list"
+for (file in file_list) {
+  if (file.exists(file)) {
+    file.remove(file)
+  }
+}
 }
