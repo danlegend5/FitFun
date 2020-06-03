@@ -68,7 +68,8 @@
 #                           the purpose of reconstructing the fitted model. This argument must be a positive number, and it must also be greater
 #                           than or equal to the maximum value of the independent variable (i.e. density or occupancy) in the data.
 #   plot_format - STRING - The file format for the plot files that the script produces. The acceptable values for this argument are 'ps', 'pdf',
-#                          and 'png'. If this argument is set to any other string, then the script will fail.
+#                          'png', and 'none'. If this argument is set to any other string, then the script will fail. In the case that this
+#                          argument is set to 'none', then the script will not produce any plot files.
 #
 # Input Data File:
 #
@@ -273,7 +274,7 @@ if (upper_density <= 0.0) {
   q(save = 'no', status = 1)
 }
 cat('Upper density for model reconstruction:             ', upper_density, '\n')
-acceptable_values = c('ps', 'pdf', 'png')
+acceptable_values = c('ps', 'pdf', 'png', 'none')
 if (!is.element(plot_format, acceptable_values)) {
   cat('ERROR - The command-line argument "plot_format" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
@@ -321,23 +322,27 @@ tryCatch(
 
 # Define the names of the output files
 tmpstr1 = paste0(fd_type, '.', functional_form_model, '.', noise_model)
-tmpstr2 = paste0(tmpstr1, '.', plot_format)
 output_files = character(length = 15)
 output_files[1] = file.path(output_dir, paste0('Fit.Summary.', tmpstr1, '.txt'))
 output_files[2] = file.path(output_dir, paste0('Fit.Curves.', tmpstr1, '.txt'))
 output_files[3] = file.path(output_dir, paste0('Fit.Predictions.', tmpstr1, '.txt'))
-output_files[4] = file.path(output_dir, paste0('Plot.Of.Fitted.Mu.For.Data.Density.Range.', tmpstr2))
-output_files[5] = file.path(output_dir, paste0('Plot.Of.Residuals.From.Mu.For.Data.Density.Range.', tmpstr2))
-output_files[6] = file.path(output_dir, paste0('Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.', tmpstr2))
-output_files[7] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.', tmpstr2))
-output_files[8] = file.path(output_dir, paste0('Plot.Of.Fitted.Mu.For.Full.Density.Range.', tmpstr2))
-output_files[9] = file.path(output_dir, paste0('Plot.Of.Residuals.From.Mu.For.Full.Density.Range.', tmpstr2))
-output_files[10] = file.path(output_dir, paste0('Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.', tmpstr2))
-output_files[11] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.', tmpstr2))
-output_files[12] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.', tmpstr2))
-output_files[13] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Time.', tmpstr2))
-output_files[14] = file.path(output_dir, paste0('Plot.Of.Detrended.Normal.QQ.', tmpstr2))
-output_files[15] = file.path(output_dir, paste0('Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.', tmpstr2))
+if (plot_format == 'none') {
+  output_files = output_files[1:3]
+} else {
+  tmpstr2 = paste0(tmpstr1, '.', plot_format)
+  output_files[4] = file.path(output_dir, paste0('Plot.Of.Fitted.Mu.For.Data.Density.Range.', tmpstr2))
+  output_files[5] = file.path(output_dir, paste0('Plot.Of.Residuals.From.Mu.For.Data.Density.Range.', tmpstr2))
+  output_files[6] = file.path(output_dir, paste0('Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.', tmpstr2))
+  output_files[7] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.', tmpstr2))
+  output_files[8] = file.path(output_dir, paste0('Plot.Of.Fitted.Mu.For.Full.Density.Range.', tmpstr2))
+  output_files[9] = file.path(output_dir, paste0('Plot.Of.Residuals.From.Mu.For.Full.Density.Range.', tmpstr2))
+  output_files[10] = file.path(output_dir, paste0('Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.', tmpstr2))
+  output_files[11] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.', tmpstr2))
+  output_files[12] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.', tmpstr2))
+  output_files[13] = file.path(output_dir, paste0('Plot.Of.Normalised.Quantile.Residuals.Versus.Time.', tmpstr2))
+  output_files[14] = file.path(output_dir, paste0('Plot.Of.Detrended.Normal.QQ.', tmpstr2))
+  output_files[15] = file.path(output_dir, paste0('Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.', tmpstr2))
+}
 
 # If the output directory "output_dir" already exists
 if (dir.exists(output_dir)) {

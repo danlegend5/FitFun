@@ -290,6 +290,13 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
+# If no plots should be produced, then return the GAMLSS model fit object
+if (length(output_files) == 3) {
+  cat('\n')
+  cat('>-----------------------------------------------------------------------------<\n')
+  return(model_obj)
+}
+
 # Create the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('\n')
 cat('Creating the plot:', output_files[4], '\n')
