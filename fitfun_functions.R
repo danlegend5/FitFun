@@ -1070,6 +1070,100 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
+create_all_plots = function(data, ndata, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
+                            fd_type, functional_form_model, noise_model, output_files) {
+
+# Description: This function creates all of the plots for a GAMLSS model fit.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Define a useful variable
+if (fd_type == 'Flow.Density') {
+  fd_str = 'Flow'
+} else if (fd_type == 'Speed.Density') {
+  fd_str = 'Speed'
+}
+
+# Create the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[4], '\n')
+npts = nrow(reconstructed_model_fit_selection)
+if (npts > 4000) {
+  ind = ceiling((4000.0/npts)*seq(from = 1, to = npts))
+  selection = rep_len(TRUE, npts)
+  selection[2:(npts - 1)] = ind[2:(npts - 1)] != ind[1:(npts - 2)]
+  reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
+}
+title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Data Density Range')
+plotA(data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[4])
+
+# Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[5], '\n')
+title_str = paste0(fd_str, ' Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
+plotB(data, data_max_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[5])
+
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[6], '\n')
+title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Data Density Range')
+plotC(data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[6])
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[7], '\n')
+title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
+plotD(data, data_max_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[7])
+
+# Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[8], '\n')
+if (ngrid > 4000) {
+  ind = ceiling((4000.0/ngrid)*seq(from = 1, to = ngrid))
+  selection = rep_len(TRUE, ngrid)
+  selection[2:(ngrid - 1)] = ind[2:(ngrid - 1)] != ind[1:(ngrid - 2)]
+  reconstructed_model_fit = reconstructed_model_fit[selection]
+}
+title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Full Density Range')
+plotA(data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[8])
+
+# Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[9], '\n')
+title_str = paste0(fd_str, ' Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
+plotB(data, upper_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[9])
+
+# Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[10], '\n')
+title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Full Density Range')
+plotC(data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[10])
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[11], '\n')
+title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
+plotD(data, upper_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[11])
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[12], '\n')
+title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Fitted Mu Values : ', functional_form_model, ' : ', noise_model)
+plotE(data, title_str, 'Fitted Mu', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[12])
+
+# Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[13], '\n')
+title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Time : ', functional_form_model, ' : ', noise_model)
+plotF(data, title_str, 'Time', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[13])
+
+# Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[14], '\n')
+title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
+plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
+
+# Create the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
+cat('Creating the plot:', output_files[15], '\n')
+title_str = paste0('Slotted Auto-Correlation Function For Normalised Quantile Residuals : ', functional_form_model, ' : ', noise_model)
+plotH(data, ndata, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15])
+}
+
+
+################################################################################################################################################
 remove_file_list = function(file_list) {
 
 # Description: This function deletes the files listed in "file_list".
