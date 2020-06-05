@@ -8,6 +8,55 @@
 #              specific to a procedure for fitting a particular model are defined within the relevant module itself, and their default values
 #              can be modified if necessary.
 #
+# Important Notes On Model Selection Criteria:
+#
+#     Very often in scientific modelling, one faces the task of selecting an optimal (or best) model for a data sample from a set of candidate
+#   models (multiple working hypotheses). In this context, "optimality" refers both to the Principle of Parsimony, in that the best model should
+#   constitute the simplest model that provides a good fit to the data without under- or over-fitting, and to appropriate/relevant model
+#   performance measure(s). Model estimation via maximum likelihood assumes a uniform prior probability density function on the model parameters.
+#   Consequently, as parameters are added to a model, the maximum likelihood always increases, rendering it useless for the purpose of model
+#   selection between models with different dimensionality. Information criteria are used as an alternative for evaluating models with different
+#   numbers of parameters. Various information criteria have been developed from distinct statistical view-points as implementations of the
+#   Principle of Parsimony and each one may be used to automatically select a parsimonious model from a set of candidate models. They may be
+#   applied regardless of whether the models under consideration are nested or non-nested.
+#     The GAMLSS software, on which this script is based, computes both the Akaike information criterion (AIC; Akaike 1974, IEEE Transactions on
+#   Automatic Control, 19, 716) and the Bayesian information criterion (BIC; Schwarz 1978, The Annals of Statistics, 6, 461) for each GAMLSS
+#   model fit. Both of these information criteria apply to linear and non-linear models estimated via maximum likelihood. The formulae for these
+#   information criteria are given by:
+#
+#   AIC = -2*ln(Lmax) + 2*Npar
+#
+#   BIC = -2*ln(Lmax) + Npar*ln(Ndat)
+#
+#   where Lmax is the value of the likelihood function L at the vector of maximum likelihood estimators (MLEs) for the model parameters, Npar is
+#   the number of free parameters in the model, and Ndat is the number of data values. Model selection with the AIC or BIC is performed by
+#   minimising -2*ln(L) for each model, and then minimising AIC or BIC, respectively, over the full set of models under consideration.
+#     The AIC is derived as an asymptotic approximation to the Kullback-Leibler divergence (Kullback & Leibler 1951, The Annals of Mathematical
+#   Statistics, 22, 79) which measures the distance of a candidate model from the true underlying model under the (reasonable) assumption that
+#   the true model is of infinite dimension. In this case the AIC provides an asymptotically efficient selection of a finite dimensional
+#   approximating model. However, if the true model is finite dimensional, then the AIC does not provide a consistent model selection. A model
+#   selection criterion is said to be consistent if it selects with high probability the true model from the set of candidate models whenever
+#   the true model is represented in the set of candidate models. The aim of the AIC is to evaluate models based on their prediction accuracy.
+#     It is important to be aware that the AIC suffers from a large negative bias for small samples, or when the number of model parameters is a
+#   non-negligible fraction of the number of data values (e.g. for Ndat/Npar < 40; Hurvich & Tsai 1989, Biometrika, 76, 297). The bias in the AIC
+#   can be corrected at the cost of its general applicability, since the formula for the bias correction depends on the statistical model being
+#   fitted. For example, Sugiura (1978, Communications in Statistics - Theory and Methods, 7, 13) derived a bias-corrected version of the AIC for
+#   Gaussian linear regression problems that is asymptotically the same as the AIC for Ndat >> Npar.
+#     Takeuchi (1976, Mathematical Sciences, 153, 12) generalised the AIC with a more complicated formula to create the Takeuchi information
+#   criterion (TIC). Subsequently, Konishi & Kitagawa (1996, Biometrika, 83, 875) derived a further generalisation of the AIC and TIC, called the
+#   generalised information criterion (GIC), that can also be applied to model selection for models with parameters estimated by maximum penalised
+#   likelihood. The GAMLSS software only implements the AIC from the available AIC-like information criteria. For GAMLSS models that employ
+#   non-parametric smoothing terms estimated by maximum penalised likelihood, the AIC is computed using the trace of the smoother matrix as an
+#   estimate of the (effective) number of free parameters used in the fit.
+#     An alternative approach to model selection is a Bayesian approach where the model with the largest Bayesian posterior probability is chosen.
+#   The BIC is derived by approximating the posterior probability of each model. The BIC generally includes a heavier penalty than the AIC (and
+#   the small-sample bias-corrected AIC) for more complicated models (e.g. in the regime Npar < 20 for Ndat > 50), therefore favouring models with
+#   fewer parameters than those favoured by the AIC. Konishi, Ando & Imoto (2004, Biometrika, 91, 27) performed a deeper Bayesian analysis to
+#   derive an improved BIC, along with a version that applies to model selection for models with parameters estimated by maximum penalised
+#   likelihood. The BIC and the improved BIC are consistent model selection criteria. Again, the GAMLSS software only implements the BIC from the
+#   available BIC-like information criteria, and for GAMLSS models that employ non-parametric smoothing terms estimated by maximum penalised
+#   likelihood, the trace of the smoother matrix is adopted as an estimate of the effective number of free parameters.
+#
 # Usage:
 #
 #   To run this script, issue the following command:

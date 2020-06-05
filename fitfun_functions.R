@@ -1034,7 +1034,7 @@ plotH = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
 tvec = data$V1
 yvec = data$normalised_quantile_residuals
 time_lag_bin_size = median(tvec[2:ndata] -  tvec[1:(ndata - 1)])
-time_lag_nbins = 26
+time_lag_nbins = 51
 slotted_acf = compute_slotted_acf(tvec, yvec, time_lag_bin_size, time_lag_nbins)
 
 # Create the plot object
