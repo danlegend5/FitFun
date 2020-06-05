@@ -347,21 +347,23 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 cat('----------------------------------------------------------------\n')
-cat('Loading the "ggplot2" R library...\n')
-tryCatch(
-  { library(ggplot2) },
-  error = function(cond) { cat('ERROR - Failed to load the "ggplot2" R library...\n')
-                           q(save = 'no', status = 1) }
-)
-cat('Loading the "ggpubr" R library...\n')
-cat('----------------------------------------------------------------\n')
-tryCatch(
-  { library(ggpubr) },
-  error = function(cond) { cat('ERROR - Failed to load the "ggpubr" R library...\n')
-                           cat('----------------------------------------------------------------\n')
-                           q(save = 'no', status = 1) }
-)
-cat('----------------------------------------------------------------\n')
+if (plot_format != 'none') {
+  cat('Loading the "ggplot2" R library...\n')
+  tryCatch(
+    { library(ggplot2) },
+    error = function(cond) { cat('ERROR - Failed to load the "ggplot2" R library...\n')
+                             q(save = 'no', status = 1) }
+  )
+  cat('Loading the "ggpubr" R library...\n')
+  cat('----------------------------------------------------------------\n')
+  tryCatch(
+    { library(ggpubr) },
+    error = function(cond) { cat('ERROR - Failed to load the "ggpubr" R library...\n')
+                             cat('----------------------------------------------------------------\n')
+                             q(save = 'no', status = 1) }
+  )
+  cat('----------------------------------------------------------------\n')
+}
 cat('Loading some R functions specific to this script...\n')
 tryCatch(
   { source(file.path(path_to_modules, 'fitfun_functions.R')) },
