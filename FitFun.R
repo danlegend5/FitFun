@@ -4,7 +4,7 @@
 #                The specific procedures for fitting each individual model that is available in this script are separated out into a single R
 #              module per model. These modules have names of the form "fit_flow_density_with_<functional_form_model>_<noise_model>.R" or
 #              "fit_speed_density_with_<functional_form_model>_<noise_model>.R", and they each contain a single function of the same name (see
-#              below under "Command-Line Arguments" for the definitions of <functional_form_model> and <noise_model>). Any parameters that are
+#              below under "Command-Line Arguments" for the definitions of "functional_form_model" and "noise_model"). Any parameters that are
 #              specific to a procedure for fitting a particular model are defined within the relevant module itself, and their default values
 #              can be modified if necessary.
 #
@@ -64,11 +64,11 @@
 #   <path_to_binary>/Rscript --vanilla <path_to_script>/FitFun.R <path_to_modules> <data_file> <output_dir> <overwrite> <fd_type>
 #                                      <functional_form_model> <noise_model> <ngrid> <upper_density> <plot_format>
 #
-#   where <path_to_binary> is the full directory path to the "Rscript" binary (usually "/usr/bin") and <path_to_script> is the full directory
-#   path to where the script "FitFun.R" is stored. The definition of each of the command-line arguments <path_to_modules>, <data_file>,
-#   <output_dir>, <overwrite>, <fd_type>, <functional_form_model>, <noise_model>, <ngrid>, <upper_density>, and <plot_format> can be found below.
-#   If <path_to_binary> is in the user's path, then it can be dropped. Also, if the script is being run from the directory where it resides, then
-#   <path_to_script> can also be dropped. In this case, the command reduces to:
+#   where "path_to_binary" is the full directory path to the "Rscript" binary (usually "/usr/bin") and "path_to_script" is the full directory
+#   path to where the script "FitFun.R" is stored. The definition of each of the command-line arguments "path_to_modules", "data_file",
+#   "output_dir", "overwrite", "fd_type", "functional_form_model", "noise_model", "ngrid", "upper_density", and "plot_format" can be found below.
+#   If "path_to_binary" is in the user's path, then it can be dropped. Also, if the script is being run from the directory where it resides, then
+#   "path_to_script" can also be dropped. In this case, the command reduces to:
 #
 #   Rscript --vanilla FitFun.R <path_to_modules> <data_file> <output_dir> <overwrite> <fd_type> <functional_form_model> <noise_model> <ngrid>
 #                              <upper_density> <plot_format>
@@ -228,8 +228,8 @@
 #   R (Version >= 3.6.1)
 #   R Package: data.table (Version >= 1.12.8)
 #   R Package: gamlss (Version >= 5.1-5)
-#   R Package: ggplot2 (Version >= 3.2.1)
-#   R Package: ggpubr (Version >= 0.2.5)
+#   R Package: ggplot2 (Version >= 3.2.1) [Not required if "plot_format" is set to 'none']
+#   R Package: ggpubr (Version >= 0.2.5)  [Not required if "plot_format" is set to 'none']
 #
 # Authors:
 #
