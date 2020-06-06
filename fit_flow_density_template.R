@@ -36,14 +36,14 @@ cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
 #### EDIT HERE BELOW ####
-cat('  Free-flow\n')
+cat('  Free-flow (FF)\n')
 #### EDIT HERE ABOVE ####
 cat('\n')
 cat('Model component for the noise:\n')
 #### EDIT HERE BELOW ####
 cat('  Independent observations\n')
 cat('  Gaussian distribution\n')
-cat('  Constant variance\n')
+cat('  Constant variance (GCV)\n')
 #### EDIT HERE ABOVE ####
 cat('\n')
 cat('Data properties:\n')

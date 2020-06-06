@@ -1,11 +1,9 @@
-#### EDIT HERE BELOW ####
-fit_speed_density_with_FF_GCV = function(data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GS1935_GCV = function(data, ngrid, upper_density, output_files) {
 
-# Description: This function fits a GAMLSS model to the speed-density values in "data", and it is designed to be called directly from the R script
-#              "FitFun.R". The model component for the functional form of the speed-density relationship is the free-flow model (FF). The model
-#              component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
-#              with constant variance (GCV).
-#### EDIT HERE ABOVE ####
+# Description: This function fits a GAMLSS model to the flow-density values in "data", and it is designed to be called directly from the R script
+#              "FitFun.R". The model component for the functional form of the flow-density relationship is the Greenshields model (GS1935). The
+#              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
+#              distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -19,32 +17,26 @@ fit_speed_density_with_FF_GCV = function(data, ngrid, upper_density, output_file
 #
 # Configuration Parameters:
 #
-#### EDIT HERE BELOW ####
 #   NONE
 
 
 # Define some useful variables
-functional_form_model = 'FF'
+functional_form_model = 'GS1935'
 noise_model = 'GCV'
-#### EDIT HERE ABOVE ####
 
 # Report on the GAMLSS model and the data
 cat('\n')
 cat('>-----------------------------------------------------------------------------<\n')
 cat('\n')
-cat('The following GAMLSS model will be fit to the speed-density data:\n')
+cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-#### EDIT HERE BELOW ####
-cat('  Free-flow (FF)\n')
-#### EDIT HERE ABOVE ####
+cat('  Greenshields (GS1935)\n')
 cat('\n')
 cat('Model component for the noise:\n')
-#### EDIT HERE BELOW ####
 cat('  Independent observations\n')
 cat('  Gaussian distribution\n')
 cat('  Constant variance (GCV)\n')
-#### EDIT HERE ABOVE ####
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -52,17 +44,17 @@ tryCatch(
     data_range_density = range(data$V2)
     data_min_density = data_range_density[1]
     data_max_density = data_range_density[2]
-    data_range_speed = range(data$V3)
-    data_min_speed = data_range_speed[1]
-    data_max_speed = data_range_speed[2] },
+    data_range_flow = range(data$V3)
+    data_min_flow = data_range_flow[1]
+    data_max_flow = data_range_flow[2] },
   error = function(cond) { cat('ERROR - Failed to determine the data properties...\n')
                            q(save = 'no', status = 1) }
 )
-cat('  No. of speed-density measurement pairs (Ndat):', ndata, '\n')
-cat('  Minimum density in the data:                  ', data_min_density, '\n')
-cat('  Maximum density in the data:                  ', data_max_density, '\n')
-cat('  Minimum speed in the data:                    ', data_min_speed, '\n')
-cat('  Maximum speed in the data:                    ', data_max_speed, '\n')
+cat('  No. of flow-density measurement pairs (Ndat):', ndata, '\n')
+cat('  Minimum density in the data:                 ', data_min_density, '\n')
+cat('  Maximum density in the data:                 ', data_max_density, '\n')
+cat('  Minimum flow in the data:                    ', data_min_flow, '\n')
+cat('  Maximum flow in the data:                    ', data_max_flow, '\n')
 cat('\n')
 cat('Model reconstruction:\n')
 tryCatch(
@@ -75,16 +67,14 @@ cat('  Grid lower density:         0\n')
 cat('  Grid upper density:        ', upper_density, '\n')
 cat('  Grid density step:         ', grid_density_step, '\n')
 
-#### EDIT HERE BELOW ####
 # Fit the GAMLSS model to the data
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 1, sigma.formula = ~ 1, family = NO(), data = data) },
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ 1, family = NO(), data = data) },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
-#### EDIT HERE ABOVE ####
 
 # Check that the model fit converged
 if (model_obj$converged != TRUE) {
@@ -100,17 +90,14 @@ tryCatch(
       cat('ERROR - The predicted values for "mu" at the density values in the data include at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-#### EDIT HERE BELOW ####
     if (!all(is.finite(model_obj$sigma.fv))) {
       cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-#### EDIT HERE ABOVE ####
     if (!all(is.finite(model_obj$residuals))) {
       cat('ERROR - The normalised quantile residuals include at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-#### EDIT HERE BELOW ####
     if (any(model_obj$sigma.fv <= 0.0)) {
       cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
@@ -119,7 +106,6 @@ tryCatch(
     data[, fitted_values_sigma := model_obj$sigma.fv]
     data[, fitted_values_nu := double(length = ndata)]
     data[, fitted_values_tau := rep_len(3.0, ndata)]
-#### EDIT HERE ABOVE ####
     data[, normalised_quantile_residuals := model_obj$residuals] },
   error = function(cond) { cat('ERROR - Failed to store the predicted values for the model and the normalised quantile residuals...\n')
                            q(save = 'no', status = 1) }
@@ -134,7 +120,6 @@ tryCatch(
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-#### EDIT HERE BELOW ####
     if (!all(is.finite(predicted_values$sigma))) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
@@ -147,7 +132,6 @@ tryCatch(
     reconstructed_model_fit[, sigma := predicted_values$sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
     reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
-#### EDIT HERE ABOVE ####
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -155,7 +139,6 @@ tryCatch(
 # Construct percentile curves for the fitted model over the density range from zero to "upper_density"
 cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-#### EDIT HERE BELOW ####
   { reconstructed_model_fit[, percentile_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_m2sig := qNO(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_m1sig := qNO(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
@@ -163,7 +146,6 @@ tryCatch(
     reconstructed_model_fit[, percentile_p1sig := qNO(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_p2sig := qNO(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_p3sig := qNO(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)] },
-#### EDIT HERE ABOVE ####
   error = function(cond) { cat('ERROR - Failed to construct percentile curves for the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -173,7 +155,7 @@ cat('Estimating useful properties of the fitted model using the reconstruction..
 tryCatch(
   { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
     reconstructed_model_fit_selection = reconstructed_model_fit[selection]
-    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Speed.Density')
+    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Flow.Density')
     curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_nu_over_data_range = get_curve_properties_for_nu(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_tau_over_data_range = get_curve_properties_for_tau(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
@@ -183,7 +165,7 @@ tryCatch(
 
 # Estimate useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
 tryCatch(
-  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Speed.Density')
+  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density')
     curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_nu_over_full_range = get_curve_properties_for_nu(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_tau_over_full_range = get_curve_properties_for_tau(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
@@ -195,11 +177,9 @@ tryCatch(
 cat('Extracting information from the model fit object for the fit summary...\n')
 tryCatch(
   { npar_mu = model_obj$mu.df
-#### EDIT HERE BELOW ####
     npar_sigma = model_obj$sigma.df
     npar_nu = 0
     npar_tau = 0
-#### EDIT HERE ABOVE ####
     npar_all = model_obj$df.fit
     gdev = model_obj$G.deviance
     aic = model_obj$aic
@@ -210,18 +190,28 @@ tryCatch(
 
 # Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
-#### EDIT HERE BELOW ####
   { q_0 = 0.0
-    v_ff = model_obj$mu.coefficients[1]
-    dvdk_0 = 0.0
+    v_ff = NA
+    dvdk_0 = model_obj$mu.coefficients[2]
     k_crit = NA
     k_vmax = NA
     q_cap = NA
     v_max = NA
     k_jam = NA
     v_bw = NA
-    dvdk_kjam = NA },
-#### EDIT HERE ABOVE ####
+    dvdk_kjam = NA
+    if (model_obj$mu.coefficients[1] > 0.0) {
+      v_ff = model_obj$mu.coefficients[1]
+      if (dvdk_0 < 0.0) {
+        k_jam = -v_ff/dvdk_0
+        k_crit = 0.5*k_jam
+        k_vmax = 0.0
+        q_cap = 0.25*v_ff*k_jam
+        v_max = v_ff
+        v_bw = v_ff
+        dvdk_kjam = dvdk_0
+      }
+    } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
@@ -255,16 +245,15 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
-#### EDIT HERE BELOW ####
-cat('  v_ff:     ', model_obj$mu.coefficients[1], '\n')
-cat('  sigma_con:', exp(model_obj$sigma.coefficients[1]), '\n')
-#### EDIT HERE ABOVE ####
+cat('  v_ff:       ', model_obj$mu.coefficients[1], '\n')
+cat('  -v_ff/k_jam:', model_obj$mu.coefficients[2], '\n')
+cat('  sigma_con:  ', exp(model_obj$sigma.coefficients[1]), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
 cat('Writing out the fit summary file:    ', output_files[1], '\n')
 tryCatch(
-  { write_fit_summary(output_files[1], 'Speed.Density', ndata, data_min_density, data_max_density, data_min_speed, data_max_speed,
+  { write_fit_summary(output_files[1], 'Flow.Density', ndata, data_min_density, data_max_density, data_min_flow, data_max_flow,
                       npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
                       q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
                       curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
@@ -275,10 +264,9 @@ tryCatch(
         '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
-#### EDIT HERE BELOW ####
         model_obj$mu.coefficients[1], '           # v_ff\n',
+        model_obj$mu.coefficients[2], '           # -v_ff/k_jam\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
-#### EDIT HERE ABOVE ####
         file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',
         '# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n',
@@ -322,7 +310,7 @@ if (length(output_files) > 3) {
   cat('Creating the plots for the GAMLSS model fit...\n')
   tryCatch(
     { create_all_plots(data, ndata, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
-                       'Speed.Density', functional_form_model, noise_model, output_files) },
+                       'Flow.Density', functional_form_model, noise_model, output_files) },
     error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                              remove_file_list(output_files)
                              q(save = 'no', status = 1) }
