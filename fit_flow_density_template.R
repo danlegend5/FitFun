@@ -212,7 +212,7 @@ tryCatch(
 tryCatch(
 #### EDIT HERE BELOW ####
   { q_0 = 0.0
-    v_ff = model_obj$mu.coefficients[1]
+    v_ff = NA
     dvdk_0 = 0.0
     k_crit = NA
     k_vmax = NA
@@ -220,7 +220,8 @@ tryCatch(
     v_max = NA
     k_jam = NA
     v_bw = NA
-    dvdk_kjam = NA },
+    dvdk_kjam = NA
+    if (model_obj$mu.coefficients[1] > 0.0) { v_ff = model_obj$mu.coefficients[1] } },
 #### EDIT HERE ABOVE ####
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
