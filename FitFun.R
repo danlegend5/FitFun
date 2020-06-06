@@ -578,6 +578,31 @@ if (fd_type == 'Flow.Density') {
                                  q(save = 'no', status = 1) }
       )
     }
+
+  # If the model component for the functional form of the flow-density relationship is the Greenshields model with fixed jam density (GS1935kjf)
+  } else if (functional_form_model == 'GS1935kjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      cat('\n')
+      cat('Calling the required R module for performing the fit...\n')
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GS1935kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GS1935kjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
   }
 
 
