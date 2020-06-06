@@ -527,6 +527,8 @@ if (upper_density < max(data$V2)) {
 # Flow-density fundamental diagrams
 
 # If the form of the FD relationship is flow-density
+cat('\n')
+cat('Calling the required R module for performing the fit...\n')
 if (fd_type == 'Flow.Density') {
 
   # If the model component for the functional form of the flow-density relationship is the free-flow model (FF)
@@ -537,8 +539,6 @@ if (fd_type == 'Flow.Density') {
     if (noise_model == 'GCV') {
 
       # Load the required R module for performing the fit
-      cat('\n')
-      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
         { source(file.path(path_to_modules, 'fit_flow_density_with_FF_GCV.R')) },
         error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
@@ -562,8 +562,6 @@ if (fd_type == 'Flow.Density') {
     if (noise_model == 'GCV') {
 
       # Load the required R module for performing the fit
-      cat('\n')
-      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
         { source(file.path(path_to_modules, 'fit_flow_density_with_GS1935_GCV.R')) },
         error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
@@ -587,8 +585,6 @@ if (fd_type == 'Flow.Density') {
     if (noise_model == 'GCV') {
 
       # Load the required R module for performing the fit
-      cat('\n')
-      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
         { source(file.path(path_to_modules, 'fit_flow_density_with_GS1935kjf_GCV.R')) },
         error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
@@ -620,8 +616,6 @@ if (fd_type == 'Flow.Density') {
     if (noise_model == 'GCV') {
 
       # Load the required R module for performing the fit
-      cat('\n')
-      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
         { source(file.path(path_to_modules, 'fit_speed_density_with_FF_GCV.R')) },
         error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
@@ -645,8 +639,6 @@ if (fd_type == 'Flow.Density') {
     if (noise_model == 'GCV') {
 
       # Load the required R module for performing the fit
-      cat('\n')
-      cat('Calling the required R module for performing the fit...\n')
       tryCatch(
         { source(file.path(path_to_modules, 'fit_speed_density_with_GS1935_GCV.R')) },
         error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
@@ -656,6 +648,29 @@ if (fd_type == 'Flow.Density') {
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_speed_density_with_GS1935_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the speed-density relationship is the Greenshields model with fixed jam density (GS1935kjf)
+  } else if (functional_form_model == 'GS1935kjf') {
+
+    # If the model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_speed_density_with_GS1935kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_speed_density_with_GS1935kjf_GCV(data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
