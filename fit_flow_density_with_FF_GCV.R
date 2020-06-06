@@ -296,7 +296,7 @@ if (length(output_files) > 3) {
   cat('Creating the plots for the GAMLSS model fit...\n')
   tryCatch(
     { create_all_plots(data, ndata, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
-                       fd_type, functional_form_model, noise_model, output_files) },
+                       'Flow.Density', functional_form_model, noise_model, output_files) },
     error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                              remove_file_list(output_files)
                              q(save = 'no', status = 1) }
