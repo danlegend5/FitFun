@@ -560,6 +560,33 @@ if (fd_type == 'Flow.Density') {
 # Speed-density fundamental diagrams
 
 # If the form of the FD relationship is speed-density
+} else if (fd_type == 'Speed.Density') {
+
+  # If the model component for the functional form of the speed-density relationship is the free-flow model (FF)
+  if (functional_form_model == 'FF') {
+
+    # If the model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      cat('\n')
+      cat('Calling the required R module for performing the fit...\n')
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_speed_density_with_FF_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_speed_density_with_FF_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+  }
 }
 
 # Finish
