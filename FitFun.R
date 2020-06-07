@@ -132,7 +132,7 @@
 #                              time differences to be computed. Currently, the data in this column are only used for the computation of the slotted
 #                              auto-correlation function for the normalised quantile residuals.
 #   Column 2 - INTEGER/FLOAT - The measured value of the independent variable (i.e. density or occupancy) in the corresponding time interval. All
-#                              values in this column must be non-negative, and there must be at least one value that is non-zero.
+#                              values in this column must be positive.
 #   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed) in the corresponding time interval. All values in
 #                              this column must be non-negative, and there must be at least one value that is non-zero.
 #
@@ -491,12 +491,8 @@ if (!all(is.finite(data$V3))) {
   cat('ERROR - At least one data value in the third column is infinite...\n')
   q(save = 'no', status = 1)
 }
-if (any(data$V2 < 0.0)) {
-  cat('ERROR - At least one data value in the second column is negative...\n')
-  q(save = 'no', status = 1)
-}
-if (all(data$V2 == 0.0)) {
-  cat('ERROR - All of the data values in the second column are zero...\n')
+if (any(data$V2 <= 0.0)) {
+  cat('ERROR - At least one data value in the second column is zero or negative...\n')
   q(save = 'no', status = 1)
 }
 if (any(data$V3 < 0.0)) {
