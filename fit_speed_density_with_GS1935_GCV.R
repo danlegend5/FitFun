@@ -245,9 +245,9 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
-cat('  v_ff:       ', model_obj$mu.coefficients[1], '\n')
-cat('  -v_ff/k_jam:', model_obj$mu.coefficients[2], '\n')
-cat('  sigma_con:  ', exp(model_obj$sigma.coefficients[1]), '\n')
+cat('  v_ff:      ', model_obj$mu.coefficients[1], '\n')
+cat('  v_ff/k_jam:', -model_obj$mu.coefficients[2], '\n')
+cat('  sigma_con: ', exp(model_obj$sigma.coefficients[1]), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -265,7 +265,7 @@ tryCatch(
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
-        model_obj$mu.coefficients[2], '           # -v_ff/k_jam\n',
+        -model_obj$mu.coefficients[2], '           # v_ff/k_jam\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
         file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',
