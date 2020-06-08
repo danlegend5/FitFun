@@ -293,8 +293,10 @@ if (!is.element(fd_type, acceptable_values)) {
   q(save = 'no', status = 1)
 }
 cat('Fundamental diagram type:                           ', fd_type, '\n')
-acceptable_values = c('FF', 'GS1935', 'GS1935kjf', 'GB1959', 'GB1959kjf', 'ED1961', 'ED1961kjf',
-                      'BM1977')                                                                                                         #### FINISH
+acceptable_values = c('FF', 'GS1935', 'GS1935kjf', 'GB1959', 'GB1959kjf', 'ED1961', 'ED1961kjf', 'UW1961A', 'UW1961B', 'UW1961Bkjf',
+                      'NW1961', 'NW1961kjf', 'GZ1961A', 'GZ1961Akjf', 'GZ1961B', 'GZ1961Bkjf', 'GZ1961C', 'GZ1961Ckjf', 'GZ1961D',
+                      'GZ1961Dkjf', 'GZ1961E', 'GZ1961Ekjf', 'GZ1961F', 'GZ1961G', 'GZ1961Gkjf', 'GZ1961H', 'GZ1961Hkjf', 'DK1966A',
+                      'DK1966Akjf', 'DK1966B', 'DK1966Bkjf', 'DK1966C', 'DK1966Ckjf', 'MJ1971', 'MJ1971kjf', 'BM1977')                     #### FINISH
 if (!is.element(functional_form_model, acceptable_values)) {
   cat('ERROR - The command-line argument "functional_form_model" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
@@ -620,6 +622,719 @@ if (fd_type == 'Flow.Density') {
       )
     }
 
+  # If the model component for the functional form of the flow-density relationship is the Greenberg model with fixed jam density (GB1959kjf)
+  } else if (functional_form_model == 'GB1959kjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GB1959kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GB1959kjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Edie multi-regime model (ED1961)
+  } else if (functional_form_model == 'ED1961') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_ED1961_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_ED1961_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Edie multi-regime model with fixed jam density (ED1961kjf)
+  } else if (functional_form_model == 'ED1961kjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_ED1961kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_ED1961kjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Underwood model A (UW1961A)
+  } else if (functional_form_model == 'UW1961A') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961A_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_UW1961A_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Underwood model B (UW1961B)
+  } else if (functional_form_model == 'UW1961B') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961B_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_UW1961B_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Underwood model B with fixed jam density (UW1961Bkjf)
+  } else if (functional_form_model == 'UW1961Bkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961Bkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_UW1961Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Newell model (NW1961)
+  } else if (functional_form_model == 'NW1961') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_NW1961_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_NW1961_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Newell model with fixed jam density (NW1961kjf)
+  } else if (functional_form_model == 'NW1961kjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_NW1961kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_NW1961kjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model A (GZ1961A)
+  } else if (functional_form_model == 'GZ1961A') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961A_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961A_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model A with fixed jam density (GZ1961Akjf)
+  } else if (functional_form_model == 'GZ1961Akjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Akjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Akjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model B (GZ1961B)
+  } else if (functional_form_model == 'GZ1961B') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961B_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961B_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model B with fixed jam density (GZ1961Bkjf)
+  } else if (functional_form_model == 'GZ1961Bkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Bkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model C (GZ1961C)
+  } else if (functional_form_model == 'GZ1961C') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961C_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961C_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model C with fixed jam density (GZ1961Ckjf)
+  } else if (functional_form_model == 'GZ1961Ckjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Ckjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Ckjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model D (GZ1961D)
+  } else if (functional_form_model == 'GZ1961D') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961D_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961D_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model D with fixed jam density (GZ1961Dkjf)
+  } else if (functional_form_model == 'GZ1961Dkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Dkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Dkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model E (GZ1961E)
+  } else if (functional_form_model == 'GZ1961E') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961E_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961E_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model E with fixed jam density (GZ1961Ekjf)
+  } else if (functional_form_model == 'GZ1961Ekjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Ekjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Ekjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model F (GZ1961F)
+  } else if (functional_form_model == 'GZ1961F') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961F_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961F_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model G (GZ1961G)
+  } else if (functional_form_model == 'GZ1961G') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961G_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961G_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model G with fixed jam density (GZ1961Gkjf)
+  } else if (functional_form_model == 'GZ1961Gkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Gkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Gkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model H (GZ1961H)
+  } else if (functional_form_model == 'GZ1961H') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961H_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961H_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Gazis model H with fixed jam density (GZ1961Hkjf)
+  } else if (functional_form_model == 'GZ1961Hkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Hkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_GZ1961Hkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model A (DK1966A)
+  } else if (functional_form_model == 'DK1966A') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966A_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966A_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model A with fixed jam density (DK1966Akjf)
+  } else if (functional_form_model == 'DK1966Akjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Akjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966Akjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model B (DK1966B)
+  } else if (functional_form_model == 'DK1966B') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966B_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966B_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model B with fixed jam density (DK1966Bkjf)
+  } else if (functional_form_model == 'DK1966Bkjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Bkjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model C (DK1966C)
+  } else if (functional_form_model == 'DK1966C') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966C_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966C_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Drake multi-regime model C with fixed jam density (DK1966Ckjf)
+  } else if (functional_form_model == 'DK1966Ckjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Ckjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_DK1966Ckjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Munjal multi-regime model (MJ1971)
+  } else if (functional_form_model == 'MJ1971') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_MJ1971_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_MJ1971_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
+  # If the model component for the functional form of the flow-density relationship is the Munjal multi-regime model with fixed jam density (MJ1971kjf)
+  } else if (functional_form_model == 'MJ1971kjf') {
+
+    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+    # with constant variance (GCV)
+    if (noise_model == 'GCV') {
+
+      # Load the required R module for performing the fit
+      tryCatch(
+        { source(file.path(path_to_modules, 'fit_flow_density_with_MJ1971kjf_GCV.R')) },
+        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                                 q(save = 'no', status = 1) }
+      )
+
+      # Fit the chosen GAMLSS model to the data
+      tryCatch(
+        { model_obj = fit_flow_density_with_MJ1971kjf_GCV(data, ngrid, upper_density, output_files) },
+        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+                                 remove_file_list(output_files)
+                                 q(save = 'no', status = 1) }
+      )
+    }
+
   # If the model component for the functional form of the flow-density relationship is the Boardman model (BM1977)
   } else if (functional_form_model == 'BM1977') {
 
@@ -642,6 +1357,32 @@ if (fd_type == 'Flow.Density') {
                                  q(save = 'no', status = 1) }
       )
     }
+
+
+#  # If the model component for the functional form of the flow-density relationship is the XXXX model XXXXwith fixed jam densityXXXX (XXXX)
+#  } else if (functional_form_model == 'XXXX') {
+#
+#    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
+#    # with constant variance (GCV)
+#    if (noise_model == 'GCV') {
+#
+#      # Load the required R module for performing the fit
+#      tryCatch(
+#        { source(file.path(path_to_modules, 'fit_flow_density_with_XXXX_GCV.R')) },
+#        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+#                                 q(save = 'no', status = 1) }
+#      )
+#
+#      # Fit the chosen GAMLSS model to the data
+#      tryCatch(
+#        { model_obj = fit_flow_density_with_XXXX_GCV(data, ngrid, upper_density, output_files) },
+#        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
+#                                 remove_file_list(output_files)
+#                                 q(save = 'no', status = 1) }
+#      )
+#    }
+
+
   }
 
 
