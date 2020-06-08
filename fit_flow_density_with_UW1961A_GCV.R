@@ -195,7 +195,7 @@ tryCatch(
 tryCatch(
   { q_0 = 0.0
     v_ff = exp(model_obj$mu.coefficients[1])
-    dvdk_0 = NA
+    dvdk_0 = v_ff*model_obj$mu.coefficients[2]
     k_crit = NA
     k_vmax = NA
     q_cap = NA
@@ -205,7 +205,6 @@ tryCatch(
     dvdk_kjam = NA
     if (model_obj$mu.coefficients[2] < 0.0) {
       k_crit = -1.0/model_obj$mu.coefficients[2]
-      dvdk_0 = -v_ff/k_crit
       k_vmax = 0.0
       q_cap = v_ff*k_crit/exp(1.0)
       v_max = v_ff

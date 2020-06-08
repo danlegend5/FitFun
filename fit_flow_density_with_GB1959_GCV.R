@@ -207,7 +207,7 @@ tryCatch(
       k_jam = exp(model_obj$mu.coefficients[1]/v_bw)
       k_crit = k_jam/exp(1.0)
       q_cap = v_bw*k_crit
-      dvdk_kjam = model_obj$mu.coefficients[2]/k_jam
+      dvdk_kjam = -v_bw/k_jam
     } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
