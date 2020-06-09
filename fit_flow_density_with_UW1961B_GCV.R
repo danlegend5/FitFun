@@ -77,16 +77,16 @@ tryCatch(
       cat('ERROR - The initial fit did not converge...\n')
       q(save = 'no', status = 1)
     }
-    attach(data)
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(exp(V2)^p[1])) + V2, sigma.formula = ~ 1, family = NO()))
     par_init = c(init_model_obj$mu.coefficients[2])
     par_steps = c(par1_step)
+    attach(data)
     optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps)
+    detach(data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')
       q(save = 'no', status = 1)
     }
-    detach(data)
     par1 = optim_obj$par[1]
     model_obj = gamlss(V3 ~ 0 + I(V2*(exp(V2)^par1)) + V2, sigma.formula = ~ 1, family = NO(), data = data)
     model_obj$mu.df = model_obj$mu.df + 1
