@@ -161,8 +161,7 @@ cat('Reconstructing the fitted model over the density range from 0 to', upper_de
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
     predicted_values_for_mu = double(length = ngrid)
-    tmpvec = reconstructed_model_fit$V2[2:ngrid]
-    predicted_values_for_mu[2:ngrid] = model_obj$mu.coefficients[1]*tmpvec*(1.0 - (par1^((1.0/tmpvec) - (1.0/par2))))
+    predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
     predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
