@@ -98,7 +98,7 @@ tryCatch(
     par2_init = exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2])
     par1_init = exp(init_model_obj$mu.coefficients[2]*(par2_init/v_ff_init))
 
-    # Perform the full fit
+    # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/p[2]))))), sigma.formula = ~ 1, family = NO()))
     par_init = c(par1_init, par2_init)
     par_steps = c(par1_step, par2_step)
@@ -111,6 +111,8 @@ tryCatch(
     }
     par1 = optim_obj$par[1]
     par2 = optim_obj$par[2]
+
+    # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (par1^((1.0/V2) - (1.0/par2))))), sigma.formula = ~ 1, family = NO(), data = data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')

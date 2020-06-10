@@ -71,16 +71,14 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ 1, family = NO(), data = data) },
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ 1, family = NO(), data = data)
+    if (model_obj$converged != TRUE) {
+      cat('ERROR - The fit did not converge...\n')
+      q(save = 'no', status = 1)
+    } },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
-
-# Check that the model fit converged
-if (model_obj$converged != TRUE) {
-  cat('ERROR - The fit did not converge...\n')
-  q(save = 'no', status = 1)
-}
 
 # Store the predicted values for the model at the density values in the data, along with the normalised quantile residuals, in the data table
 cat('\n')

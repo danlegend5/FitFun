@@ -72,11 +72,15 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
+
+  # Fit an Underwood model A to estimate an initial value for -1/k_crit
   { init_model_obj = gamlss(V3 ~ 1 + offset(log(V2)) + V2, sigma.formula = ~ 1, family = NO(mu.link = 'log'), data = data)
     if (init_model_obj$converged != TRUE) {
-      cat('ERROR - The initial fit did not converge...\n')
+      cat('ERROR - The initial fit of an Underwood model A did not converge...\n')
       q(save = 'no', status = 1)
     }
+
+    # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(exp(V2)^p[1])) + V2, sigma.formula = ~ 1, family = NO()))
     par_init = c(init_model_obj$mu.coefficients[2])
     par_steps = c(par1_step)
@@ -88,7 +92,13 @@ tryCatch(
       q(save = 'no', status = 1)
     }
     par1 = optim_obj$par[1]
+
+    # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(V2*(exp(V2)^par1)) + V2, sigma.formula = ~ 1, family = NO(), data = data)
+    if (model_obj$converged != TRUE) {
+      cat('ERROR - The final fit did not converge...\n')
+      q(save = 'no', status = 1)
+    }
     model_obj$mu.df = model_obj$mu.df + 1
     model_obj$df.fit = model_obj$df.fit + 1
     model_obj$df.residual = model_obj$df.residual - 1
@@ -97,12 +107,6 @@ tryCatch(
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
-
-# Check that the model fit converged
-if (model_obj$converged != TRUE) {
-  cat('ERROR - The fit did not converge...\n')
-  q(save = 'no', status = 1)
-}
 
 # Store the predicted values for the model at the density values in the data, along with the normalised quantile residuals, in the data table
 cat('\n')
