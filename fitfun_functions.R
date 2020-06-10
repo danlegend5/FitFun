@@ -745,7 +745,7 @@ cat('###########################################################################
 
 
 ################################################################################################################################################
-plotA = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+plotA = function(traffic_data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Fitted.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -757,7 +757,7 @@ plotA = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, o
 
 
 # Create the plot object
-ylo = min(0.0, data$V3, reconstructed_model_fit$mu)
+ylo = min(0.0, traffic_data$V3, reconstructed_model_fit$mu)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -768,7 +768,7 @@ plot_obj = ggplot() +
            scale_y_continuous(limits = c(ylo, NA), expand = expand_scale(mult = 0.03)) +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+           geom_point(mapping = aes(x = V2, y = V3), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1) +
            geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit, size = 0.5)
 
 # Save the plot to the file "output_file"
@@ -777,7 +777,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotB = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
+plotB = function(traffic_data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Residuals.From.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -789,7 +789,7 @@ plotB = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-range_resid = range(data$V3 - data$fitted_values_mu)
+range_resid = range(traffic_data$V3 - traffic_data$fitted_values_mu)
 ylo = min(0.0, range_resid[1])
 yhi = max(0.0, range_resid[2])
 plot_obj = ggplot() +
@@ -802,7 +802,7 @@ plot_obj = ggplot() +
            scale_y_continuous(limits = c(ylo, yhi), expand = expand_scale(mult = 0.03)) +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = V2, y = V3 - fitted_values_mu), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+           geom_point(mapping = aes(x = V2, y = V3 - fitted_values_mu), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1)
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
@@ -810,7 +810,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotC = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+plotC = function(traffic_data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Percentiles.And.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -822,7 +822,7 @@ plotC = function(data, reconstructed_model_fit, title_str, xlab_str, ylab_str, o
 
 
 # Create the plot object
-ylo = min(0.0, data$V3, reconstructed_model_fit$mu, reconstructed_model_fit$percentile_m3sig)
+ylo = min(0.0, traffic_data$V3, reconstructed_model_fit$mu, reconstructed_model_fit$percentile_m3sig)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -838,7 +838,7 @@ plot_obj = ggplot() +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_p2sig, ymax = percentile_p3sig), data = reconstructed_model_fit, fill = 'grey90') +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = V2, y = V3), data = data, colour = 'red', shape = 'circle small', size = 0.1) +
+           geom_point(mapping = aes(x = V2, y = V3), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1) +
            geom_line(mapping = aes(x = V2, y = percentile_0sig), data = reconstructed_model_fit, colour = 'blue', linetype = 'dashed', size = 0.5) +
            geom_line(mapping = aes(x = V2, y = mu), data = reconstructed_model_fit, size = 0.5)
 
@@ -848,7 +848,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotD = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
+plotD = function(traffic_data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -860,7 +860,7 @@ plotD = function(data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-yhi = max(3.0, abs(data$normalised_quantile_residuals))
+yhi = max(3.0, abs(traffic_data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = 0.0, to = density_hi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -879,7 +879,7 @@ plot_obj = ggplot() +
            geom_ribbon(mapping = aes(x = x, ymin = ylo + 3.0, ymax = yhi + 2.0), data = background_area, fill = 'grey90') +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = V2, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+           geom_point(mapping = aes(x = V2, y = normalised_quantile_residuals), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1)
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
@@ -887,7 +887,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotE = function(data, title_str, xlab_str, ylab_str, output_file) {
+plotE = function(traffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -899,10 +899,10 @@ plotE = function(data, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-range_mu = range(data$fitted_values_mu)
+range_mu = range(traffic_data$fitted_values_mu)
 xlo = min(0.0, range_mu[1])
 xhi = max(0.0, range_mu[2])
-yhi = max(3.0, abs(data$normalised_quantile_residuals))
+yhi = max(3.0, abs(traffic_data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -921,7 +921,7 @@ plot_obj = ggplot() +
            geom_ribbon(mapping = aes(x = x, ymin = ylo + 3.0, ymax = yhi + 2.0), data = background_area, fill = 'grey90') +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = fitted_values_mu, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+           geom_point(mapping = aes(x = fitted_values_mu, y = normalised_quantile_residuals), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1)
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
@@ -929,7 +929,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotF = function(data, title_str, xlab_str, ylab_str, output_file) {
+plotF = function(traffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -941,10 +941,10 @@ plotF = function(data, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Create the plot object
-range_time = range(data$V1)
+range_time = range(traffic_data$V1)
 xlo = range_time[1]
 xhi = range_time[2]
-yhi = max(3.0, abs(data$normalised_quantile_residuals))
+yhi = max(3.0, abs(traffic_data$normalised_quantile_residuals))
 background_area = data.table(x = seq(from = xlo, to = xhi, length.out = 2))
 background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
@@ -963,7 +963,7 @@ plot_obj = ggplot() +
            geom_ribbon(mapping = aes(x = x, ymin = ylo + 3.0, ymax = yhi + 2.0), data = background_area, fill = 'grey90') +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
-           geom_point(mapping = aes(x = V1, y = normalised_quantile_residuals), data = data, colour = 'red', shape = 'circle small', size = 0.1)
+           geom_point(mapping = aes(x = V1, y = normalised_quantile_residuals), data = traffic_data, colour = 'red', shape = 'circle small', size = 0.1)
 
 # Save the plot to the file "output_file"
 ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units = 'in')
@@ -971,7 +971,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotG = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
+plotG = function(traffic_data, ntraffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" (see
 #              FitFun.R for details). The paper describing the detrended Normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
@@ -984,19 +984,19 @@ plotG = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
 
 
 # Prepare the data for plotting
-zvals = qnorm(seq(from = 0.5/ndata, to = (ndata - 0.5)/ndata, length.out = ndata))
-data_plot = data.table(zvals = zvals, detrended_nqr = sort(data$normalised_quantile_residuals) - zvals)
+zvals = qnorm(seq(from = 0.5/ntraffic_data, to = (ntraffic_data - 0.5)/ntraffic_data, length.out = ntraffic_data))
+data_plot = data.table(zvals = zvals, detrended_nqr = sort(traffic_data$normalised_quantile_residuals) - zvals)
 
 # Compute the 95% confidence interval
 level = 0.95
 fac = qnorm(0.5*(1.0 - level))
-zseq = seq(from = min(-3.0, zvals[1]), to = max(3.0, zvals[ndata]), length.out = 1000)
+zseq = seq(from = min(-3.0, zvals[1]), to = max(3.0, zvals[ntraffic_data]), length.out = 1000)
 pseq = pnorm(zseq)
-ciseq = (fac/dnorm(zseq))*sqrt((pseq*(1 - pseq))/ndata)
+ciseq = (fac/dnorm(zseq))*sqrt((pseq*(1 - pseq))/ntraffic_data)
 ci_plot = data.table(zseq = zseq, ciseq = ciseq)
 
 # Create the plot object
-yhi = max(12.0/sqrt(ndata), abs(data_plot$detrended_nqr))
+yhi = max(12.0/sqrt(ntraffic_data), abs(data_plot$detrended_nqr))
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
            theme(plot.title = element_text(hjust = 0.5)) +
@@ -1017,7 +1017,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotH = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
+plotH = function(traffic_data, ntraffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -1031,9 +1031,9 @@ plotH = function(data, ndata, title_str, xlab_str, ylab_str, output_file) {
 # Determine the time lag bin size and compute the slotted auto-correlation function (slotted ACF). Note that for a small enough time lag bin size,
 # the expected value of the slotted ACF in the zero time lag bin is unity since the slotted ACF is computed for a time-series of normalised quantile
 # residuals (i.e. E(X^2) = 1 for X ~ N(0,1)).
-tvec = data$V1
-yvec = data$normalised_quantile_residuals
-time_lag_bin_size = median(tvec[2:ndata] -  tvec[1:(ndata - 1)])
+tvec = traffic_data$V1
+yvec = traffic_data$normalised_quantile_residuals
+time_lag_bin_size = median(tvec[2:ntraffic_data] -  tvec[1:(ntraffic_data - 1)])
 time_lag_nbins = 51
 slotted_acf = compute_slotted_acf(tvec, yvec, time_lag_bin_size, time_lag_nbins)
 
@@ -1070,7 +1070,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-create_all_plots = function(data, ndata, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
+create_all_plots = function(traffic_data, ntraffic_data, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
                             fd_type, functional_form_model, noise_model, output_files) {
 
 # Description: This function creates all of the plots for a GAMLSS model fit.
@@ -1098,22 +1098,22 @@ if (npts > 4000) {
   reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
 }
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Data Density Range')
-plotA(data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[4])
+plotA(traffic_data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[4])
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[5], '\n')
 title_str = paste0(fd_str, ' Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
-plotB(data, data_max_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[5])
+plotB(traffic_data, data_max_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[5])
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[6], '\n')
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Data Density Range')
-plotC(data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[6])
+plotC(traffic_data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[6])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[7], '\n')
 title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
-plotD(data, data_max_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[7])
+plotD(traffic_data, data_max_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[7])
 
 # Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[8], '\n')
@@ -1124,42 +1124,42 @@ if (ngrid > 4000) {
   reconstructed_model_fit = reconstructed_model_fit[selection]
 }
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Full Density Range')
-plotA(data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[8])
+plotA(traffic_data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[8])
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[9], '\n')
 title_str = paste0(fd_str, ' Residuals From Fitted Mu Curve vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
-plotB(data, upper_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[9])
+plotB(traffic_data, upper_density, title_str, 'Density', paste0(fd_str, ' Residuals'), output_files[9])
 
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[10], '\n')
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Full Density Range')
-plotC(data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[10])
+plotC(traffic_data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[10])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[11], '\n')
 title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
-plotD(data, upper_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[11])
+plotD(traffic_data, upper_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[11])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[12], '\n')
 title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Fitted Mu Values : ', functional_form_model, ' : ', noise_model)
-plotE(data, title_str, 'Fitted Mu', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[12])
+plotE(traffic_data, title_str, 'Fitted Mu', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[12])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[13], '\n')
 title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Time : ', functional_form_model, ' : ', noise_model)
-plotF(data, title_str, 'Time', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[13])
+plotF(traffic_data, title_str, 'Time', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[13])
 
 # Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[14], '\n')
 title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
-plotG(data, ndata, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
+plotG(traffic_data, ntraffic_data, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
 
 # Create the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[15], '\n')
 title_str = paste0('Slotted Auto-Correlation Function For Normalised Quantile Residuals : ', functional_form_model, ' : ', noise_model)
-plotH(data, ndata, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15])
+plotH(traffic_data, ntraffic_data, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15])
 }
 
 

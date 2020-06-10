@@ -450,73 +450,73 @@ if (dir.exists(output_dir)) {
 cat('\n')
 cat('Reading in the data file:', data_file, '\n')
 tryCatch(
-  { data = fread(data_file, header = FALSE) },
+  { traffic_data = fread(data_file, header = FALSE) },
   error = function(cond) { cat('ERROR - Failed to read in the data file...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Perform basic checks on the data that have been read in
-ndata = nrow(data)
-if (ndata == 0) {
+ntraffic_data = nrow(traffic_data)
+if (ntraffic_data == 0) {
   cat('ERROR - The data file is empty...\n')
   q(save = 'no', status = 1)
 }
-if (ncol(data) != 3) {
+if (ncol(traffic_data) != 3) {
   cat('ERROR - The data file does not have exactly three columns...\n')
   q(save = 'no', status = 1)
 }
-if (!is.numeric(data$V1)) {
+if (!is.numeric(traffic_data$V1)) {
   cat('ERROR - The data in the first column of the data file are not numeric...\n')
   q(save = 'no', status = 1)
 }
-if (!is.numeric(data$V2)) {
+if (!is.numeric(traffic_data$V2)) {
   cat('ERROR - The data in the second column of the data file are not numeric...\n')
   q(save = 'no', status = 1)
 }
-if (!is.numeric(data$V3)) {
+if (!is.numeric(traffic_data$V3)) {
   cat('ERROR - The data in the third column of the data file are not numeric...\n')
   q(save = 'no', status = 1)
 }
-if (ndata < 5) {
+if (ntraffic_data < 5) {
   cat('ERROR - The data file has less than 5 data lines...\n')
   q(save = 'no', status = 1)
 }
-if (!all(is.finite(data$V1))) {
+if (!all(is.finite(traffic_data$V1))) {
   cat('ERROR - At least one data value in the first column is infinite...\n')
   q(save = 'no', status = 1)
 }
-if (!all(is.finite(data$V2))) {
+if (!all(is.finite(traffic_data$V2))) {
   cat('ERROR - At least one data value in the second column is infinite...\n')
   q(save = 'no', status = 1)
 }
-if (!all(is.finite(data$V3))) {
+if (!all(is.finite(traffic_data$V3))) {
   cat('ERROR - At least one data value in the third column is infinite...\n')
   q(save = 'no', status = 1)
 }
-if (any(data$V2 <= 0.0)) {
+if (any(traffic_data$V2 <= 0.0)) {
   cat('ERROR - At least one data value in the second column is zero or negative...\n')
   q(save = 'no', status = 1)
 }
-if (any(data$V3 < 0.0)) {
+if (any(traffic_data$V3 < 0.0)) {
   cat('ERROR - At least one data value in the third column is negative...\n')
   q(save = 'no', status = 1)
 }
-if (all(data$V3 == 0.0)) {
+if (all(traffic_data$V3 == 0.0)) {
   cat('ERROR - All of the data values in the third column are zero...\n')
   q(save = 'no', status = 1)
 }
-cat('No. of lines read in:    ', ndata, '\n')
+cat('No. of lines read in:    ', ntraffic_data, '\n')
 
 # Sort the data into increasing time order
 cat('Sorting the data by time...\n')
 tryCatch(
-  { setorder(data, V1) },
+  { setorder(traffic_data, V1) },
   error = function(cond) { cat('ERROR - Failed to sort the data...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Make a further check on "upper_density"
-if (upper_density < max(data$V2)) {
+if (upper_density < max(traffic_data$V2)) {
   cat('ERROR - The command-line argument "upper_density" is less than the maximum value of the density data...\n')
   q(save = 'no', status = 1)
 }
@@ -546,7 +546,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_FF_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_FF_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -569,7 +569,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GS1935_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GS1935_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -592,7 +592,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GS1935kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GS1935kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -615,7 +615,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GB1959_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GB1959_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -638,7 +638,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GB1959kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GB1959kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -661,7 +661,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_ED1961_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_ED1961_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -684,7 +684,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_ED1961kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_ED1961kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -707,7 +707,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_UW1961A_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_UW1961A_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -730,7 +730,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_UW1961B_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_UW1961B_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -753,7 +753,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_UW1961Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_UW1961Bkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -776,7 +776,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_NW1961_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_NW1961_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -799,7 +799,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_NW1961kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_NW1961kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -822,7 +822,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961A_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961A_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -845,7 +845,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Akjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Akjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -868,7 +868,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961B_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961B_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -891,7 +891,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Bkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -914,7 +914,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961C_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961C_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -937,7 +937,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Ckjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Ckjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -960,7 +960,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961D_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961D_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -983,7 +983,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Dkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Dkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1006,7 +1006,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961E_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961E_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1029,7 +1029,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Ekjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Ekjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1052,7 +1052,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961F_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961F_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1075,7 +1075,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961G_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961G_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1098,7 +1098,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Gkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Gkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1121,7 +1121,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961H_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961H_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1144,7 +1144,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_GZ1961Hkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_GZ1961Hkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1167,7 +1167,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966A_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966A_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1190,7 +1190,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966Akjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966Akjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1213,7 +1213,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966B_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966B_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1236,7 +1236,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966Bkjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966Bkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1259,7 +1259,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966C_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966C_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1282,7 +1282,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_DK1966Ckjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_DK1966Ckjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1305,7 +1305,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_MJ1971_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_MJ1971_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1328,7 +1328,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_MJ1971kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_MJ1971kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1351,7 +1351,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_flow_density_with_BM1977_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_flow_density_with_BM1977_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1375,7 +1375,7 @@ if (fd_type == 'Flow.Density') {
 #
 #      # Fit the chosen GAMLSS model to the data
 #      tryCatch(
-#        { model_obj = fit_flow_density_with_XXXX_GCV(data, ngrid, upper_density, output_files) },
+#        { model_obj = fit_flow_density_with_XXXX_GCV(traffic_data, ngrid, upper_density, output_files) },
 #        error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
 #                                 remove_file_list(output_files)
 #                                 q(save = 'no', status = 1) }
@@ -1408,7 +1408,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_speed_density_with_FF_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_speed_density_with_FF_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1431,7 +1431,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_speed_density_with_GS1935_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_speed_density_with_GS1935_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }
@@ -1454,7 +1454,7 @@ if (fd_type == 'Flow.Density') {
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
-        { model_obj = fit_speed_density_with_GS1935kjf_GCV(data, ngrid, upper_density, output_files) },
+        { model_obj = fit_speed_density_with_GS1935kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
         error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model for unknown reasons...\n')
                                  remove_file_list(output_files)
                                  q(save = 'no', status = 1) }

@@ -1,8 +1,8 @@
-fit_speed_density_with_GS1935_GCV = function(data, ngrid, upper_density, output_files) {
+fit_speed_density_with_GS1935_GCV = function(traffic_data, ngrid, upper_density, output_files) {
 
-# Description: This function fits a GAMLSS model to the speed-density values in "data", and it is designed to be called directly from the R script
-#              "FitFun.R". The model component for the functional form of the speed-density relationship is the Greenshields model (GS1935). The
-#              model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian
+# Description: This function fits a GAMLSS model to the speed-density values in "traffic_data", and it is designed to be called directly from the R
+#              script "FitFun.R". The model component for the functional form of the speed-density relationship is the Greenshields model (GS1935).
+#              The model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian
 #              distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
@@ -40,17 +40,17 @@ cat('  Constant variance (GCV)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
-  { ndata = nrow(data)
-    data_range_density = range(data$V2)
+  { ntraffic_data = nrow(traffic_data)
+    data_range_density = range(traffic_data$V2)
     data_min_density = data_range_density[1]
     data_max_density = data_range_density[2]
-    data_range_speed = range(data$V3)
+    data_range_speed = range(traffic_data$V3)
     data_min_speed = data_range_speed[1]
     data_max_speed = data_range_speed[2] },
   error = function(cond) { cat('ERROR - Failed to determine the data properties...\n')
                            q(save = 'no', status = 1) }
 )
-cat('  No. of speed-density measurement pairs (Ndat):', ndata, '\n')
+cat('  No. of speed-density measurement pairs (Ndat):', ntraffic_data, '\n')
 cat('  Minimum density in the data:                  ', data_min_density, '\n')
 cat('  Maximum density in the data:                  ', data_max_density, '\n')
 cat('  Minimum speed in the data:                    ', data_min_speed, '\n')
@@ -71,7 +71,7 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 1 + V2, sigma.formula = ~ 1, family = NO(), data = data)
+  { model_obj = gamlss(V3 ~ 1 + V2, sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
@@ -100,11 +100,11 @@ tryCatch(
       cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
-    data[, fitted_values_mu := model_obj$mu.fv]
-    data[, fitted_values_sigma := model_obj$sigma.fv]
-    data[, fitted_values_nu := double(length = ndata)]
-    data[, fitted_values_tau := rep_len(3.0, ndata)]
-    data[, normalised_quantile_residuals := model_obj$residuals] },
+    traffic_data[, fitted_values_mu := model_obj$mu.fv]
+    traffic_data[, fitted_values_sigma := model_obj$sigma.fv]
+    traffic_data[, fitted_values_nu := double(length = ntraffic_data)]
+    traffic_data[, fitted_values_tau := rep_len(3.0, ntraffic_data)]
+    traffic_data[, normalised_quantile_residuals := model_obj$residuals] },
   error = function(cond) { cat('ERROR - Failed to store the predicted values for the model and the normalised quantile residuals...\n')
                            q(save = 'no', status = 1) }
 )
@@ -113,7 +113,7 @@ tryCatch(
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
-    predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = data)
+    predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     if (!all(is.finite(predicted_values$mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
@@ -251,7 +251,7 @@ cat('  sigma_con: ', exp(model_obj$sigma.coefficients[1]), '\n')
 cat('\n')
 cat('Writing out the fit summary file:    ', output_files[1], '\n')
 tryCatch(
-  { write_fit_summary(output_files[1], 'Speed.Density', ndata, data_min_density, data_max_density, data_min_speed, data_max_speed,
+  { write_fit_summary(output_files[1], 'Speed.Density', ntraffic_data, data_min_density, data_max_density, data_min_speed, data_max_speed,
                       npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
                       q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
                       curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
@@ -296,7 +296,7 @@ cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
         'Normalised Quantile Residual\n', file = output_files[3])
-    write.table(data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
+    write.table(traffic_data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
                            remove_file_list(output_files)
                            q(save = 'no', status = 1) }
@@ -307,7 +307,7 @@ if (length(output_files) > 3) {
   cat('\n')
   cat('Creating the plots for the GAMLSS model fit...\n')
   tryCatch(
-    { create_all_plots(data, ndata, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
+    { create_all_plots(traffic_data, ntraffic_data, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
                        'Speed.Density', functional_form_model, noise_model, output_files) },
     error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                              remove_file_list(output_files)
