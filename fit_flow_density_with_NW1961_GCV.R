@@ -245,13 +245,16 @@ tryCatch(
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = par2
+    k_jam = NA
     v_bw = NA
     dvdk_kjam = NA
     if (model_obj$mu.coefficients[1] > 0.0) {
       v_ff = model_obj$mu.coefficients[1]
+#      k_crit =     # Can be computed numerically - not yet implemented
       k_vmax = 0.0
+#      q_cap =      # Can be computed once k_crit is available - not yet implemented
       v_max = v_ff
+      k_jam = par2
       v_bw = (-v_ff/k_jam)*log(par1)
       dvdk_kjam = -v_bw/k_jam
     } },

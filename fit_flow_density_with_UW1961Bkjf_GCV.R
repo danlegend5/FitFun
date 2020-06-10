@@ -236,7 +236,9 @@ tryCatch(
     if (tmp_val3 > 0.0) {
       v_ff = tmp_val3
       if (par1 < 0.0) {
+#        k_crit =     # Can be computed numerically - not yet implemented
         k_vmax = 0.0
+#        q_cap =      # Can be computed once k_crit is available - not yet implemented
         v_max = v_ff
         v_bw = -model_obj$mu.coefficients[1]*tmp_val1*tmp_val2
         dvdk_kjam = dvdk_0*tmp_val2

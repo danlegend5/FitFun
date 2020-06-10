@@ -233,6 +233,8 @@ tryCatch(
         k_vmax = 0.0
         v_max = v_ff
         if (model_obj$mu.coefficients[2] < 0.0) {
+#          k_crit =     # Can be computed numerically - not yet implemented
+#          q_cap =      # Can be computed once k_crit is available - not yet implemented
           k_jam = log(-model_obj$mu.coefficients[2]/model_obj$mu.coefficients[1])/par1
           tmp_val2 = par1*k_jam
           v_bw = model_obj$mu.coefficients[2]*tmp_val2
