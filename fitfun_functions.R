@@ -745,7 +745,7 @@ cat('###########################################################################
 
 
 ################################################################################################################################################
-plotA = function(traffic_data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+plotA = function(traffic_data, reconstructed_model_fit, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Fitted.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -764,7 +764,7 @@ plot_obj = ggplot() +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
-           scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+           scale_x_continuous(limits = c(0.0, density_hi), expand = expand_scale(mult = 0.02)) +
            scale_y_continuous(limits = c(ylo, NA), expand = expand_scale(mult = 0.03)) +
            geom_hline(yintercept = 0, linetype = 'dotted') +
            geom_vline(xintercept = 0, linetype = 'dotted') +
@@ -810,7 +810,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 
 
 ################################################################################################################################################
-plotC = function(traffic_data, reconstructed_model_fit, title_str, xlab_str, ylab_str, output_file) {
+plotC = function(traffic_data, reconstructed_model_fit, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Percentiles.And.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 #              (see FitFun.R for details).
@@ -829,7 +829,7 @@ plot_obj = ggplot() +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
-           scale_x_continuous(expand = expand_scale(mult = 0.02)) +
+           scale_x_continuous(limits = c(0.0, density_hi), expand = expand_scale(mult = 0.02)) +
            scale_y_continuous(limits = c(ylo, NA), expand = expand_scale(mult = 0.03)) +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_m3sig, ymax = percentile_m2sig), data = reconstructed_model_fit, fill = 'grey90') +
            geom_ribbon(mapping = aes(x = V2, ymin = percentile_m2sig, ymax = percentile_m1sig), data = reconstructed_model_fit, fill = 'grey80') +
@@ -1098,7 +1098,7 @@ if (npts > 4000) {
   reconstructed_model_fit_selection = reconstructed_model_fit_selection[selection]
 }
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Data Density Range')
-plotA(traffic_data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[4])
+plotA(traffic_data, reconstructed_model_fit_selection, data_max_density, title_str, 'Density', fd_str, output_files[4])
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[5], '\n')
@@ -1108,7 +1108,7 @@ plotB(traffic_data, data_max_density, title_str, 'Density', paste0(fd_str, ' Res
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[6], '\n')
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Data Density Range')
-plotC(traffic_data, reconstructed_model_fit_selection, title_str, 'Density', fd_str, output_files[6])
+plotC(traffic_data, reconstructed_model_fit_selection, data_max_density, title_str, 'Density', fd_str, output_files[6])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[7], '\n')
@@ -1124,7 +1124,7 @@ if (ngrid > 4000) {
   reconstructed_model_fit = reconstructed_model_fit[selection]
 }
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Full Density Range')
-plotA(traffic_data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[8])
+plotA(traffic_data, reconstructed_model_fit, upper_density, title_str, 'Density', fd_str, output_files[8])
 
 # Create the plot "Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[9], '\n')
@@ -1134,7 +1134,7 @@ plotB(traffic_data, upper_density, title_str, 'Density', paste0(fd_str, ' Residu
 # Create the plot "Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[10], '\n')
 title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise_model, ' : Fitted Mu Curve : Percentile Regions : Full Density Range')
-plotC(traffic_data, reconstructed_model_fit, title_str, 'Density', fd_str, output_files[10])
+plotC(traffic_data, reconstructed_model_fit, upper_density, title_str, 'Density', fd_str, output_files[10])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[11], '\n')
