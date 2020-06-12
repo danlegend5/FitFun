@@ -1,9 +1,9 @@
-fit_flow_density_with_GZ1961D_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GZ1961Dkjf_GCV = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Gazis model D (GZ1961D). The
-#              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with constant variance (GCV).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Gazis model D with fixed jam
+#              density (GZ1961Dkjf). The model component for the noise in the flow-density relationship is defined as independent observations that
+#              follow a Gaussian distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,11 +17,11 @@ fit_flow_density_with_GZ1961D_GCV = function(traffic_data, ngrid, upper_density,
 #
 # Configuration Parameters:
 #
-par1_step = 0.0001     # Step size for the free parameter equivalent to k_jam (must be positive)
+k_jam = 1.0     # Fixed jam density (must be positive, and greater than or equal to the maximum observed density in the data)
 
 
 # Define some useful variables
-functional_form_model = 'GZ1961D'
+functional_form_model = 'GZ1961Dkjf'
 noise_model = 'GCV'
 
 # Report on the GAMLSS model and the data
@@ -32,7 +32,8 @@ cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
 cat('  Gazis\n')
-cat('  Model D (GZ1961D)\n')
+cat('  Model D\n')
+cat('  Fixed jam density (GZ1961Dkjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -72,31 +73,15 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-
-  # Perform the intermediate fits
-  { model_formula = quote(gamlss(V3 ~ 0 + I(sqrt((V2/p[1])*(1.0 - (V2/p[1])))), sigma.formula = ~ 1, family = NO()))
-    par_init = c(1.1*data_max_density)
-    par_steps = c(par1_step)
-    attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps, lower = c(data_max_density))
-    detach(traffic_data)
-    if (optim_obj$convergence != 0) {
-      cat('ERROR - The intermediate fits did not converge...\n')
+  { if (k_jam < data_max_density) {
+      cat('ERROR - The jam density (fixed) is less than the maximum observed density...\n')
       q(save = 'no', status = 1)
     }
-    par1 = optim_obj$par[1]
-
-    # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(sqrt((V2/par1)*(1.0 - (V2/par1)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I(sqrt((V2/k_jam)*(1.0 - (V2/k_jam)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
-      cat('ERROR - The final fit did not converge...\n')
+      cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
-    }
-    model_obj$mu.df = model_obj$mu.df + 1
-    model_obj$df.fit = model_obj$df.fit + 1
-    model_obj$df.residual = model_obj$df.residual - 1
-    model_obj$aic = model_obj$aic + 2.0
-    model_obj$sbc = model_obj$sbc + log(ntraffic_data) },
+    } },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -130,11 +115,11 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Reconstruct the fitted model over the density range from zero to "upper_density" (N.B: This particular model is only defined up to the fitted
+# Reconstruct the fitted model over the density range from zero to "upper_density" (N.B: This particular model is only defined up to the fixed
 # value for k_jam)
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, par1), length.out = ngrid))
+  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, k_jam), length.out = ngrid))
     predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     if (!all(is.finite(predicted_values$mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
@@ -217,12 +202,10 @@ tryCatch(
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = NA
     v_bw = NA
     dvdk_kjam = NA
     if (model_obj$mu.coefficients[1] > 0.0) {
       q_cap = 0.5*model_obj$mu.coefficients[1]
-      k_jam = par1
       k_crit = 0.5*k_jam
     } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
@@ -259,7 +242,6 @@ if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam de
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  q_cap:    ', 0.5*model_obj$mu.coefficients[1], '\n')
-cat('  k_jam:    ', par1, '\n')
 cat('  sigma_con:', exp(model_obj$sigma.coefficients[1]), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
@@ -278,7 +260,6 @@ tryCatch(
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
         0.5*model_obj$mu.coefficients[1], '           # q_cap\n',
-        par1, '           # k_jam\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
         file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',
