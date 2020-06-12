@@ -135,21 +135,23 @@ tryCatch(
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, par1), length.out = ngrid))
-    predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
-    if (!all(is.finite(predicted_values$mu))) {
+    predicted_values_for_mu = double(length = ngrid)
+    predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
+    predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
+    if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (!all(is.finite(predicted_values$sigma))) {
+    if (!all(is.finite(predicted_values_for_sigma))) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (any(predicted_values$sigma <= 0.0)) {
+    if (any(predicted_values_for_sigma <= 0.0)) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
-    reconstructed_model_fit[, mu := predicted_values$mu]
-    reconstructed_model_fit[, sigma := predicted_values$sigma]
+    reconstructed_model_fit[, mu := predicted_values_for_mu]
+    reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
     reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
