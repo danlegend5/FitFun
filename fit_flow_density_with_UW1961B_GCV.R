@@ -236,7 +236,7 @@ tryCatch(
           k_jam = log(-model_obj$mu.coefficients[2]/model_obj$mu.coefficients[1])/par1
           tmp_val2 = par1*k_jam
           v_bw = model_obj$mu.coefficients[2]*tmp_val2
-          dvdk_kjam = dvdk_0*exp(tmp_val2)
+          dvdk_kjam = -v_bw/k_jam
         }
       }
     } },

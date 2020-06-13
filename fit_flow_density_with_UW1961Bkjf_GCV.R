@@ -239,7 +239,7 @@ tryCatch(
 #        q_cap =      # Can be computed once k_crit is available - not yet implemented
         v_max = v_ff
         v_bw = -model_obj$mu.coefficients[1]*tmp_val1*tmp_val2
-        dvdk_kjam = dvdk_0*tmp_val2
+        dvdk_kjam = -v_bw/k_jam
       }
     } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
