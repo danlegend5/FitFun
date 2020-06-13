@@ -84,12 +84,10 @@ tryCatch(
 
     # Perform the intermediate fits
     k_jam_use = data.frame(k_jam_use = k_jam)
-    model_formula = quote(gamlss(V3 ~ 0 + I(V2*((exp(V2)^p[1]) - (exp(k_jam_use)^p[1]))), sigma.formula = ~ 1, family = NO()))
-    par_init = c(init_model_obj$mu.coefficients[2])
-    par_steps = c(par1_step)
+    model_formula = quote(gamlss(V3 ~ 0 + I(V2*(exp(p[1]*V2) - exp(p[1]*k_jam_use))), sigma.formula = ~ 1, family = NO()))
     attach(k_jam_use)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps)
+    optim_obj = find.hyper(model = model_formula, parameters = c(init_model_obj$mu.coefficients[2]), steps = c(par1_step))
     detach(traffic_data)
     detach(k_jam_use)
     if (optim_obj$convergence != 0) {
@@ -99,7 +97,7 @@ tryCatch(
     par1 = optim_obj$par[1]
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(V2*((exp(V2)^par1) - (exp(k_jam)^par1))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I(V2*(exp(par1*V2) - exp(par1*k_jam))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)

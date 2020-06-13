@@ -17,8 +17,11 @@ fit_flow_density_with_NW1961_GCV = function(traffic_data, ngrid, upper_density, 
 #
 # Configuration Parameters:
 #
+par1_min = 0.0001      # Minimum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
+par1_max = 0.9999      # Maximum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
 par1_step = 0.0001     # Step size for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive)
-par2_step = 0.0001     # Step size for the free parameter equivalent to k_jam (must be positive)
+par2_min = 0.0001      # Minimum acceptable value for the free parameter k_jam (must be positive)
+par2_step = 0.0001     # Step size for the free parameter k_jam (must be positive)
 
 
 # Define some useful variables
@@ -95,15 +98,16 @@ tryCatch(
       cat('ERROR - The initial fit of a Greenberg model yielded a zero or negative value for the back-propagating wave speed at jam density...\n')
       q(save = 'no', status = 1)
     }
-    par2_init = exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2])
+    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), par2_min + par2_step)
     par1_init = exp(init_model_obj$mu.coefficients[2]*(par2_init/v_ff_init))
+    par1_init = max(par1_init, par1_min + par1_step)
+    par1_init = min(par1_init, par1_max - par1_step)
 
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/p[2]))))), sigma.formula = ~ 1, family = NO()))
-    par_init = c(par1_init, par2_init)
-    par_steps = c(par1_step, par2_step)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps, lower = c(0.0, 0.0), upper = c(1.0, Inf))
+    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), steps = c(par1_step, par2_step), lower = c(par1_min, par2_min),
+                           upper = c(par1_max, Inf))
     detach(traffic_data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')

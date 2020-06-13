@@ -17,7 +17,7 @@ fit_flow_density_with_GZ1961D_GCV = function(traffic_data, ngrid, upper_density,
 #
 # Configuration Parameters:
 #
-par1_step = 0.0001     # Step size for the free parameter equivalent to k_jam (must be positive)
+par1_step = 0.0001     # Step size for the free parameter k_jam (must be positive)
 
 
 # Define some useful variables
@@ -75,10 +75,8 @@ tryCatch(
 
   # Perform the intermediate fits
   { model_formula = quote(gamlss(V3 ~ 0 + I(sqrt((V2/p[1])*(1.0 - (V2/p[1])))), sigma.formula = ~ 1, family = NO()))
-    par_init = c(1.1*data_max_density)
-    par_steps = c(par1_step)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps, lower = c(data_max_density))
+    optim_obj = find.hyper(model = model_formula, parameters = c(1.1*data_max_density), steps = c(par1_step), lower = c(data_max_density))
     detach(traffic_data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')

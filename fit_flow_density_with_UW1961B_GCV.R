@@ -81,11 +81,9 @@ tryCatch(
     }
 
     # Perform the intermediate fits
-    model_formula = quote(gamlss(V3 ~ 0 + I(V2*(exp(V2)^p[1])) + V2, sigma.formula = ~ 1, family = NO()))
-    par_init = c(init_model_obj$mu.coefficients[2])
-    par_steps = c(par1_step)
+    model_formula = quote(gamlss(V3 ~ 0 + I(V2*exp(p[1]*V2)) + V2, sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps)
+    optim_obj = find.hyper(model = model_formula, parameters = c(init_model_obj$mu.coefficients[2]), steps = c(par1_step))
     detach(traffic_data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')
@@ -94,7 +92,7 @@ tryCatch(
     par1 = optim_obj$par[1]
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(V2*(exp(V2)^par1)) + V2, sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I(V2*exp(par1*V2)) + V2, sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)

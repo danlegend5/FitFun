@@ -18,6 +18,8 @@ fit_flow_density_with_NW1961kjf_GCV = function(traffic_data, ngrid, upper_densit
 # Configuration Parameters:
 #
 k_jam = 1.0            # Fixed jam density (must be positive)
+par1_min = 0.0001      # Minimum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
+par1_max = 0.9999      # Maximum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
 par1_step = 0.0001     # Step size for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive)
 
 
@@ -97,15 +99,15 @@ tryCatch(
       q(save = 'no', status = 1)
     }
     par1_init = exp(-init_model_obj$mu.coefficients[1]*(k_jam/v_ff_init))
+    par1_init = max(par1_init, par1_min + par1_step)
+    par1_init = min(par1_init, par1_max - par1_step)
 
     # Perform the intermediate fits
     k_jam_use = data.frame(k_jam_use = k_jam)
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/k_jam_use))))), sigma.formula = ~ 1, family = NO()))
-    par_init = c(par1_init)
-    par_steps = c(par1_step)
     attach(k_jam_use)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = par_init, steps = par_steps, lower = c(0.0), upper = c(1.0))
+    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), steps = c(par1_step), lower = c(par1_min), upper = c(par1_max))
     detach(traffic_data)
     detach(k_jam_use)
     if (optim_obj$convergence != 0) {
