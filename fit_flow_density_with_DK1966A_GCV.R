@@ -312,6 +312,7 @@ cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  v_ff:      ', model_obj$mu.coefficients[1], '\n')
 cat('  c:         ', -model_obj$mu.coefficients[2], '\n')
+cat('  k_b:       ', par1, '\n')
 cat('  v_bw:      ', model_obj$mu.coefficients[3], '\n')
 cat('  v_bw/k_jam:', -model_obj$mu.coefficients[4], '\n')
 cat('  sigma_con: ', exp(model_obj$sigma.coefficients[1]), '\n')
@@ -333,6 +334,7 @@ tryCatch(
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
         -model_obj$mu.coefficients[2], '           # c\n',
+        par1, '           # k_b\n',
         model_obj$mu.coefficients[3], '           # v_bw\n',
         -model_obj$mu.coefficients[4], '           # v_bw/k_jam\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',

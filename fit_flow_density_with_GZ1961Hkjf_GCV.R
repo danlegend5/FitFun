@@ -17,7 +17,7 @@ fit_flow_density_with_GZ1961Hkjf_GCV = function(traffic_data, ngrid, upper_densi
 #
 # Configuration Parameters:
 #
-k_jam = 1.0            # Fixed jam density (must be positive)
+k_jam = 1.0            # Fixed jam density (must be positive, and greater than or equal to the maximum observed density in the data)
 par1_init = 0.0        # Initial value for the free parameter m (must be less than unity and less than "par1_max")
 par1_max = 0.9999      # Maximum acceptable value for the free parameter m (must be less than unity)
 par1_step = 0.0001     # Step size for the free parameter m (must be positive)
