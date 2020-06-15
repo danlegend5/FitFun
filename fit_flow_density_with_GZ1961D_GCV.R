@@ -76,7 +76,7 @@ tryCatch(
   # Perform the intermediate fits
   { model_formula = quote(gamlss(V3 ~ 0 + I(sqrt((V2/p[1])*(1.0 - (V2/p[1])))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(1.1*data_max_density), steps = c(par1_step), lower = c(data_max_density))
+    optim_obj = find.hyper(model = model_formula, parameters = c(1.1*data_max_density), k = 0.0, steps = c(par1_step), lower = c(data_max_density))
     detach(traffic_data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')
