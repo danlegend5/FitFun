@@ -79,11 +79,12 @@ tryCatch(
       cat('ERROR - The initial fit of an Underwood model A did not converge...\n')
       q(save = 'no', status = 1)
     }
+    par1_init = init_model_obj$mu.coefficients[2]
 
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*exp(p[1]*V2)) + V2, sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(init_model_obj$mu.coefficients[2]), k = 0.0, steps = c(par1_step))
+    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step))
     detach(traffic_data)
     if (optim_obj$convergence != 0) {
       cat('ERROR - The intermediate fits did not converge...\n')

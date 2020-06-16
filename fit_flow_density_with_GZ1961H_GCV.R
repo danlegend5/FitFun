@@ -82,10 +82,6 @@ tryCatch(
       cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
       q(save = 'no', status = 1)
     }
-    if (init_model_obj$mu.coefficients[2] >= 0.0) {
-      cat('ERROR - The initial fit of a Greenberg model yielded a zero or negative value for the back-propagating wave speed at jam density...\n')
-      q(save = 'no', status = 1)
-    }
     par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), data_max_density + par1_step)
 
     # Perform the intermediate fits
