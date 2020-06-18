@@ -106,6 +106,7 @@ tryCatch(
       }
       par1_vec[i] = optim_obj$par[1]
       gdev_vec[i] = optim_obj$value
+      par1_init = par1_vec[i]
     }
     min_gdev = min(gdev_vec)
     ind_min_gdev = which(gdev_vec == min_gdev)
