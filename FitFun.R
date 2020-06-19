@@ -530,19 +530,19 @@ cat('\n')
 cat('Calling the required R module for performing the fit...\n')
 if (fd_type == 'Flow.Density') {
 
+  # Load the required R module for performing the fit
+  tryCatch(
+    { source(file.path(path_to_modules, paste0('fit_flow_density_with_', functional_form_model, '_', noise_model, '.R'))) },
+    error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                             q(save = 'no', status = 1) }
+  )
+
   # If the model component for the functional form of the flow-density relationship is the free-flow model (FF)
   if (functional_form_model == 'FF') {
 
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_FF_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -560,13 +560,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GS1935_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GS1935_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -582,13 +575,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GS1935kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -606,13 +592,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GB1959_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GB1959_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -628,13 +607,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GB1959kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -652,13 +624,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_ED1961_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_ED1961_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -674,13 +639,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_ED1961kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -698,13 +656,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961A_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_UW1961A_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -720,13 +671,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961B_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -744,13 +688,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_UW1961Bkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_UW1961Bkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -766,13 +703,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_NW1961_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -790,13 +720,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_NW1961kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_NW1961kjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -812,13 +735,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961A_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -836,13 +752,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Akjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961Akjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -858,13 +767,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961B_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -882,13 +784,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Bkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961Bkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -904,13 +799,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961C_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -928,13 +816,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Ckjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961Ckjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -950,13 +831,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961D_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -974,13 +848,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Dkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961Dkjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -996,13 +863,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961E_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1020,13 +880,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Ekjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961Ekjf_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1042,13 +895,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961F_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1066,13 +912,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961G_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961G_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1088,13 +927,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Gkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1112,13 +944,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961H_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_GZ1961H_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1134,13 +959,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_GZ1961Hkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1158,13 +976,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966A_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_DK1966A_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1180,13 +991,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Akjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1204,13 +1008,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966B_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_DK1966B_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1226,13 +1023,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Bkjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1250,13 +1040,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966C_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_DK1966C_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1272,13 +1055,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_DK1966Ckjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1296,13 +1072,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_MJ1971_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_MJ1971_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1318,13 +1087,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_MJ1971kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1342,13 +1104,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_flow_density_with_BM1977_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_flow_density_with_BM1977_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1365,13 +1120,6 @@ if (fd_type == 'Flow.Density') {
 #    # If the model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
 #    # with constant variance (GCV)
 #    if (noise_model == 'GCV') {
-#
-#      # Load the required R module for performing the fit
-#      tryCatch(
-#        { source(file.path(path_to_modules, 'fit_flow_density_with_XXXX_GCV.R')) },
-#        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-#                                 q(save = 'no', status = 1) }
-#      )
 #
 #      # Fit the chosen GAMLSS model to the data
 #      tryCatch(
@@ -1392,19 +1140,19 @@ if (fd_type == 'Flow.Density') {
 # If the form of the FD relationship is speed-density
 } else if (fd_type == 'Speed.Density') {
 
+  # Load the required R module for performing the fit
+  tryCatch(
+    { source(file.path(path_to_modules, paste0('fit_speed_density_with_', functional_form_model, '_', noise_model, '.R'))) },
+    error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
+                             q(save = 'no', status = 1) }
+  )
+
   # If the model component for the functional form of the speed-density relationship is the free-flow model (FF)
   if (functional_form_model == 'FF') {
 
     # If the model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_speed_density_with_FF_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
@@ -1422,13 +1170,6 @@ if (fd_type == 'Flow.Density') {
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
 
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_speed_density_with_GS1935_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
-
       # Fit the chosen GAMLSS model to the data
       tryCatch(
         { model_obj = fit_speed_density_with_GS1935_GCV(traffic_data, ngrid, upper_density, output_files) },
@@ -1444,13 +1185,6 @@ if (fd_type == 'Flow.Density') {
     # If the model component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
     # with constant variance (GCV)
     if (noise_model == 'GCV') {
-
-      # Load the required R module for performing the fit
-      tryCatch(
-        { source(file.path(path_to_modules, 'fit_speed_density_with_GS1935kjf_GCV.R')) },
-        error = function(cond) { cat('ERROR - Failed to load the required R module...\n')
-                                 q(save = 'no', status = 1) }
-      )
 
       # Fit the chosen GAMLSS model to the data
       tryCatch(
