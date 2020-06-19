@@ -227,7 +227,7 @@
 #
 #   R (Version >= 3.6.1)
 #   R Package: data.table (Version >= 1.12.8)
-#   R Package: gamlss (Version >= 5.1-5)
+#   R Package: gamlss (Version >= 5.1-6)
 #   R Package: ggplot2 (Version >= 3.2.1) [Not required if "plot_format" is set to 'none']
 #   R Package: ggpubr (Version >= 0.2.5)  [Not required if "plot_format" is set to 'none']
 #
