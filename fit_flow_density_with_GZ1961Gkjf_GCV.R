@@ -82,11 +82,11 @@ tryCatch(
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - ((V2/k_jam_use)^(p[1] - 1.0)))), sigma.formula = ~ 1, family = NO()))
     attach(k_jam_use)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min))
+    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), maxit = 500)
     if (optim_obj$convergence != 0) {
       par1_max = par1_init + 10.0
       optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
-                             method = 'Brent')
+                             method = 'Brent', maxit = 500)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
         detach(traffic_data)

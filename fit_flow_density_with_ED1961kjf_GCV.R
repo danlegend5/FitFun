@@ -105,13 +105,13 @@ tryCatch(
       attach(k_jam_use)
       attach(curr_k_b)
       attach(traffic_data)
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step))
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), maxit = 500)
       if (optim_obj$convergence != 0) {
         par1_range = max(10.0*abs(par1_init), 1000.0*par1_step)
         par1_min = par1_init - par1_range
         par1_max = par1_init + par1_range
         optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
-                               method = 'Brent')
+                               method = 'Brent', maxit = 500)
         if (optim_obj$convergence != 0) {
           cat('ERROR - The initial profiling fits did not converge...\n')
           detach(traffic_data)
@@ -163,13 +163,13 @@ tryCatch(
         attach(k_jam_use)
         attach(curr_k_b)
         attach(traffic_data)
-        optim_obj = find.hyper(model = model_formula, parameters = c(curr_par1_vec[i]), k = 0.0, steps = c(par1_step))
+        optim_obj = find.hyper(model = model_formula, parameters = c(curr_par1_vec[i]), k = 0.0, steps = c(par1_step), maxit = 500)
         if (optim_obj$convergence != 0) {
           par1_range = max(10.0*abs(curr_par1_vec[i]), 1000.0*par1_step)
           par1_min = curr_par1_vec[i] - par1_range
           par1_max = curr_par1_vec[i] + par1_range
           optim_obj = find.hyper(model = model_formula, parameters = c(curr_par1_vec[i]), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
-                                 method = 'Brent')
+                                 method = 'Brent', maxit = 500)
           if (optim_obj$convergence != 0) {
             cat('ERROR - The refining fits did not converge...\n')
             detach(traffic_data)

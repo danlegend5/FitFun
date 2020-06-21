@@ -99,9 +99,10 @@ tryCatch(
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/p[2]))))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, par2_min),
-                           upper = c(par1_max, Inf))
+                           upper = c(par1_max, Inf), maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead')
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead',
+                             maxit = 500)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
         detach(traffic_data)
