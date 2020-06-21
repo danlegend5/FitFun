@@ -100,11 +100,20 @@ tryCatch(
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, par2_min),
                            upper = c(par1_max, Inf))
-    detach(traffic_data)
     if (optim_obj$convergence != 0) {
-      cat('ERROR - The intermediate fits did not converge...\n')
-      q(save = 'no', status = 1)
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead')
+      if (optim_obj$convergence != 0) {
+        cat('ERROR - The intermediate fits did not converge...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
+      if ((optim_obj$par[1] < par1_min) || (optim_obj$par[1] > par1_max) || (optim_obj$par[2] < par2_min)) {
+        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
     }
+    detach(traffic_data)
     par1 = optim_obj$par[1]
     par2 = optim_obj$par[2]
 

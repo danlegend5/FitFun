@@ -100,12 +100,18 @@ tryCatch(
     attach(k_jam_use)
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max))
+    if (optim_obj$convergence != 0) {
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
+                             method = 'Brent')
+      if (optim_obj$convergence != 0) {
+        cat('ERROR - The intermediate fits did not converge...\n')
+        detach(traffic_data)
+        detach(k_jam_use)
+        q(save = 'no', status = 1)
+      }
+    }
     detach(traffic_data)
     detach(k_jam_use)
-    if (optim_obj$convergence != 0) {
-      cat('ERROR - The intermediate fits did not converge...\n')
-      q(save = 'no', status = 1)
-    }
     par1 = optim_obj$par[1]
 
     # Perform the final fit

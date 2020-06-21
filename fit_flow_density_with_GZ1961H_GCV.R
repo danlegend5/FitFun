@@ -82,18 +82,28 @@ tryCatch(
       cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
       q(save = 'no', status = 1)
     }
-    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), data_max_density + par1_step)
+    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), data_max_density + par2_step)
 
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 - (V2/p[2]))^(1.0/(1.0 - p[1])))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(-Inf, data_max_density),
-                           upper = c(par1_max, Inf))
-    detach(traffic_data)
+                           upper = c(par1_max, Inf), maxit = 500)
     if (optim_obj$convergence != 0) {
-      cat('ERROR - The intermediate fits did not converge...\n')
-      q(save = 'no', status = 1)
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, 1.5*par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead',
+                             maxit = 500)
+      if (optim_obj$convergence != 0) {
+        cat('ERROR - The intermediate fits did not converge...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
+      if ((optim_obj$par[1] > par1_max) || (optim_obj$par[2] < data_max_density)) {
+        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
     }
+    detach(traffic_data)
     par1 = optim_obj$par[1]
     par2 = optim_obj$par[2]
 

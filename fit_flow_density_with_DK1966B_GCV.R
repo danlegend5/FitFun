@@ -99,12 +99,26 @@ tryCatch(
       attach(curr_k_b)
       attach(traffic_data)
       optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min))
+      if (optim_obj$convergence != 0) {
+        par1_range = max(10.0*par1_init, 1000.0*par1_step)
+        par1_max = par1_init + par1_range
+        optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
+                               method = 'Brent')
+        if (optim_obj$convergence != 0) {
+          cat('ERROR - The initial profiling fits did not converge...\n')
+          detach(traffic_data)
+          detach(curr_k_b)
+          q(save = 'no', status = 1)
+        }
+        if (optim_obj$par[1] >= par1_max) {
+          cat('ERROR - The initial profiling fits did not converge (parameter limit reached)...\n')
+          detach(traffic_data)
+          detach(curr_k_b)
+          q(save = 'no', status = 1)
+        }
+      }
       detach(traffic_data)
       detach(curr_k_b)
-      if (optim_obj$convergence != 0) {
-        cat('ERROR - The initial profiling fits did not converge...\n')
-        q(save = 'no', status = 1)
-      }
       par1_vec[i] = optim_obj$par[1]
       gdev_vec[i] = optim_obj$value
       par1_init = par1_vec[i]
@@ -138,12 +152,26 @@ tryCatch(
         attach(curr_k_b)
         attach(traffic_data)
         optim_obj = find.hyper(model = model_formula, parameters = c(curr_par1_vec[i]), k = 0.0, steps = c(par1_step), lower = c(par1_min))
+        if (optim_obj$convergence != 0) {
+          par1_range = max(10.0*curr_par1_vec[i], 1000.0*par1_step)
+          par1_max = curr_par1_vec[i] + par1_range
+          optim_obj = find.hyper(model = model_formula, parameters = c(curr_par1_vec[i]), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
+                                 method = 'Brent')
+          if (optim_obj$convergence != 0) {
+            cat('ERROR - The refining fits did not converge...\n')
+            detach(traffic_data)
+            detach(curr_k_b)
+            q(save = 'no', status = 1)
+          }
+          if (optim_obj$par[1] >= par1_max) {
+            cat('ERROR - The refining fits did not converge (parameter limit reached)...\n')
+            detach(traffic_data)
+            detach(curr_k_b)
+            q(save = 'no', status = 1)
+          }
+        }
         detach(traffic_data)
         detach(curr_k_b)
-        if (optim_obj$convergence != 0) {
-          cat('ERROR - The refining fits did not converge...\n')
-          q(save = 'no', status = 1)
-        }
         curr_par1_vec[i] = optim_obj$par[1]
         curr_gdev_vec[i] = optim_obj$value
       }

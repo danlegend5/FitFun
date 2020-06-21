@@ -85,11 +85,24 @@ tryCatch(
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*exp(p[1]*V2)) + V2, sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step))
-    detach(traffic_data)
     if (optim_obj$convergence != 0) {
-      cat('ERROR - The intermediate fits did not converge...\n')
-      q(save = 'no', status = 1)
+      par1_range = max(10.0*abs(par1_init), 1000.0*par1_step)
+      par1_min = par1_init - par1_range
+      par1_max = par1_init + par1_range
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
+                             method = 'Brent')
+      if (optim_obj$convergence != 0) {
+        cat('ERROR - The intermediate fits did not converge...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
+      if ((optim_obj$par[1] <= par1_min) || (optim_obj$par[1] >= par1_max)) {
+        cat('ERROR - The intermediate fits did not converge (parameter limit reached)...\n')
+        detach(traffic_data)
+        q(save = 'no', status = 1)
+      }
     }
+    detach(traffic_data)
     par1 = optim_obj$par[1]
 
     # Perform the final fit
