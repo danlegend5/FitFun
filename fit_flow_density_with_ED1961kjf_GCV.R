@@ -219,9 +219,9 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Store the predicted values for the model at the density values in the data, along with the normalised quantile residuals, in the data table
+# Store the predicted values for the model at the density values in the data in the data table
 cat('\n')
-cat('Storing the predicted values for the model, along with the normalised quantile residuals, in the data table...\n')
+cat('Storing the predicted values for the model in the data table...\n')
 tryCatch(
   { if (!all(is.finite(model_obj$mu.fv))) {
       cat('ERROR - The predicted values for "mu" at the density values in the data include at least one value that is infinite...\n')
@@ -231,10 +231,6 @@ tryCatch(
       cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (!all(is.finite(model_obj$residuals))) {
-      cat('ERROR - The normalised quantile residuals include at least one value that is infinite...\n')
-      q(save = 'no', status = 1)
-    }
     if (any(model_obj$sigma.fv <= 0.0)) {
       cat('ERROR - The predicted values for "sigma" at the density values in the data include at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
@@ -242,9 +238,34 @@ tryCatch(
     traffic_data[, fitted_values_mu := model_obj$mu.fv]
     traffic_data[, fitted_values_sigma := model_obj$sigma.fv]
     traffic_data[, fitted_values_nu := double(length = ntraffic_data)]
-    traffic_data[, fitted_values_tau := rep_len(3.0, ntraffic_data)]
-    traffic_data[, normalised_quantile_residuals := model_obj$residuals] },
-  error = function(cond) { cat('ERROR - Failed to store the predicted values for the model and the normalised quantile residuals...\n')
+    traffic_data[, fitted_values_tau := rep_len(3.0, ntraffic_data)] },
+  error = function(cond) { cat('ERROR - Failed to store the predicted values for the model...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Compute the normalised quantile residuals and store them in the data table. Note that the normalised quantile residuals may include some "-Inf"
+# or "Inf" values for particularly bad outliers.
+cat('Computing the normalised quantile residuals and storing them in the data table...\n')
+tryCatch(
+  { cumulative_probs_lower = pNO(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv)
+    selection = cumulative_probs_lower < 0.5
+    nselection = sum(selection)
+    if (nselection == ntraffic_data) {
+      nqr = qNO(cumulative_probs_lower)
+    } else {
+      cumulative_probs_upper = pNO(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, lower.tail = FALSE)
+      if (nselection == 0) {
+        nqr = qNO(cumulative_probs_upper, lower.tail = FALSE)
+      } else {
+        nqr = double(length = ntraffic_data)
+        nqr[selection] = qNO(cumulative_probs_lower[selection])
+        selection = !selection
+        nqr[selection] = qNO(cumulative_probs_upper[selection], lower.tail = FALSE)
+      }
+    }
+    traffic_data[, normalised_quantile_residuals := nqr] },
+#    traffic_data[, normalised_quantile_residuals := model_obj$residuals]     # The normalised quantile residuals provided by GAMLSS include more "-Inf" and "Inf" values
+  error = function(cond) { cat('ERROR - Failed to compute and store the normalised quantile residuals...\n')
                            q(save = 'no', status = 1) }
 )
 
@@ -430,7 +451,7 @@ tryCatch(
 cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
-        'Normalised Quantile Residual\n', file = output_files[3])
+        'Normalised Quantile Residual ("-Inf" Or "Inf" Values May Be Present)\n', file = output_files[3])
     write.table(traffic_data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
                            remove_file_list(output_files)
