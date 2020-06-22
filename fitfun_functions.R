@@ -1088,6 +1088,11 @@ if (fd_type == 'Flow.Density') {
   fd_str = 'Speed'
 }
 
+# Create a filtered version of the traffic data that does not include any normalised quantile residuals that are "-Inf" or "Inf"
+selection = is.finite(traffic_data$normalised_quantile_residuals)
+ntraffic_data_filtered = sum(selection)
+if (ntraffic_data_filtered > 0) { traffic_data_filtered = traffic_data[selection] }
+
 # Create the plot "Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[4], '\n')
 npts = nrow(reconstructed_model_fit_selection)
@@ -1111,9 +1116,13 @@ title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise
 plotC(traffic_data, reconstructed_model_fit_selection, data_max_density, title_str, 'Density', fd_str, output_files[6])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[7], '\n')
-title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
-plotD(traffic_data, data_max_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[7])
+if (ntraffic_data_filtered > 0) {
+  cat('Creating the plot:', output_files[7], '\n')
+  title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Data Density Range')
+  plotD(traffic_data_filtered, data_max_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[7])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[7], '\n')
+}
 
 # Create the plot "Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
 cat('Creating the plot:', output_files[8], '\n')
@@ -1137,29 +1146,49 @@ title_str = paste0(fd_str, ' vs Density : ', functional_form_model, ' : ', noise
 plotC(traffic_data, reconstructed_model_fit, upper_density, title_str, 'Density', fd_str, output_files[10])
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[11], '\n')
-title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
-plotD(traffic_data, upper_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[11])
+if (ntraffic_data_filtered > 0) {
+  cat('Creating the plot:', output_files[11], '\n')
+  title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Density : ', functional_form_model, ' : ', noise_model, ' : Full Density Range')
+  plotD(traffic_data_filtered, upper_density, title_str, 'Density', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[11])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[11], '\n')
+}
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[12], '\n')
-title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Fitted Mu Values : ', functional_form_model, ' : ', noise_model)
-plotE(traffic_data, title_str, 'Fitted Mu', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[12])
+if (ntraffic_data_filtered > 0) {
+  cat('Creating the plot:', output_files[12], '\n')
+  title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Fitted Mu Values : ', functional_form_model, ' : ', noise_model)
+  plotE(traffic_data_filtered, title_str, 'Fitted Mu', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[12])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[12], '\n')
+}
 
 # Create the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[13], '\n')
-title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Time : ', functional_form_model, ' : ', noise_model)
-plotF(traffic_data, title_str, 'Time', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[13])
+if (ntraffic_data_filtered > 0) {
+  cat('Creating the plot:', output_files[13], '\n')
+  title_str = paste0('Normalised Quantile Residuals (', fd_str, ') vs Time : ', functional_form_model, ' : ', noise_model)
+  plotF(traffic_data_filtered, title_str, 'Time', paste0('Normalised Quantile Residuals (', fd_str, ')'), output_files[13])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[13], '\n')
+}
 
 # Create the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[14], '\n')
-title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
-plotG(traffic_data, ntraffic_data, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
+if (ntraffic_data_filtered > 0) {
+  cat('Creating the plot:', output_files[14], '\n')
+  title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
+  plotG(traffic_data_filtered, ntraffic_data_filtered, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[14], '\n')
+}
 
 # Create the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-cat('Creating the plot:', output_files[15], '\n')
-title_str = paste0('Slotted Auto-Correlation Function For Normalised Quantile Residuals : ', functional_form_model, ' : ', noise_model)
-plotH(traffic_data, ntraffic_data, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15])
+if (ntraffic_data_filtered > 1) {
+  cat('Creating the plot:', output_files[15], '\n')
+  title_str = paste0('Slotted Auto-Correlation Function For Normalised Quantile Residuals : ', functional_form_model, ' : ', noise_model)
+  plotH(traffic_data_filtered, ntraffic_data_filtered, title_str, 'Time Lag', 'Auto-Correlation Function', output_files[15])
+} else {
+  cat('WARNING - Cannot create the plot: ', output_files[15], '\n')
+}
 }
 
 
