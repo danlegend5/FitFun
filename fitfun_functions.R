@@ -296,8 +296,16 @@ if (fd_type == 'Flow.Density') {
   # Estimate the free-flow speed
   curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[2]/grid_density_step
 
+  # Estimate the gradient of the speed (with respect to density) at zero density
+  if (ngrid > 2) {
+    curve_properties_for_mu$dvdk_0 = ((reconstructed_model_fit$mu[3]/reconstructed_model_fit$V2[3]) - curve_properties_for_mu$v_ff)/grid_density_step
+  }
+
 # If the fitted model component for "mu" corresponds to speed
 } else if (fd_type == 'Speed.Density') {
+
+  # Determine the flow at zero density
+  curve_properties_for_mu$q_0 = 0.0
 
   # Determine the free-flow speed
   curve_properties_for_mu$v_ff = reconstructed_model_fit$mu[1]
@@ -329,6 +337,9 @@ if (is.na(curve_properties_for_mu$ind_first_pos)) {
 info_peaks_troughs = get_npeaks_ntroughs(reconstructed_model_fit$V2[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos],
                                          reconstructed_model_fit$mu[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos], -1.0)
 
+# Record the number of peaks
+curve_properties_for_mu$n_peaks = info_peaks_troughs$n_peaks
+
 # If the fitted model component for "mu" corresponds to flow
 if (fd_type == 'Flow.Density') {
 
@@ -336,16 +347,30 @@ if (fd_type == 'Flow.Density') {
   curve_properties_for_mu$k_crit = info_peaks_troughs$highest_peak_x
   curve_properties_for_mu$q_cap = info_peaks_troughs$highest_peak_y
 
+  # Construct a speed curve, and estimate the maximum speed and the corresponding density
+  if (curve_properties_for_mu$ind_last_pos > 1) {
+    ind_lo = max(2, curve_properties_for_mu$ind_first_pos)
+    tmp_density_vec = reconstructed_model_fit$V2[ind_lo:curve_properties_for_mu$ind_last_pos]
+    speed_curve = reconstructed_model_fit$mu[ind_lo:curve_properties_for_mu$ind_last_pos]/tmp_density_vec
+    info_peaks_troughs = get_npeaks_ntroughs(tmp_density_vec, speed_curve, -1.0)
+    curve_properties_for_mu$k_vmax = info_peaks_troughs$highest_peak_x
+    curve_properties_for_mu$v_max = info_peaks_troughs$highest_peak_y
+  }
+
 # If the fitted model component for "mu" corresponds to speed
 } else if (fd_type == 'Speed.Density') {
 
   # Record the maximum speed and the corresponding density
   curve_properties_for_mu$k_vmax = info_peaks_troughs$highest_peak_x
   curve_properties_for_mu$v_max = info_peaks_troughs$highest_peak_y
-}
 
-# Record the number of peaks
-curve_properties_for_mu$n_peaks = info_peaks_troughs$n_peaks
+  # Construct a flow curve, and estimate the critical density and the capacity
+  tmp_density_vec = reconstructed_model_fit$V2[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos]
+  flow_curve = reconstructed_model_fit$mu[curve_properties_for_mu$ind_first_pos:curve_properties_for_mu$ind_last_pos]*tmp_density_vec
+  info_peaks_troughs = get_npeaks_ntroughs(tmp_density_vec, flow_curve, -1.0)
+  curve_properties_for_mu$k_crit = info_peaks_troughs$highest_peak_x
+  curve_properties_for_mu$q_cap = info_peaks_troughs$highest_peak_y
+}
 
 # If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
 if (curve_properties_for_mu$ind_last_pos < ngrid) {
@@ -601,9 +626,9 @@ cat('###########################################################################
 cat('######################################################################################################################\n',
     '# FIT QUALITY\n',
     '######################################################################################################################\n',
-    gdev, '           # Global deviance (-2 ln L)\n',
-    aic, '           # AIC (-2 ln L + 2 Npar)\n',
-    bic, '           # BIC (-2 ln L + Npar ln Ndat)\n',
+    format(gdev, nsmall = 4), '           # Global deviance (-2 ln L)\n',
+    format(aic, nsmall = 4), '           # AIC (-2 ln L + 2 Npar)\n',
+    format(bic, nsmall = 4), '           # BIC (-2 ln L + Npar ln Ndat)\n',
     file = output_file, sep = '', append = TRUE)
 cat('######################################################################################################################\n',
     '# FITTED PHYSICAL PARAMETERS\n',

@@ -1,6 +1,6 @@
 # FitFun: Fitting Fundamental Diagrams Of Road Traffic
 #
-# Description: ???This script???                                                                                                                #### FINISH
+# Description: ???This script???  Cite the paper and book "Flexible Regression and Smoothing: Using GAMLSS in R" by Stasinopoulos et al.       #### FINISH
 #                The specific procedures for fitting each individual model that is available in this script are separated out into a single R
 #              module per model. These modules have names of the form "fit_flow_density_with_<functional_form_model>_<noise_model>.R" or
 #              "fit_speed_density_with_<functional_form_model>_<noise_model>.R", and they each contain a single function of the same name (see
@@ -293,10 +293,10 @@ if (!is.element(fd_type, acceptable_values)) {
   q(save = 'no', status = 1)
 }
 cat('Fundamental diagram type:                           ', fd_type, '\n')
-acceptable_values = c('FF', 'GS1935', 'GS1935kjf', 'GB1959', 'GB1959kjf', 'ED1961', 'ED1961kjf', 'UW1961A', 'UW1961B', 'UW1961Bkjf',
-                      'NW1961', 'NW1961kjf', 'GZ1961A', 'GZ1961Akjf', 'GZ1961B', 'GZ1961Bkjf', 'GZ1961C', 'GZ1961Ckjf', 'GZ1961D',
-                      'GZ1961Dkjf', 'GZ1961E', 'GZ1961Ekjf', 'GZ1961F', 'GZ1961G', 'GZ1961Gkjf', 'GZ1961H', 'GZ1961Hkjf', 'DK1966A',
-                      'DK1966Akjf', 'DK1966B', 'DK1966Bkjf', 'DK1966C', 'DK1966Ckjf', 'MJ1971', 'MJ1971kjf', 'BM1977')                     #### FINISH
+acceptable_values = c('FF',         'GS1935',     'GS1935kjf', 'GB1959',     'GB1959kjf',  'ED1961',     'ED1961kjf',  'UW1961A',   'UW1961B',
+                      'UW1961Bkjf', 'NW1961',     'NW1961kjf', 'GZ1961A',    'GZ1961Akjf', 'GZ1961B',    'GZ1961Bkjf', 'GZ1961C',   'GZ1961Ckjf',
+                      'GZ1961D',    'GZ1961Dkjf', 'GZ1961E',   'GZ1961Ekjf', 'GZ1961F',    'GZ1961G',    'GZ1961Gkjf', 'GZ1961H',   'GZ1961Hkjf',
+                      'DK1966A',    'DK1966Akjf', 'DK1966B',   'DK1966Bkjf', 'DK1966C',    'DK1966Ckjf', 'MJ1971',     'MJ1971kjf', 'BM1977')              #### FINISH
 if (!is.element(functional_form_model, acceptable_values)) {
   cat('ERROR - The command-line argument "functional_form_model" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
