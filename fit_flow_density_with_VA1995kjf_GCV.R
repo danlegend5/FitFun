@@ -1,9 +1,9 @@
-fit_flow_density_with_VA1995_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_VA1995kjf_GCV = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Van Aerde model (VA1995). The
-#              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with constant variance (GCV).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Van Aerde model with fixed
+#              jam density (VA1995kjf). The model component for the noise in the flow-density relationship is defined as independent observations
+#              that follow a Gaussian distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,13 +17,13 @@ fit_flow_density_with_VA1995_GCV = function(traffic_data, ngrid, upper_density, 
 #
 # Configuration Parameters:
 #
-beta_step = 0.0001      # Step size for the free parameter beta (must be positive)
-gamma_step = 0.0001     # Step size for the free parameter gamma (must be positive)
-delta_step = 0.0001     # Step size for the free parameter delta (must be positive)
+k_jam = 1.0             # Fixed jam density (must be positive)
+psi_step = 0.0001       # Step size for the free parameter psi (must be positive)
+omega_step = 0.0001     # Step size for the free parameter omega (must be positive)
 
 
 # Define some useful variables
-functional_form_model = 'VA1995'
+functional_form_model = 'VA1995kjf'
 noise_model = 'GCV'
 
 # Report on the GAMLSS model and the data
@@ -33,7 +33,8 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Van Aerde (VA1995)\n')
+cat('  Van Aerde\n')
+cat('  Fixed jam density (VA1995kjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -74,76 +75,76 @@ cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
 
-  # Fit a Greenshields model to estimate an initial value for v_ff
-  { init_model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+  # Fit a Greenshields model with fixed jam density to estimate an initial value for v_ff
+  { init_model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (V2/k_jam))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
-      cat('ERROR - The initial fit of a Greenshields model did not converge...\n')
+      cat('ERROR - The initial fit of a Greenshields model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
     }
     if (init_model_obj$mu.coefficients[1] <= 0.0) {
-      cat('ERROR - The initial fit of a Greenshields model yielded a zero or negative free-flow speed...\n')
+      cat('ERROR - The initial fit of a Greenshields model with fixed jam density yielded a zero or negative free-flow speed...\n')
       q(save = 'no', status = 1)
     }
     v_ff_init = init_model_obj$mu.coefficients[1]
 
-    # Fit a Greenberg model to estimate initial values for v_bw and k_jam
-    init_model_obj = gamlss(V3 ~ 0 + V2 + I(V2*log(V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    # Fit a Greenberg model with fixed jam density to estimate an initial value for v_bw
+    init_model_obj = gamlss(V3 ~ 0 + I(V2*log(k_jam/V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
-      cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
+      cat('ERROR - The initial fit of a Greenberg model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
     }
-    if (init_model_obj$mu.coefficients[2] >= 0.0) {
-      cat('ERROR - The initial fit of a Greenberg model yielded a zero or negative back-propagating wave speed at jam density...\n')
+    if (init_model_obj$mu.coefficients[1] <= 0.0) {
+      cat('ERROR - The initial fit of a Greenberg model with fixed jam density yielded a zero or negative back-propagating wave speed at jam density...\n')
       q(save = 'no', status = 1)
     }
-    v_bw_init = -init_model_obj$mu.coefficients[2]
-    k_jam_init = exp(init_model_obj$mu.coefficients[1]/v_bw_init)
+    v_bw_init = init_model_obj$mu.coefficients[1]
 
-    # Compute initial values for the Van Aerde parameters c1, c2, and c3
-    c1_init = 0.0
-    c2_init = v_ff_init/k_jam_init
-    c3_init = max(((exp(1.0)/v_bw_init) - (4.0/v_ff_init))/k_jam_init, 0.0)
+    # Compute an initial value for the Van Aerde parameter c3
+    c3_init = max(((exp(1.0)/v_bw_init) - (4.0/v_ff_init))/k_jam, 0.0)
 
-    # Compute initial values for the Bramich parameters beta, gamma, and delta
-    beta_init = c1_init - (c3_init*v_ff_init)
-    gamma_init = c1_init + (c3_init*v_ff_init)
-    delta_init = 4.0*c2_init*c3_init
+    # Compute initial values for the Bramich parameters psi and omega
+    psi_init = 1.0/k_jam
+    omega_init = c3_init*v_ff_init
 
     # Perform the intermediate fits
-    model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - (p[1]*V2) - sqrt((((p[2]*V2) - 1.0)^2) + (p[3]*(V2^2)))), sigma.formula = ~ 1, family = NO()))
+    inv_k_jam = data.frame(inv_k_jam = 1.0/k_jam)
+    model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - ((inv_k_jam - p[1] - p[2])*V2) - sqrt(((((inv_k_jam - p[1] + p[2])*V2) - 1.0)^2) + (4.0*p[1]*p[2]*(V2^2)))),
+                                 sigma.formula = ~ 1, family = NO()))
+    attach(inv_k_jam)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
-                           lower = c(-Inf, 0.0, 0.0), maxit = 500)
+    optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(0.0, 0.0), maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
-                             method = 'Nelder-Mead', maxit = 500)
+      optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), method = 'Nelder-Mead', maxit = 500)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
         detach(traffic_data)
+        detach(inv_k_jam)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[2] < 0.0) || (optim_obj$par[3] < 0.0)) {
+      if ((optim_obj$par[1] < 0.0) || (optim_obj$par[2] < 0.0)) {
         cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
         detach(traffic_data)
+        detach(inv_k_jam)
         q(save = 'no', status = 1)
       }
     }
     detach(traffic_data)
-    beta = optim_obj$par[1]
-    gamma = optim_obj$par[2]
-    delta = optim_obj$par[3]
+    detach(inv_k_jam)
+    psi = optim_obj$par[1]
+    omega = optim_obj$par[2]
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(1.0 - (beta*V2) - sqrt((((gamma*V2) - 1.0)^2) + (delta*(V2^2)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I(1.0 - (((1.0/k_jam) - psi - omega)*V2) - sqrt((((((1.0/k_jam) - psi + omega)*V2) - 1.0)^2) + (4.0*psi*omega*(V2^2)))),
+                       sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)
     }
-    model_obj$mu.df = model_obj$mu.df + 3
-    model_obj$df.fit = model_obj$df.fit + 3
-    model_obj$df.residual = model_obj$df.residual - 3
-    model_obj$aic = model_obj$aic + 6.0
-    model_obj$sbc = model_obj$sbc + 3.0*log(ntraffic_data) },
+    model_obj$mu.df = model_obj$mu.df + 2
+    model_obj$df.fit = model_obj$df.fit + 2
+    model_obj$df.residual = model_obj$df.residual - 2
+    model_obj$aic = model_obj$aic + 4.0
+    model_obj$sbc = model_obj$sbc + 2.0*log(ntraffic_data) },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -279,24 +280,19 @@ tryCatch(
 tryCatch(
   { q_0 = 0.0
     v_ff = NA
-    dvdk_0 = -0.5*model_obj$mu.coefficients[1]*((3.0*(gamma^2)) + delta)
+    tmp_val = 1.5*(((1.0/k_jam) - psi + omega)^2)
+    dvdk_0 = -model_obj$mu.coefficients[1]*(tmp_val + (2.0*psi*omega))
     k_crit = NA     # Can be computed analytically - not yet implemented
     k_vmax = NA     # Can be computed analytically - not yet implemented
     q_cap = NA      # Can be computed once k_crit is available - not yet implemented
     v_max = NA      # Can be computed once k_vmax is available - not yet implemented
-    k_jam = NA
     v_bw = NA
     dvdk_kjam = NA
     if (model_obj$mu.coefficients[1] > 0.0) {
-      if (gamma > beta) {
-        v_ff = model_obj$mu.coefficients[1]*(gamma - beta)
-        tmp_val = (gamma^2) - (beta^2) + delta
-        if (tmp_val > 0.0) {
-          k_jam = 2.0*(gamma - beta)/tmp_val
-          v_bw = (gamma*k_jam) - 1.0
-          v_bw = (model_obj$mu.coefficients[1]/k_jam)*(1.0 + (v_bw/sqrt((v_bw^2) + (delta*(k_jam^2)))))
-          dvdk_kjam = -v_bw/k_jam
-        }
+      if (omega > 0.0) {
+        v_ff = 2.0*model_obj$mu.coefficients[1]*omega
+        v_bw = v_ff/(k_jam*(psi + omega))
+        dvdk_kjam = -v_bw/k_jam
       }
     } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
@@ -333,9 +329,8 @@ if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam de
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  alpha:    ', model_obj$mu.coefficients[1], '\n')
-cat('  beta:     ', beta, '\n')
-cat('  gamma:    ', gamma, '\n')
-cat('  delta:    ', delta, '\n')
+cat('  psi:      ', psi, '\n')
+cat('  omega:    ', omega, '\n')
 cat('  sigma_con:', exp(model_obj$sigma.coefficients[1]), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
@@ -354,9 +349,8 @@ tryCatch(
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # alpha\n',
-        beta, '           # beta\n',
-        gamma, '           # gamma\n',
-        delta, '           # delta\n',
+        psi, '           # psi\n',
+        omega, '           # omega\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
         file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',
