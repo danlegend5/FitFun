@@ -18,7 +18,9 @@ fit_flow_density_with_VA1995_GCV = function(traffic_data, ngrid, upper_density, 
 # Configuration Parameters:
 #
 beta_step = 0.0001      # Step size for the free parameter beta (must be positive)
+gamma_min = 0.0001      # Minimum acceptable value for the free parameter gamma (must be positive)
 gamma_step = 0.0001     # Step size for the free parameter gamma (must be positive)
+delta_min = 0.0001      # Minimum acceptable value for the free parameter delta (must be positive)
 delta_step = 0.0001     # Step size for the free parameter delta (must be positive)
 
 
@@ -106,14 +108,14 @@ tryCatch(
 
     # Compute initial values for the Bramich parameters beta, gamma, and delta
     beta_init = c1_init - (c3_init*v_ff_init)
-    gamma_init = c1_init + (c3_init*v_ff_init)
-    delta_init = 4.0*c2_init*c3_init
+    gamma_init = max(c1_init + (c3_init*v_ff_init), gamma_min + gamma_step)
+    delta_init = max(4.0*c2_init*c3_init, delta_min + delta_step)
 
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - (p[1]*V2) - sqrt((((p[2]*V2) - 1.0)^2) + (p[3]*(V2^2)))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
     optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
-                           lower = c(-Inf, 0.0, 0.0), maxit = 500)
+                           lower = c(-Inf, gamma_min, delta_min), maxit = 500)
     if (optim_obj$convergence != 0) {
       optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
                              method = 'Nelder-Mead', maxit = 500)
@@ -122,7 +124,7 @@ tryCatch(
         detach(traffic_data)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[2] < 0.0) || (optim_obj$par[3] < 0.0)) {
+      if ((optim_obj$par[2] < gamma_min) || (optim_obj$par[3] < delta_min)) {
         cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
         detach(traffic_data)
         q(save = 'no', status = 1)

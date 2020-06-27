@@ -18,7 +18,9 @@ fit_flow_density_with_VA1995kjf_GCV = function(traffic_data, ngrid, upper_densit
 # Configuration Parameters:
 #
 k_jam = 1.0             # Fixed jam density (must be positive)
+psi_min = 0.0001        # Minimum acceptable value for the free parameter psi (must be positive)
 psi_step = 0.0001       # Step size for the free parameter psi (must be positive)
+omega_min = 0.0001      # Minimum acceptable value for the free parameter omega (must be positive)
 omega_step = 0.0001     # Step size for the free parameter omega (must be positive)
 
 
@@ -103,8 +105,8 @@ tryCatch(
     c3_init = max(((exp(1.0)/v_bw_init) - (4.0/v_ff_init))/k_jam, 0.0)
 
     # Compute initial values for the Bramich parameters psi and omega
-    psi_init = 1.0/k_jam
-    omega_init = c3_init*v_ff_init
+    psi_init = max(1.0/k_jam, psi_min + psi_step)
+    omega_init = max(c3_init*v_ff_init, omega_min + omega_step)
 
     # Perform the intermediate fits
     inv_k_jam = data.frame(inv_k_jam = 1.0/k_jam)
@@ -112,7 +114,8 @@ tryCatch(
                                  sigma.formula = ~ 1, family = NO()))
     attach(inv_k_jam)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(0.0, 0.0), maxit = 500)
+    optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(psi_min, omega_min),
+                           maxit = 500)
     if (optim_obj$convergence != 0) {
       optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), method = 'Nelder-Mead', maxit = 500)
       if (optim_obj$convergence != 0) {
@@ -121,7 +124,7 @@ tryCatch(
         detach(inv_k_jam)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[1] < 0.0) || (optim_obj$par[2] < 0.0)) {
+      if ((optim_obj$par[1] < psi_min) || (optim_obj$par[2] < omega_min)) {
         cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
         detach(traffic_data)
         detach(inv_k_jam)
