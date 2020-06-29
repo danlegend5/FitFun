@@ -184,10 +184,11 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Reconstruct the fitted model over the density range from zero to "upper_density"
+# Reconstruct the fitted model over the density range from zero to "upper_density" (N.B: This particular model is only defined up to the fitted
+# value for k_jam)
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
+  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, par2), length.out = ngrid))
     predicted_values_for_mu = double(length = ngrid)
     predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
     predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
