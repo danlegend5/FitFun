@@ -117,23 +117,30 @@ tryCatch(
     optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
                            lower = c(-Inf, gamma_min, delta_min), maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
-                             method = 'Nelder-Mead', maxit = 500)
+      gamma_min_use = data.frame(gamma_min_use = gamma_min)
+      delta_min_use = data.frame(delta_min_use = delta_min)
+      model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - (p[1]*V2) - sqrt(((((gamma_min_use + abs(p[2]))*V2) - 1.0)^2) + ((delta_min_use + abs(p[3]))*(V2^2)))),
+                                   sigma.formula = ~ 1, family = NO()))
+      attach(gamma_min_use)
+      attach(delta_min_use)
+      optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init - gamma_min, delta_init - delta_min), k = 0.0,
+                             steps = c(beta_step, gamma_step, delta_step), method = 'Nelder-Mead', maxit = 500)
+      detach(delta_min_use)
+      detach(gamma_min_use)
+      detach(traffic_data)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
-        detach(traffic_data)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[2] < gamma_min) || (optim_obj$par[3] < delta_min)) {
-        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
-        detach(traffic_data)
-        q(save = 'no', status = 1)
-      }
+      beta = optim_obj$par[1]
+      gamma = gamma_min + abs(optim_obj$par[2])
+      delta = delta_min + abs(optim_obj$par[3])
+    } else {
+      detach(traffic_data)
+      beta = optim_obj$par[1]
+      gamma = optim_obj$par[2]
+      delta = optim_obj$par[3]
     }
-    detach(traffic_data)
-    beta = optim_obj$par[1]
-    gamma = optim_obj$par[2]
-    delta = optim_obj$par[3]
 
     # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(1.0 - (beta*V2) - sqrt((((gamma*V2) - 1.0)^2) + (delta*(V2^2)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)

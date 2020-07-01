@@ -101,23 +101,33 @@ tryCatch(
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init, par3_init), k = 0.0, steps = c(par1_step, par2_step, par3_step),
                            lower = c(par1_min, data_max_density, par3_min), maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init, par3_init), k = 0.0, steps = c(par1_step, par2_step, par3_step),
-                             method = 'Nelder-Mead', maxit = 500)
+      par1_min_use = data.frame(par1_min_use = par1_min)
+      dmd_use = data.frame(dmd_use = data_max_density)
+      par3_min_use = data.frame(par3_min_use = par3_min)
+      model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - exp(1.0 - ((1.0 + ((par1_min_use + abs(p[1]))*((1.0/V2) - (1.0/(dmd_use + abs(p[2]))))))^(par3_min_use + abs(p[3])))))),
+                                   sigma.formula = ~ 1, family = NO()))
+      attach(par1_min_use)
+      attach(dmd_use)
+      attach(par3_min_use)
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init - par1_min, par2_init - data_max_density, par3_init - par3_min), k = 0.0,
+                             steps = c(par1_step, par2_step, par3_step), method = 'Nelder-Mead', maxit = 500)
+      detach(par3_min_use)
+      detach(dmd_use)
+      detach(par1_min_use)
+      detach(traffic_data)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
-        detach(traffic_data)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[1] < par1_min) || (optim_obj$par[2] < data_max_density) || (optim_obj$par[3] < par3_min)) {
-        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
-        detach(traffic_data)
-        q(save = 'no', status = 1)
-      }
+      par1 = par1_min + abs(optim_obj$par[1])
+      par2 = data_max_density + abs(optim_obj$par[2])
+      par3 = par3_min + abs(optim_obj$par[3])
+    } else {
+      detach(traffic_data)
+      par1 = optim_obj$par[1]
+      par2 = optim_obj$par[2]
+      par3 = optim_obj$par[3]
     }
-    detach(traffic_data)
-    par1 = optim_obj$par[1]
-    par2 = optim_obj$par[2]
-    par3 = optim_obj$par[3]
 
     # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - exp(1.0 - ((1.0 + (par1*((1.0/V2) - (1.0/par2))))^par3)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)

@@ -90,22 +90,27 @@ tryCatch(
     optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(-Inf, data_max_density),
                            upper = c(par1_max, Inf), maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, 1.5*par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead',
-                             maxit = 500)
+      par1_max_use = data.frame(par1_max_use = par1_max)
+      par2_min_use = data.frame(par2_min_use = data_max_density)
+      model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 - (V2/(par2_min_use + abs(p[2]))))^(1.0/(1.0 - (par1_max_use - abs(p[1])))))), sigma.formula = ~ 1, family = NO()))
+      attach(par1_max_use)
+      attach(par2_min_use)
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_max - par1_init, par2_init - data_max_density), k = 0.0, steps = c(par1_step, par2_step),
+                             method = 'Nelder-Mead', maxit = 500)
+      detach(par2_min_use)
+      detach(par1_max_use)
+      detach(traffic_data)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
-        detach(traffic_data)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[1] > par1_max) || (optim_obj$par[2] < data_max_density)) {
-        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
-        detach(traffic_data)
-        q(save = 'no', status = 1)
-      }
+      par1 = par1_max - abs(optim_obj$par[1])
+      par2 = par2_min + abs(optim_obj$par[2])
+    } else {
+      detach(traffic_data)
+      par1 = optim_obj$par[1]
+      par2 = optim_obj$par[2]
     }
-    detach(traffic_data)
-    par1 = optim_obj$par[1]
-    par2 = optim_obj$par[2]
 
     # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(V2*((1.0 - (V2/par2))^(1.0/(1.0 - par1)))), sigma.formula = ~ 1, family = NO(), data = traffic_data)

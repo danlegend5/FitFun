@@ -117,24 +117,30 @@ tryCatch(
     optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(psi_min, omega_min),
                            maxit = 500)
     if (optim_obj$convergence != 0) {
-      optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), method = 'Nelder-Mead', maxit = 500)
+      psi_min_use = data.frame(psi_min_use = psi_min)
+      omega_min_use = data.frame(omega_min_use = omega_min)
+      model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - ((inv_k_jam - (psi_min_use + abs(p[1])) - (omega_min_use + abs(p[2])))*V2) - sqrt(((((inv_k_jam - (psi_min_use + abs(p[1])) + (omega_min_use + abs(p[2])))*V2) - 1.0)^2) + (4.0*(psi_min_use + abs(p[1]))*(omega_min_use + abs(p[2]))*(V2^2)))),
+                                   sigma.formula = ~ 1, family = NO()))
+      attach(psi_min_use)
+      attach(omega_min_use)
+      optim_obj = find.hyper(model = model_formula, parameters = c(psi_init - psi_min, omega_init - omega_min), k = 0.0, steps = c(psi_step, omega_step),
+                             method = 'Nelder-Mead', maxit = 500)
+      detach(omega_min_use)
+      detach(psi_min_use)
+      detach(traffic_data)
+      detach(inv_k_jam)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
-        detach(traffic_data)
-        detach(inv_k_jam)
         q(save = 'no', status = 1)
       }
-      if ((optim_obj$par[1] < psi_min) || (optim_obj$par[2] < omega_min)) {
-        cat('ERROR - The intermediate fits did not converge (parameter out of bounds)...\n')
-        detach(traffic_data)
-        detach(inv_k_jam)
-        q(save = 'no', status = 1)
-      }
+      psi = psi_min + abs(optim_obj$par[1])
+      omega = omega_min + abs(optim_obj$par[2])
+    } else {
+      detach(traffic_data)
+      detach(inv_k_jam)
+      psi = optim_obj$par[1]
+      omega = optim_obj$par[2]
     }
-    detach(traffic_data)
-    detach(inv_k_jam)
-    psi = optim_obj$par[1]
-    omega = optim_obj$par[2]
 
     # Perform the final fit
     model_obj = gamlss(V3 ~ 0 + I(1.0 - (((1.0/k_jam) - psi - omega)*V2) - sqrt((((((1.0/k_jam) - psi + omega)*V2) - 1.0)^2) + (4.0*psi*omega*(V2^2)))),
