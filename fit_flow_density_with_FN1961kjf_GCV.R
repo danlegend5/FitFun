@@ -1,9 +1,9 @@
-fit_flow_density_with_NW1961_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_FN1961kjf_GCV = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Newell model (NW1961). The
-#              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with constant variance (GCV).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Franklin-Newell model with
+#              fixed jam density (FN1961kjf). The model component for the noise in the flow-density relationship is defined as independent
+#              observations that follow a Gaussian distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,15 +17,14 @@ fit_flow_density_with_NW1961_GCV = function(traffic_data, ngrid, upper_density, 
 #
 # Configuration Parameters:
 #
+k_jam = 1.0            # Fixed jam density (must be positive)
 par1_min = 0.0001      # Minimum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
 par1_max = 0.9999      # Maximum acceptable value for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive and less than unity)
 par1_step = 0.0001     # Step size for the free parameter equivalent to exp(-v_bw*(k_jam/v_ff)) (must be positive)
-par2_min = 0.0001      # Minimum acceptable value for the free parameter k_jam (must be positive)
-par2_step = 0.0001     # Step size for the free parameter k_jam (must be positive)
 
 
 # Define some useful variables
-functional_form_model = 'NW1961'
+functional_form_model = 'FN1961kjf'
 noise_model = 'GCV'
 
 # Report on the GAMLSS model and the data
@@ -35,7 +34,8 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Newell (NW1961)\n')
+cat('  Franklin-Newell\n')
+cat('  Fixed jam density (FN1961kjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -76,68 +76,55 @@ cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
 
-  # Fit a Greenshields model to estimate an initial value for v_ff
-  { init_model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+  # Fit a Greenshields model with fixed jam density to estimate an initial value for v_ff
+  { init_model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (V2/k_jam))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
-      cat('ERROR - The initial fit of a Greenshields model did not converge...\n')
+      cat('ERROR - The initial fit of a Greenshields model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
     }
     v_ff_init = init_model_obj$mu.coefficients[1]
 
-    # Fit a Greenberg model to estimate initial values for k_jam and exp(-v_bw*(k_jam/v_ff))
-    init_model_obj = gamlss(V3 ~ 0 + V2 + I(V2*log(V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    # Fit a Greenberg model with fixed jam density to estimate an initial value for exp(-v_bw*(k_jam/v_ff))
+    init_model_obj = gamlss(V3 ~ 0 + I(V2*log(k_jam/V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
-      cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
+      cat('ERROR - The initial fit of a Greenberg model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
     }
-    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), par2_min + par2_step)
-    par1_init = exp(init_model_obj$mu.coefficients[2]*(par2_init/v_ff_init))
+    par1_init = exp(-init_model_obj$mu.coefficients[1]*(k_jam/v_ff_init))
     par1_init = max(par1_init, par1_min + par1_step)
     par1_init = min(par1_init, par1_max - par1_step)
 
     # Perform the intermediate fits
-    model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/p[2]))))), sigma.formula = ~ 1, family = NO()))
+    k_jam_use = data.frame(k_jam_use = k_jam)
+    model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (p[1]^((1.0/V2) - (1.0/k_jam_use))))), sigma.formula = ~ 1, family = NO()))
+    attach(k_jam_use)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, par2_min),
-                           upper = c(par1_max, Inf), maxit = 500)
+    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max), maxit = 500)
     if (optim_obj$convergence != 0) {
-      par1_min_use = data.frame(par1_min_use = par1_min)
-      par1_max_use = data.frame(par1_max_use = par1_max)
-      par2_min_use = data.frame(par2_min_use = par2_min)
-      model_formula = quote(gamlss(V3 ~ 0 + I(V2*(1.0 - (max(min(p[1], par1_max_use), par1_min_use)^((1.0/V2) - (1.0/(par2_min_use + abs(p[2]))))))),
-                                   sigma.formula = ~ 1, family = NO()))
-      attach(par1_min_use)
-      attach(par1_max_use)
-      attach(par2_min_use)
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, par2_init - par2_min), k = 0.0, steps = c(par1_step, par2_step),
-                             method = 'Nelder-Mead', maxit = 500)
-      detach(par2_min_use)
-      detach(par1_max_use)
-      detach(par1_min_use)
-      detach(traffic_data)
+      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init), k = 0.0, steps = c(par1_step), lower = c(par1_min), upper = c(par1_max),
+                             method = 'Brent', maxit = 500)
       if (optim_obj$convergence != 0) {
         cat('ERROR - The intermediate fits did not converge...\n')
+        detach(traffic_data)
+        detach(k_jam_use)
         q(save = 'no', status = 1)
       }
-      par1 = max(min(optim_obj$par[1], par1_max), par1_min)
-      par2 = par2_min + abs(optim_obj$par[2])
-    } else {
-      detach(traffic_data)
-      par1 = optim_obj$par[1]
-      par2 = optim_obj$par[2]
     }
+    detach(traffic_data)
+    detach(k_jam_use)
+    par1 = optim_obj$par[1]
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (par1^((1.0/V2) - (1.0/par2))))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (par1^((1.0/V2) - (1.0/k_jam))))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)
     }
-    model_obj$mu.df = model_obj$mu.df + 2
-    model_obj$df.fit = model_obj$df.fit + 2
-    model_obj$df.residual = model_obj$df.residual - 2
-    model_obj$aic = model_obj$aic + 4.0
-    model_obj$sbc = model_obj$sbc + 2.0*log(ntraffic_data) },
+    model_obj$mu.df = model_obj$mu.df + 1
+    model_obj$df.fit = model_obj$df.fit + 1
+    model_obj$df.residual = model_obj$df.residual - 1
+    model_obj$aic = model_obj$aic + 2.0
+    model_obj$sbc = model_obj$sbc + log(ntraffic_data) },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -280,7 +267,6 @@ tryCatch(
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = NA
     v_bw = NA
     dvdk_kjam = NA
     if (model_obj$mu.coefficients[1] > 0.0) {
@@ -289,7 +275,6 @@ tryCatch(
       k_vmax = 0.0
 #      q_cap =      # Can be computed once k_crit is available - not yet implemented
       v_max = v_ff
-      k_jam = par2
       v_bw = (-v_ff/k_jam)*log(par1)
       dvdk_kjam = -v_bw/k_jam
     } },
@@ -328,7 +313,6 @@ cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  v_ff:                   ', model_obj$mu.coefficients[1], '\n')
 cat('  exp(-v_bw*(k_jam/v_ff)):', par1, '\n')
-cat('  k_jam:                  ', par2, '\n')
 cat('  sigma_con:              ', exp(model_obj$sigma.coefficients[1]), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
@@ -348,7 +332,6 @@ tryCatch(
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
         par1, '           # exp(-v_bw*(k_jam/v_ff))\n',
-        par2, '           # k_jam\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
         file = output_files[1], sep = '', append = TRUE)
     cat('######################################################################################################################\n',

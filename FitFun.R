@@ -294,7 +294,7 @@ if (!is.element(fd_type, acceptable_values)) {
 }
 cat('Fundamental diagram type:                           ', fd_type, '\n')
 acceptable_values = c('FF',         'GS1935',     'GS1935kjf', 'GB1959',     'GB1959kjf',  'ED1961',     'ED1961kjf',  'UW1961A',   'UW1961B',
-                      'UW1961Bkjf', 'NW1961',     'NW1961kjf', 'GZ1961A',    'GZ1961Akjf', 'GZ1961B',    'GZ1961Bkjf', 'GZ1961C',   'GZ1961Ckjf',
+                      'UW1961Bkjf', 'FN1961',     'FN1961kjf', 'GZ1961A',    'GZ1961Akjf', 'GZ1961B',    'GZ1961Bkjf', 'GZ1961C',   'GZ1961Ckjf',
                       'GZ1961D',    'GZ1961Dkjf', 'GZ1961E',   'GZ1961Ekjf', 'GZ1961F',    'GZ1961G',    'GZ1961Gkjf', 'GZ1961H',   'GZ1961Hkjf',
                       'DK1966A',    'DK1966Akjf', 'DK1966B',   'DK1966Bkjf', 'DK1966C',    'DK1966Ckjf', 'MJ1971',     'MJ1971kjf', 'BM1977',
                       'VA1995',     'VA1995kjf',  'BD1995',    'DC1995A',    'DC1995Akjf', 'DC2012B',    'DC2012Bkjf', 'SN2014')                          #### FINISH
