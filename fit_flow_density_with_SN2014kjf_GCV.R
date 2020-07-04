@@ -1,9 +1,9 @@
-fit_flow_density_with_SN2014_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_SN2014kjf_GCV = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Sun model (SN2014). The model
-#              component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian distribution
-#              with constant variance (GCV).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Sun model with fixed jam
+#              density (SN2014kjf). The model component for the noise in the flow-density relationship is defined as independent observations that
+#              follow a Gaussian distribution with constant variance (GCV).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,12 +17,13 @@ fit_flow_density_with_SN2014_GCV = function(traffic_data, ngrid, upper_density, 
 #
 # Configuration Parameters:
 #
+k_jam = 1.0     # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
 nknots = 11     # Number of equally spaced knots in the B-splines basis
 bdegree = 3     # Degree of the B-splines basis
 
 
 # Define some useful variables
-functional_form_model = 'SN2014'
+functional_form_model = 'SN2014kjf'
 noise_model = 'GCV'
 
 # Report on the GAMLSS model and the data
@@ -32,7 +33,8 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Sun (SN2014)\n')
+cat('  Sun\n')
+cat('  Fixed jam density (SN2014kjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -72,7 +74,15 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
+  { if (k_jam <= data_max_density) {
+      cat('ERROR - The jam density (fixed) is less than or equal to the maximum observed density...\n')
+      q(save = 'no', status = 1)
+    }
+    traffic_data[, tmpcol := log(traffic_data$V2) + log(1.0 - (traffic_data$V2/k_jam))]     # A possible bug in GAMLSS means that only a single instance of "offset()"
+                                                                                            # can be written in a formula, and "offset()" itself can only process a
+                                                                                            # single named quantity. Hence, in this case, a new column must to be added
+                                                                                            # to the data.
+    model_obj = gamlss(V3 ~ offset(tmpcol) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
                        family = NO(mu.link = 'log'), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
@@ -135,9 +145,14 @@ tryCatch(
 # Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
+  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, k_jam), length.out = ngrid))
+    reconstructed_model_fit[, tmpcol := log(reconstructed_model_fit$V2) + log(1.0 - (reconstructed_model_fit$V2/k_jam))]
     predicted_values_for_mu = double(length = ngrid)
-    predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
+    if (upper_density < k_jam) {
+      predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
+    } else {
+      predicted_values_for_mu[2:(ngrid - 1)] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:(ngrid - 1)], type = 'response', data = traffic_data)
+    }
     predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
@@ -151,6 +166,7 @@ tryCatch(
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
+    reconstructed_model_fit[, tmpcol := NULL]
     reconstructed_model_fit[, mu := predicted_values_for_mu]
     reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
@@ -214,16 +230,15 @@ tryCatch(
 # Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
   { q_0 = 0.0
-    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = 0.0), type = 'terms', data = traffic_data)
+    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = c(0.0, k_jam), tmpcol = c(0.0, 0.0)), type = 'terms', data = traffic_data)
     v_ff = exp(model_obj$mu.coefficients[1] + tmp_vals[1])
     dvdk_0 = NA
     k_crit = NA
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = NA
-    v_bw = NA
-    dvdk_kjam = NA },
+    v_bw = exp(model_obj$mu.coefficients[1] + tmp_vals[2])
+    dvdk_kjam = -v_bw/k_jam },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
@@ -306,7 +321,8 @@ tryCatch(
 # Write out the fit predictions file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
-  { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
+  { traffic_data[, tmpcol := NULL]
+    cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
         'Normalised Quantile Residual ("-Inf" Or "Inf" Values May Be Present)\n', file = output_files[3])
     write.table(traffic_data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
