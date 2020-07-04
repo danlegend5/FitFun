@@ -214,7 +214,8 @@ tryCatch(
 # Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
   { q_0 = 0.0
-    v_ff = NA
+    tmp_vals = predict(model_obj, what = 'mu', newdata = data.frame(V2 = 0.0), type = 'terms', data = traffic_data)
+    v_ff = exp(model_obj$mu.coefficients[1] + tmp_vals[1])
     dvdk_0 = NA
     k_crit = NA
     k_vmax = NA
