@@ -285,14 +285,7 @@ tryCatch(
         model_obj$mu.coefficients[1], '           # v_ff\n',
         -model_obj$mu.coefficients[2], '           # v_ff/sqrt(k_jam)\n',
         exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
-        file = output_files[1], sep = '', append = TRUE)
-    cat('######################################################################################################################\n',
-        '# FIT SUMMARY AS PROVIDED BY THE GAMLSS SOFTWARE\n',
-        '######################################################################################################################\n',
-        file = output_files[1], sep = '', append = TRUE)
-    sink(file = output_files[1], append = TRUE)
-    summary(model_obj)
-    sink() },
+        file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)
                            q(save = 'no', status = 1) }
