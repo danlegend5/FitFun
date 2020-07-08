@@ -17,9 +17,9 @@ fit_flow_density_with_SN2014kjf_GCV = function(traffic_data, ngrid, upper_densit
 #
 # Configuration Parameters:
 #
-k_jam = 1.0     # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
-nknots = 11     # Number of equally spaced knots in the B-splines basis
-bdegree = 3     # Degree of the B-splines basis
+k_jam = 1.0001     # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
+nknots = 11        # Number of equally spaced knots in the B-splines basis
+bdegree = 3        # Degree of the B-splines basis
 
 
 # Define some useful variables

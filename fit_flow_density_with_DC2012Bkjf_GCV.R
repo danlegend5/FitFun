@@ -17,7 +17,7 @@ fit_flow_density_with_DC2012Bkjf_GCV = function(traffic_data, ngrid, upper_densi
 #
 # Configuration Parameters:
 #
-k_jam = 1.0            # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
+k_jam = 1.0001         # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
 par1_min = 0.0001      # Minimum acceptable value for the free parameter equivalent to (v_bw*k_jam)/v_ff (must be positive)
 par1_step = 0.0001     # Step size for the free parameter equivalent to (v_bw*k_jam)/v_ff (must be positive)
 par2_init = 1.0        # Initial value for the free parameter m (must be positive and greater than "par2_min")
