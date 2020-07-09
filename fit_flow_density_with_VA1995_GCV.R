@@ -82,20 +82,12 @@ tryCatch(
       cat('ERROR - The initial fit of a Greenshields model did not converge...\n')
       q(save = 'no', status = 1)
     }
-    if (init_model_obj$mu.coefficients[1] <= 0.0) {
-      cat('ERROR - The initial fit of a Greenshields model yielded a zero or negative free-flow speed...\n')
-      q(save = 'no', status = 1)
-    }
     v_ff_init = init_model_obj$mu.coefficients[1]
 
     # Fit a Greenberg model to estimate initial values for v_bw and k_jam
     init_model_obj = gamlss(V3 ~ 0 + V2 + I(V2*log(V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
       cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
-      q(save = 'no', status = 1)
-    }
-    if (init_model_obj$mu.coefficients[2] >= 0.0) {
-      cat('ERROR - The initial fit of a Greenberg model yielded a zero or negative back-propagating wave speed at jam density...\n')
       q(save = 'no', status = 1)
     }
     v_bw_init = -init_model_obj$mu.coefficients[2]
