@@ -19,6 +19,7 @@ fit_flow_density_with_SN2014_GCV = function(traffic_data, ngrid, upper_density, 
 #
 nknots = 11     # Number of equally spaced knots in the B-splines basis
 bdegree = 3     # Degree of the B-splines basis
+ncyc = 100      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
@@ -73,7 +74,7 @@ cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
   { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
-                       family = NO(mu.link = 'log'), data = traffic_data)
+                       family = NO(mu.link = 'log'), data = traffic_data, n.cyc = ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
