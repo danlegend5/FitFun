@@ -78,13 +78,15 @@ tryCatch(
   { par1_init = max(data_max_density, par1_min + par1_step)
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*((tanh((p[1]/V2) - p[2]) + tanh(p[2]))/(1.0 + tanh(p[2])))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(par1_init, 0.0), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, -Inf), maxit = 500)
+    optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, 0.0), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, -Inf), maxit = 500))
+    if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
     if (optim_obj$convergence != 0) {
       par1_min_use = data.frame(par1_min_use = par1_min)
       model_formula = quote(gamlss(V3 ~ 0 + I(V2*((tanh(((par1_min_use + abs(p[1]))/V2) - p[2]) + tanh(p[2]))/(1.0 + tanh(p[2])))), sigma.formula = ~ 1, family = NO()))
       attach(par1_min_use)
-      optim_obj = find.hyper(model = model_formula, parameters = c(par1_init - par1_min, 0.0), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead',
-                             maxit = 500)
+      optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init - par1_min, 0.0), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead',
+                                 maxit = 500))
+      if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
       detach(par1_min_use)
       detach(traffic_data)
       if (optim_obj$convergence != 0) {

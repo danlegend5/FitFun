@@ -114,8 +114,9 @@ tryCatch(
                                  sigma.formula = ~ 1, family = NO()))
     attach(inv_k_jam)
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(psi_min, omega_min),
-                           maxit = 500)
+    optim_obj = try(find.hyper(model = model_formula, parameters = c(psi_init, omega_init), k = 0.0, steps = c(psi_step, omega_step), lower = c(psi_min, omega_min),
+                               maxit = 500))
+    if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
     if (optim_obj$convergence != 0) {
       psi_min_use = data.frame(psi_min_use = psi_min)
       omega_min_use = data.frame(omega_min_use = omega_min)
@@ -123,8 +124,9 @@ tryCatch(
                                    sigma.formula = ~ 1, family = NO()))
       attach(psi_min_use)
       attach(omega_min_use)
-      optim_obj = find.hyper(model = model_formula, parameters = c(psi_init - psi_min, omega_init - omega_min), k = 0.0, steps = c(psi_step, omega_step),
-                             method = 'Nelder-Mead', maxit = 500)
+      optim_obj = try(find.hyper(model = model_formula, parameters = c(psi_init - psi_min, omega_init - omega_min), k = 0.0, steps = c(psi_step, omega_step),
+                                 method = 'Nelder-Mead', maxit = 500))
+      if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
       detach(omega_min_use)
       detach(psi_min_use)
       detach(traffic_data)

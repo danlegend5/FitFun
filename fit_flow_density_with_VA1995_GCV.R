@@ -114,8 +114,9 @@ tryCatch(
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(1.0 - (p[1]*V2) - sqrt((((p[2]*V2) - 1.0)^2) + (p[3]*(V2^2)))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
-                           lower = c(-Inf, gamma_min, delta_min), maxit = 500)
+    optim_obj = try(find.hyper(model = model_formula, parameters = c(beta_init, gamma_init, delta_init), k = 0.0, steps = c(beta_step, gamma_step, delta_step),
+                               lower = c(-Inf, gamma_min, delta_min), maxit = 500))
+    if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
     if (optim_obj$convergence != 0) {
       gamma_min_use = data.frame(gamma_min_use = gamma_min)
       delta_min_use = data.frame(delta_min_use = delta_min)
@@ -123,8 +124,9 @@ tryCatch(
                                    sigma.formula = ~ 1, family = NO()))
       attach(gamma_min_use)
       attach(delta_min_use)
-      optim_obj = find.hyper(model = model_formula, parameters = c(beta_init, gamma_init - gamma_min, delta_init - delta_min), k = 0.0,
-                             steps = c(beta_step, gamma_step, delta_step), method = 'Nelder-Mead', maxit = 500)
+      optim_obj = try(find.hyper(model = model_formula, parameters = c(beta_init, gamma_init - gamma_min, delta_init - delta_min), k = 0.0,
+                                 steps = c(beta_step, gamma_step, delta_step), method = 'Nelder-Mead', maxit = 500))
+      if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
       detach(delta_min_use)
       detach(gamma_min_use)
       detach(traffic_data)
