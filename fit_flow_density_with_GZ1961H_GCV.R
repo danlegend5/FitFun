@@ -82,21 +82,22 @@ tryCatch(
       cat('ERROR - The initial fit of a Greenberg model did not converge...\n')
       q(save = 'no', status = 1)
     }
-    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), data_max_density + par2_step)
+    par2_min = data_max_density
+    par2_init = max(exp(-init_model_obj$mu.coefficients[1]/init_model_obj$mu.coefficients[2]), par2_min + par2_step)
 
     # Perform the intermediate fits
     model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 - (V2/p[2]))^(1.0/(1.0 - p[1])))), sigma.formula = ~ 1, family = NO()))
     attach(traffic_data)
-    optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(-Inf, data_max_density),
+    optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(-Inf, par2_min),
                                upper = c(par1_max, Inf), maxit = 500))
     if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
     if (optim_obj$convergence != 0) {
       par1_max_use = data.frame(par1_max_use = par1_max)
-      par2_min_use = data.frame(par2_min_use = data_max_density)
+      par2_min_use = data.frame(par2_min_use = par2_min)
       model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 - (V2/(par2_min_use + abs(p[2]))))^(1.0/(1.0 - (par1_max_use - abs(p[1])))))), sigma.formula = ~ 1, family = NO()))
       attach(par1_max_use)
       attach(par2_min_use)
-      optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_max - par1_init, par2_init - data_max_density), k = 0.0, steps = c(par1_step, par2_step),
+      optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_max - par1_init, par2_init - par2_min), k = 0.0, steps = c(par1_step, par2_step),
                                  method = 'Nelder-Mead', maxit = 500))
       if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
       detach(par2_min_use)
