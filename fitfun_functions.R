@@ -479,6 +479,45 @@ return(list(tau_0 = curve_properties$y_0, dtaudk_0 = curve_properties$dydx_0, k_
 
 
 ################################################################################################################################################
+fix_out_of_data_curves = function(xvec, yvec, min_x, max_x) {
+
+# Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function
+#              does the following. Firstly, it determines the y-value "y_lower" corresponding to the minimum x-value that is greater than or
+#              equal to "min_x", and then, for all x-values less than "min_x", it sets the y-values in the curve to "y_lower". Secondly, it
+#              determines the y-value "y_upper" corresponding to the maximum x-value that is less than or equal to "max_x", and then, for all
+#              x-values greater than "max_x", it sets the y-values in the curve to "y_upper".
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+#   Lukas Ambuhl (lukas.ambuehl@ivt.baug.ethz.ch)
+
+
+# Determine the set of points with x-values in the range "min_x" to "max_x"
+selection = (xvec >= min_x) & (xvec <= max_x)
+
+# If there are no points with x-values in the range "min_x" to "max_x", then do nothing and return
+if (sum(selection) == 0) { return(yvec) }
+
+# Extract the y-values at the end points of the selection
+tmpvec = yvec[selection]
+y_lower = tmpvec[1]
+y_upper = tmpvec[length(tmpvec)]
+
+# For all x-values less than "min_x", set the y-values in the curve to "y_lower"
+selection = xvec < min_x
+if (sum(selection) > 0) { yvec[selection] = y_lower }
+
+# For all x-values greater than "max_x", set the y-values in the curve to "y_upper"
+selection = xvec > max_x
+if (sum(selection) > 0) { yvec[selection] = y_upper }
+
+# Return the modified y-values
+return(yvec)
+}
+
+
+################################################################################################################################################
 compute_slotted_acf = function(tvec, yvec, tlag_bin_size, tlag_nbins) {
 
 # Description: This function computes the slotted auto-correlation function (slotted ACF) for a set of time series data "yvec" observed at
