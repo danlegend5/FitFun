@@ -19,7 +19,7 @@ fit_flow_density_with_SN2014_GCV = function(traffic_data, ngrid, upper_density, 
 #
 nknots = 11     # Number of equally spaced knots in the B-splines basis
 bdegree = 3     # Degree of the B-splines basis
-ncyc = 100      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+ncyc = 200      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
