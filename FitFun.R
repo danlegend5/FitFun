@@ -303,7 +303,7 @@ if (!is.element(functional_form_model, acceptable_values)) {
   q(save = 'no', status = 1)
 }
 cat('Functional form model:                              ', functional_form_model, '\n')
-acceptable_values = c('GCV', 'GaussSigNpar')                                                                                                        #### FINISH
+acceptable_values = c('GCV', 'GaussSigNpar', 'SN2SigNparNuNpar')                                                                                    #### FINISH
 if (!is.element(noise_model, acceptable_values)) {
   cat('ERROR - The command-line argument "noise_model" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
