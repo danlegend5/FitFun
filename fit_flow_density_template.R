@@ -1,10 +1,10 @@
 #### EDIT HERE BELOW ####
-fit_flow_density_with_FF_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_FF_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the free-flow model (FF). The
 #              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with constant variance (GCV).
+#              distribution with constant variance (GaussSigCon).
 #### EDIT HERE ABOVE ####
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
@@ -25,7 +25,7 @@ fit_flow_density_with_FF_GCV = function(traffic_data, ngrid, upper_density, outp
 
 # Define some useful variables
 functional_form_model = 'FF'
-noise_model = 'GCV'
+noise_model = 'GaussSigCon'
 #### EDIT HERE ABOVE ####
 
 # Report on the GAMLSS model and the data
@@ -43,7 +43,7 @@ cat('Model component for the noise:\n')
 #### EDIT HERE BELOW ####
 cat('  Independent observations\n')
 cat('  Gaussian distribution\n')
-cat('  Constant variance (GCV)\n')
+cat('  Constant variance (GaussSigCon)\n')
 #### EDIT HERE ABOVE ####
 cat('\n')
 cat('Data properties:\n')

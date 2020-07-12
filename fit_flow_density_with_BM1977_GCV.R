@@ -1,9 +1,9 @@
-fit_flow_density_with_BM1977_GCV = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_BM1977_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Boardman model (BM1977). The
 #              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with constant variance (GCV).
+#              distribution with constant variance (GaussSigCon).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -22,7 +22,7 @@ fit_flow_density_with_BM1977_GCV = function(traffic_data, ngrid, upper_density, 
 
 # Define some useful variables
 functional_form_model = 'BM1977'
-noise_model = 'GCV'
+noise_model = 'GaussSigCon'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -36,7 +36,7 @@ cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
 cat('  Gaussian distribution\n')
-cat('  Constant variance (GCV)\n')
+cat('  Constant variance (GaussSigCon)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
