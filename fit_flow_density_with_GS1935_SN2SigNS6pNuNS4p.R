@@ -1,9 +1,10 @@
-fit_flow_density_with_GS1935_SN2SigNparNuNpar = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GS1935_SN2SigNS6pNuNS4p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Greenshields model (GS1935).
 #              The model component for the noise in the flow-density relationship is defined as independent observations that follow a Skew Normal
-#              Type II distribution with the scale and skewness parameters varying as a smooth functions of density (SN2SigNparNuNpar).
+#              Type II distribution. The density dependence of the log of the scale parameter and the log of the skewness parameter is modelled
+#              using natural cubic splines with six and four effective free parameters, respectively (SN2SigNS6pNuNS4p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,15 +18,13 @@ fit_flow_density_with_GS1935_SN2SigNparNuNpar = function(traffic_data, ngrid, up
 #
 # Configuration Parameters:
 #
-nknots = 11      # Number of equally spaced knots in the B-splines basis
-bdegree = 3      # Degree of the B-splines basis
 ccrit = 0.01     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
 ncyc = 200       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
 functional_form_model = 'GS1935'
-noise_model = 'SN2SigNparNuNpar'
+noise_model = 'SN2SigNS6pNuNS4p'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -40,7 +39,7 @@ cat('Model component for the noise:\n')
 cat('  Independent observations\n')
 cat('  Skew Normal Type II distribution\n')
 cat('  Scale is a smooth function of density\n')
-cat('  Skewness is a smooth function of density (SN2SigNparNuNpar)\n')
+cat('  Skewness is a smooth function of density (SN2SigNS6pNuNS4p)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -75,8 +74,7 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ pb(V2, inter = nknots - 1, degree = bdegree, method = 'ML'),
-                       nu.formula = ~ pb(V2, inter = nknots - 1, degree = bdegree, method = 'ML'), family = SN2(), data = traffic_data,
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 5), nu.formula = ~ ns(V2, df = 3), family = SN2(), data = traffic_data,
                        c.crit = ccrit, n.cyc = ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
@@ -290,8 +288,6 @@ cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  v_ff:      ', model_obj$mu.coefficients[1], '\n')
 cat('  v_ff/k_jam:', -model_obj$mu.coefficients[2], '\n')
-cat('  Npar_sigma:', npar_sigma, '\n')
-cat('  Npar_nu:   ', npar_nu, '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -310,8 +306,6 @@ tryCatch(
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
         -model_obj$mu.coefficients[2], '           # v_ff/k_jam\n',
-        npar_sigma, '           # Npar_sigma\n',
-        npar_nu, '           # Npar_nu\n',
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)
