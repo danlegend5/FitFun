@@ -1,9 +1,10 @@
-fit_flow_density_with_GS1935_GaussSigNpar = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GS1935_GaussSigNS6p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Greenshields model (GS1935).
 #              The model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution with the standard deviation varying as a smooth function of density (GaussSigNpar).
+#              distribution. The density dependence of the log of the standard deviation is modelled using natural cubic splines with six effective
+#              free parameters (GaussSigNS6p). 
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,15 +18,13 @@ fit_flow_density_with_GS1935_GaussSigNpar = function(traffic_data, ngrid, upper_
 #
 # Configuration Parameters:
 #
-nknots = 11      # Number of equally spaced knots in the B-splines basis
-bdegree = 3      # Degree of the B-splines basis
 ccrit = 0.01     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
 ncyc = 200       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
 functional_form_model = 'GS1935'
-noise_model = 'GaussSigNpar'
+noise_model = 'GaussSigNS6p'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -39,7 +38,7 @@ cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
 cat('  Gaussian distribution\n')
-cat('  Standard deviation is a smooth function of density (GaussSigNpar)\n')
+cat('  Standard deviation is a smooth function of density (GaussSigNS6p)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -74,8 +73,7 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ pb(V2, inter = nknots - 1, degree = bdegree, method = 'ML'), family = NO(),
-                       data = traffic_data, c.crit = ccrit, n.cyc = ncyc)
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 5), family = NO(), data = traffic_data, c.crit = ccrit, n.cyc = ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
@@ -271,7 +269,6 @@ cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
 cat('  v_ff:      ', model_obj$mu.coefficients[1], '\n')
 cat('  v_ff/k_jam:', -model_obj$mu.coefficients[2], '\n')
-cat('  Npar_sigma:', npar_sigma, '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -290,7 +287,6 @@ tryCatch(
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
         -model_obj$mu.coefficients[2], '           # v_ff/k_jam\n',
-        npar_sigma, '           # Npar_sigma\n',
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)
