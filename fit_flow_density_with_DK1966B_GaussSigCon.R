@@ -19,7 +19,7 @@ fit_flow_density_with_DK1966B_GaussSigCon = function(traffic_data, ngrid, upper_
 #
 par1_min = 0.0001      # Minimum acceptable value for the free parameter k_jam (must be positive)
 par1_step = 0.0001     # Step size for the free parameter k_jam (must be positive)
-par2_nsteps = 100      # Number of steps to be used for the initial profiling of the free parameter k_b (must be greater than or equal to 2)
+par2_nsteps = 50       # Number of steps to be used for the initial profiling of the free parameter k_b (must be greater than or equal to 2)
 par2_nrefine = 7       # Number of refinement iterations to be performed for fitting the free parameter k_b (must be greater than or equal to 1)
 
 
@@ -131,8 +131,8 @@ tryCatch(
 
     # Iteratively refine the best fitting model
     for (j in 1:par2_nrefine) {
-      ind_lo = max(1, ind_min_gdev - 4)
-      ind_hi = min(par2_nsteps, ind_min_gdev + 4)
+      ind_lo = max(1, ind_min_gdev - 3)
+      ind_hi = min(par2_nsteps, ind_min_gdev + 3)
       curr_par2_nsteps = 2*(ind_hi - ind_lo) + 1
       curr_k_b_vec = double(length = curr_par2_nsteps)
       curr_par1_vec = double(length = curr_par2_nsteps)
