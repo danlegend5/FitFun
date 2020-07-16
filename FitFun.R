@@ -298,7 +298,7 @@ acceptable_values = c('FF',         'GS1935',     'GS1935kjf',  'GB1959',     'G
                       'GZ1961D',    'GZ1961Dkjf', 'GZ1961E',    'GZ1961Ekjf', 'GZ1961F',    'GZ1961G',   'GZ1961Gkjf', 'GZ1961H', 'GZ1961Hkjf',
                       'DK1966A',    'DK1966Akjf', 'DK1966B',    'DK1966Bkjf', 'MJ1971',     'MJ1971kjf', 'BM1977',     'VA1995',  'VA1995kjf',
                       'BD1995',     'DC1995A',    'DC1995Akjf', 'DC2012B',    'DC2012Bkjf', 'GD2008',    'GD2008kjf',  'MN2008',  'MN2008kjf',
-                      'SN2014',     'SN2014kjf')                                                                                                      #### FINISH
+                      'WG2011A',    'WG2011B',    'WG2011C',    'SN2014',     'SN2014kjf')
 if (!is.element(functional_form_model, acceptable_values)) {
   cat('ERROR - The command-line argument "functional_form_model" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
