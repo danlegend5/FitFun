@@ -20,7 +20,7 @@ fit_flow_density_with_SN2014_GaussSigCon = function(traffic_data, ngrid, upper_d
 nknots = 11      # Number of equally spaced knots in the B-splines basis
 bdegree = 3      # Degree of the B-splines basis
 ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-ncyc = 200       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
