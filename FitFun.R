@@ -19,8 +19,8 @@
 #   numbers of parameters. Various information criteria have been developed from distinct statistical view-points as implementations of the
 #   Principle of Parsimony and each one may be used to automatically select a parsimonious model from a set of candidate models. They may be
 #   applied regardless of whether the models under consideration are nested or non-nested.
-#     The GAMLSS software, on which this script is based, computes both the Akaike information criterion (AIC; Akaike 1974, IEEE Transactions on
-#   Automatic Control, 19, 716) and the Bayesian information criterion (BIC; Schwarz 1978, The Annals of Statistics, 6, 461) for each GAMLSS
+#     The "gamlss" software, on which this script is based, computes both the Akaike information criterion (AIC; Akaike 1974, IEEE Transactions
+#   on Automatic Control, 19, 716) and the Bayesian information criterion (BIC; Schwarz 1978, The Annals of Statistics, 6, 461) for each GAMLSS
 #   model fit. Both of these information criteria apply to linear and non-linear models estimated via maximum likelihood. The formulae for these
 #   information criteria are given by:
 #
@@ -45,7 +45,7 @@
 #     Takeuchi (1976, Mathematical Sciences, 153, 12) generalised the AIC with a more complicated formula to create the Takeuchi information
 #   criterion (TIC). Subsequently, Konishi & Kitagawa (1996, Biometrika, 83, 875) derived a further generalisation of the AIC and TIC, called the
 #   generalised information criterion (GIC), that can also be applied to model selection for models with parameters estimated by maximum penalised
-#   likelihood. The GAMLSS software only implements the AIC from the available AIC-like information criteria. For GAMLSS models that employ
+#   likelihood. The "gamlss" software only implements the AIC from the available AIC-like information criteria. For GAMLSS models that employ
 #   non-parametric smoothing terms estimated by maximum penalised likelihood, the AIC is computed using the trace of the smoother matrix as an
 #   estimate of the (effective) number of free parameters used in the fit.
 #     An alternative approach to model selection is a Bayesian approach where the model with the largest Bayesian posterior probability is chosen.
@@ -53,8 +53,8 @@
 #   the small-sample bias-corrected AIC) for more complicated models (e.g. in the regime Npar < 20 for Ndat > 50), therefore favouring models with
 #   fewer parameters than those favoured by the AIC. Konishi, Ando & Imoto (2004, Biometrika, 91, 27) performed a deeper Bayesian analysis to
 #   derive an improved BIC, along with a version that applies to model selection for models with parameters estimated by maximum penalised
-#   likelihood. The BIC and the improved BIC are consistent model selection criteria. Again, the GAMLSS software only implements the BIC from the
-#   available BIC-like information criteria, and for GAMLSS models that employ non-parametric smoothing terms estimated by maximum penalised
+#   likelihood. The BIC and the improved BIC are consistent model selection criteria. Again, the "gamlss" software only implements the BIC from
+#   the available BIC-like information criteria, and for GAMLSS models that employ non-parametric smoothing terms estimated by maximum penalised
 #   likelihood, the trace of the smoother matrix is adopted as an estimate of the effective number of free parameters.
 #
 # Usage:
