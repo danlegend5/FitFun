@@ -1,9 +1,9 @@
-fit_speed_density_with_SN2014_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
+fit_speed_density_with_SN2014kjf_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the speed-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the speed-density relationship is the Sun model (SN2014). The model
-#              component for the noise in the speed-density relationship is defined as independent observations that follow a Gaussian distribution
-#              with constant variance (GaussSigCon).
+#              script "FitFun.R". The model component for the functional form of the speed-density relationship is the Sun model with fixed jam
+#              density (SN2014kjf). The model component for the noise in the speed-density relationship is defined as independent observations that
+#              follow a Gaussian distribution with constant variance (GaussSigCon).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -17,14 +17,15 @@ fit_speed_density_with_SN2014_GaussSigCon = function(traffic_data, ngrid, upper_
 #
 # Configuration Parameters:
 #
-nknots = 11      # Number of equally spaced knots in the B-splines basis
-bdegree = 3      # Degree of the B-splines basis
-ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+k_jam = 1.0001     # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
+nknots = 11        # Number of equally spaced knots in the B-splines basis
+bdegree = 3        # Degree of the B-splines basis
+ccrit = 0.02       # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
+ncyc = 300         # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
-functional_form_model = 'SN2014'
+functional_form_model = 'SN2014kjf'
 noise_model = 'GaussSigCon'
 
 # Report on the GAMLSS model and the data
@@ -34,7 +35,8 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the speed-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Sun (SN2014)\n')
+cat('  Sun\n')
+cat('  Fixed jam density (SN2014kjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -74,7 +76,13 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
+  { if (k_jam <= data_max_density) {
+      cat('ERROR - The jam density (fixed) is less than or equal to the maximum observed density...\n')
+      q(save = 'no', status = 1)
+    }
+    traffic_data[, tmpcol := log(1.0 - (traffic_data$V2/k_jam))]     # Variable names cannot be accessed within "offset()" when using the model fit object. Hence, in this
+                                                                     # case, a new column must be added to the data.
+    model_obj = gamlss(V3 ~ offset(tmpcol) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
                        family = NO(mu.link = 'log'), data = traffic_data, c.crit = ccrit, n.cyc = ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
@@ -137,22 +145,29 @@ tryCatch(
 # Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
-    predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
-    if (!all(is.finite(predicted_values$mu))) {
+  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, k_jam), length.out = ngrid))
+    reconstructed_model_fit[, tmpcol := log(1.0 - (reconstructed_model_fit$V2/k_jam))]
+    if (upper_density < k_jam) {
+      predicted_values_for_mu = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
+    } else {
+      predicted_values_for_mu = double(length = ngrid)
+      predicted_values_for_mu[1:(ngrid - 1)] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[1:(ngrid - 1)], type = 'response', data = traffic_data)
+    }
+    predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
+    if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (!all(is.finite(predicted_values$sigma))) {
+    if (!all(is.finite(predicted_values_for_sigma))) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
     }
-    if (any(predicted_values$sigma <= 0.0)) {
+    if (any(predicted_values_for_sigma <= 0.0)) {
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
-    reconstructed_model_fit[, mu := predicted_values$mu]
-    reconstructed_model_fit[, sigma := predicted_values$sigma]
+    reconstructed_model_fit[, mu := predicted_values_for_mu]
+    reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
     reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
@@ -214,16 +229,15 @@ tryCatch(
 # Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
   { q_0 = 0.0
-    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = 0.0), type = 'terms', data = traffic_data)
+    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = c(0.0, k_jam), tmpcol = c(0.0, 0.0)), type = 'terms', data = traffic_data)
     v_ff = exp(model_obj$mu.coefficients[1] + tmp_vals[1])
     dvdk_0 = NA
     k_crit = NA
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = NA
-    v_bw = NA
-    dvdk_kjam = NA },
+    v_bw = exp(model_obj$mu.coefficients[1] + tmp_vals[2])
+    dvdk_kjam = -v_bw/k_jam },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
