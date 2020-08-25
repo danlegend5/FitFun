@@ -304,7 +304,7 @@ if (!is.element(functional_form_model, acceptable_values)) {
   q(save = 'no', status = 1)
 }
 cat('Functional form model:                              ', functional_form_model, '\n')
-acceptable_values = c('GaussSigCon', 'GaussSigNS6p', 'SN2SigNS6pNuNS4p', 'SEP3SigNS6pNuNS4pTauNS3p')
+acceptable_values = c('GaussSigCon', 'GaussSigNS5p', 'SN2SigNS6pNuNS4p', 'SEP3SigNS6pNuNS4pTauNS3p')
 if (!is.element(noise_model, acceptable_values)) {
   cat('ERROR - The command-line argument "noise_model" does not have an acceptable value...\n')
   q(save = 'no', status = 1)
