@@ -1,10 +1,10 @@
-fit_flow_density_with_GS1935_SN2SigNS6pNuNS4p = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GS1935_SN2SigNS5pNuNS3p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Greenshields model (GS1935).
 #              The model component for the noise in the flow-density relationship is defined as independent observations that follow a Skew Normal
 #              Type II distribution. The density dependence of the log of the scale parameter and the log of the skewness parameter is modelled
-#              using natural cubic splines with six and four effective free parameters, respectively (SN2SigNS6pNuNS4p).
+#              using natural cubic splines with five and three effective free parameters, respectively (SN2SigNS5pNuNS3p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -18,13 +18,15 @@ fit_flow_density_with_GS1935_SN2SigNS6pNuNS4p = function(traffic_data, ngrid, up
 #
 # Configuration Parameters:
 #
-ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+inner_ccrit = 0.05     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
+inner_ncyc = 10        # Maximum number of cycles of the inner iteration of the GAMLSS fitting algorithm
+outer_ccrit = 0.05     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
+outer_ncyc = 1000      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
 functional_form_model = 'GS1935'
-noise_model = 'SN2SigNS6pNuNS4p'
+noise_model = 'SN2SigNS5pNuNS3p'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -39,7 +41,7 @@ cat('Model component for the noise:\n')
 cat('  Independent observations\n')
 cat('  Skew Normal Type II distribution\n')
 cat('  Scale is a smooth function of density\n')
-cat('  Skewness is a smooth function of density (SN2SigNS6pNuNS4p)\n')
+cat('  Skewness is a smooth function of density (SN2SigNS5pNuNS3p)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -74,8 +76,8 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 5), nu.formula = ~ ns(V2, df = 3), family = SN2(), data = traffic_data,
-                       c.crit = ccrit, n.cyc = ncyc)
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 4), nu.formula = ~ ns(V2, df = 2), family = SN2(), data = traffic_data,
+                       c.crit = outer_ccrit, n.cyc = outer_ncyc, i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
