@@ -18,10 +18,10 @@ fit_flow_density_with_GS1935_GaussSigNS5p = function(traffic_data, ngrid, upper_
 #
 # Configuration Parameters:
 #
-inner_ccrit = 0.02     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
-inner_ncyc = 5         # Maximum number of cycles of the inner iteration of the GAMLSS fitting algorithm
-outer_ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-outer_ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+inner_ccrit = 0.05     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
+inner_ncyc = 10        # Maximum number of cycles of the inner iteration of the GAMLSS fitting algorithm
+outer_ccrit = 0.05     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
+outer_ncyc = 1000      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables

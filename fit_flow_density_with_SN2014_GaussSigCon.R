@@ -17,10 +17,10 @@ fit_flow_density_with_SN2014_GaussSigCon = function(traffic_data, ngrid, upper_d
 #
 # Configuration Parameters:
 #
-nknots = 11      # Number of equally spaced knots in the B-splines basis
-bdegree = 3      # Degree of the B-splines basis
-ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+nknots = 11            # Number of equally spaced knots in the B-splines basis
+bdegree = 3            # Degree of the B-splines basis
+outer_ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
+outer_ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
@@ -75,7 +75,7 @@ cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
   { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
-                       family = NO(mu.link = 'log'), data = traffic_data, c.crit = ccrit, n.cyc = ncyc)
+                       family = NO(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
