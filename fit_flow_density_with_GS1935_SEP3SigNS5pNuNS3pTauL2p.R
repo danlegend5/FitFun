@@ -1,11 +1,12 @@
-fit_flow_density_with_GS1935_SEP3SigNS6pNuNS4pTauNS3p = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_GS1935_SEP3SigNS5pNuNS3pTauL2p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Greenshields model (GS1935).
 #              The model component for the noise in the flow-density relationship is defined as independent observations that follow a Skew
-#              Exponential Power Type III distribution. The density dependence of the log of the scale parameter, the log of the skewness parameter,
-#              and the log of the kurtosis parameter is modelled using natural cubic splines with six, four, and three effective free parameters,
-#              respectively (SEP3SigNS6pNuNS4pTauNS3p).
+#              Exponential Power Type III distribution. The density dependence of the log of the scale parameter and the log of the skewness
+#              parameter is modelled using natural cubic splines with five and three effective free parameters, respectively. The density
+#              dependence of the log of the kurtosis parameter is modelled using a straight line function (i.e. an intercept and a gradient as the
+#              two free parameters; SEP3SigNS5pNuNS3pTauL2p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -19,13 +20,15 @@ fit_flow_density_with_GS1935_SEP3SigNS6pNuNS4pTauNS3p = function(traffic_data, n
 #
 # Configuration Parameters:
 #
-ccrit = 0.02     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
-ncyc = 300       # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
+inner_ccrit = 0.05     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
+inner_ncyc = 10        # Maximum number of cycles of the inner iteration of the GAMLSS fitting algorithm
+outer_ccrit = 0.05     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
+outer_ncyc = 1000      # Maximum number of cycles of the outer iteration of the GAMLSS fitting algorithm
 
 
 # Define some useful variables
 functional_form_model = 'GS1935'
-noise_model = 'SEP3SigNS6pNuNS4pTauNS3p'
+noise_model = 'SEP3SigNS5pNuNS3pTauL2p'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -41,7 +44,7 @@ cat('  Independent observations\n')
 cat('  Skew Exponential Power Type III distribution\n')
 cat('  Scale is a smooth function of density\n')
 cat('  Skewness is a smooth function of density\n')
-cat('  Kurtosis is a smooth function of density (SEP3SigNS6pNuNS4pTauNS3p)\n')
+cat('  Kurtosis is a smooth function of density (SEP3SigNS5pNuNS3pTauL2p)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -76,8 +79,8 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 5), nu.formula = ~ ns(V2, df = 3), tau.formula = ~ ns(V2, df = 2), family = SEP3(),
-                       data = traffic_data, c.crit = ccrit, n.cyc = ncyc)
+  { model_obj = gamlss(V3 ~ 0 + V2 + I(V2^2), sigma.formula = ~ ns(V2, df = 4), nu.formula = ~ ns(V2, df = 2), tau.formula = ~ 1 + V2, family = SEP3(),
+                       data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc, i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
