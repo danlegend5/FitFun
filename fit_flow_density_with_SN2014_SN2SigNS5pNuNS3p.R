@@ -283,7 +283,7 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
-cat('  Npar_mu:  ', npar_mu, '\n')
+cat('  Npar_mu:', npar_mu, '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')

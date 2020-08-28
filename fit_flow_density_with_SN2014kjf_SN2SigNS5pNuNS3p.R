@@ -1,12 +1,10 @@
-fit_flow_density_with_SN2014_SEP3SigNS5pNuNS3pTauL2p = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_SN2014kjf_SN2SigNS5pNuNS3p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Sun model (SN2014). The model
-#              component for the noise in the flow-density relationship is defined as independent observations that follow a Skew Exponential Power
-#              Type III distribution. The density dependence of the log of the scale parameter and the log of the skewness parameter is modelled
-#              using natural cubic splines with five and three effective free parameters, respectively. The density dependence of the log of the
-#              kurtosis parameter is modelled using a straight line function (i.e. an intercept and a gradient as the two free parameters;
-#              SEP3SigNS5pNuNS3pTauL2p).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Sun model with fixed jam
+#              density (SN2014kjf). The model component for the noise in the flow-density relationship is defined as independent observations that
+#              follow a Skew Normal Type II distribution. The density dependence of the log of the scale parameter and the log of the skewness
+#              parameter is modelled using natural cubic splines with five and three effective free parameters, respectively (SN2SigNS5pNuNS3p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -20,6 +18,7 @@ fit_flow_density_with_SN2014_SEP3SigNS5pNuNS3pTauL2p = function(traffic_data, ng
 #
 # Configuration Parameters:
 #
+k_jam = 1.0001         # Fixed jam density (must be positive, and greater than the maximum observed density in the data)
 nknots = 11            # Number of equally spaced knots in the B-splines basis
 bdegree = 3            # Degree of the B-splines basis
 inner_ccrit = 0.05     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
@@ -29,8 +28,8 @@ outer_ncyc = 1000      # Maximum number of cycles of the outer iteration of the 
 
 
 # Define some useful variables
-functional_form_model = 'SN2014'
-noise_model = 'SEP3SigNS5pNuNS3pTauL2p'
+functional_form_model = 'SN2014kjf'
+noise_model = 'SN2SigNS5pNuNS3p'
 
 # Report on the GAMLSS model and the data
 cat('\n')
@@ -39,14 +38,14 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Sun (SN2014)\n')
+cat('  Sun\n')
+cat('  Fixed jam density (SN2014kjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
-cat('  Skew Exponential Power Type III distribution\n')
+cat('  Skew Normal Type II distribution\n')
 cat('  Scale is a smooth function of density\n')
-cat('  Skewness is a smooth function of density\n')
-cat('  Kurtosis is a smooth function of density (SEP3SigNS5pNuNS3pTauL2p)\n')
+cat('  Skewness is a smooth function of density (SN2SigNS5pNuNS3p)\n')
 cat('\n')
 cat('Data properties:\n')
 tryCatch(
@@ -81,9 +80,17 @@ cat('  Grid density step:         ', grid_density_step, '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ ns(V2, df = 4),
-                       nu.formula = ~ ns(V2, df = 2), tau.formula = ~ 1 + V2, family = SEP3(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit,
-                       n.cyc = outer_ncyc, i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
+  { if (k_jam <= data_max_density) {
+      cat('ERROR - The jam density (fixed) is less than or equal to the maximum observed density...\n')
+      q(save = 'no', status = 1)
+    }
+    traffic_data[, tmpcol := log(traffic_data$V2) + log(1.0 - (traffic_data$V2/k_jam))]     # A possible bug in GAMLSS means that only a single instance of "offset()"
+                                                                                            # can be written in a formula, and "offset()" itself can only process a
+                                                                                            # single named quantity. Hence, in this case, a new column must to be added
+                                                                                            # to the data.
+    model_obj = gamlss(V3 ~ offset(tmpcol) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ ns(V2, df = 4),
+                       nu.formula = ~ ns(V2, df = 2), family = SN2(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc,
+                       i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
@@ -116,18 +123,10 @@ tryCatch(
       cat('ERROR - The predicted values for "nu" at the density values in the data include at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
-    if (!all(is.finite(model_obj$tau.fv))) {
-      cat('ERROR - The predicted values for "tau" at the density values in the data include at least one value that is infinite...\n')
-      q(save = 'no', status = 1)
-    }
-    if (any(model_obj$tau.fv <= 0.0)) {
-      cat('ERROR - The predicted values for "tau" at the density values in the data include at least one value that is zero or negative...\n')
-      q(save = 'no', status = 1)
-    }
     traffic_data[, fitted_values_mu := model_obj$mu.fv]
     traffic_data[, fitted_values_sigma := model_obj$sigma.fv]
     traffic_data[, fitted_values_nu := model_obj$nu.fv]
-    traffic_data[, fitted_values_tau := model_obj$tau.fv] },
+    traffic_data[, fitted_values_tau := double(length = ntraffic_data)] },
   error = function(cond) { cat('ERROR - Failed to store the predicted values for the model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -136,14 +135,13 @@ tryCatch(
 # or "Inf" values for particularly bad outliers.
 cat('Computing the normalised quantile residuals and storing them in the data table...\n')
 tryCatch(
-  { cumulative_probs_lower = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv)
+  { cumulative_probs_lower = pSN2(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv)
     selection = cumulative_probs_lower < 0.5
     nselection = sum(selection)
     if (nselection == ntraffic_data) {
       nqr = qNO(cumulative_probs_lower)
     } else {
-      cumulative_probs_upper = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv,
-                                     lower.tail = FALSE)
+      cumulative_probs_upper = pSN2(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, lower.tail = FALSE)
       if (nselection == 0) {
         nqr = qNO(cumulative_probs_upper, lower.tail = FALSE)
       } else {
@@ -162,15 +160,18 @@ tryCatch(
 # Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
+  { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, k_jam), length.out = ngrid))
+    reconstructed_model_fit[, tmpcol := log(reconstructed_model_fit$V2) + log(1.0 - (reconstructed_model_fit$V2/k_jam))]
     predicted_values_for_mu = double(length = ngrid)
-    predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
+    if (upper_density < k_jam) {
+      predicted_values_for_mu[2:ngrid] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:ngrid], type = 'response', data = traffic_data)
+    } else {
+      predicted_values_for_mu[2:(ngrid - 1)] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:(ngrid - 1)], type = 'response', data = traffic_data)
+    }
     predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     predicted_values_for_nu = predict(model_obj, what = 'nu', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
-    predicted_values_for_tau = predict(model_obj, what = 'tau', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     predicted_values_for_sigma = fix_out_of_data_curves(reconstructed_model_fit$V2, predicted_values_for_sigma, data_min_density, data_max_density)
     predicted_values_for_nu = fix_out_of_data_curves(reconstructed_model_fit$V2, predicted_values_for_nu, data_min_density, data_max_density)
-    predicted_values_for_tau = fix_out_of_data_curves(reconstructed_model_fit$V2, predicted_values_for_tau, data_min_density, data_max_density)
     if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
       q(save = 'no', status = 1)
@@ -191,18 +192,10 @@ tryCatch(
       cat('ERROR - The reconstructed fitted model for "nu" includes at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
-    if (!all(is.finite(predicted_values_for_tau))) {
-      cat('ERROR - The reconstructed fitted model for "tau" includes at least one value that is infinite...\n')
-      q(save = 'no', status = 1)
-    }
-    if (any(predicted_values_for_tau <= 0.0)) {
-      cat('ERROR - The reconstructed fitted model for "tau" includes at least one value that is zero or negative...\n')
-      q(save = 'no', status = 1)
-    }
     reconstructed_model_fit[, mu := predicted_values_for_mu]
     reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := predicted_values_for_nu]
-    reconstructed_model_fit[, tau := predicted_values_for_tau] },
+    reconstructed_model_fit[, tau := double(length = ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -210,20 +203,13 @@ tryCatch(
 # Construct percentile curves for the fitted model over the density range from zero to "upper_density"
 cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
-  { reconstructed_model_fit[, percentile_m3sig := qSEP3(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_m2sig := qSEP3(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_m1sig := qSEP3(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_0sig := qSEP3(0.5, mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                       nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_p1sig := qSEP3(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_p2sig := qSEP3(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
-    reconstructed_model_fit[, percentile_p3sig := qSEP3(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
-                                                        nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)] },
+  { reconstructed_model_fit[, percentile_m3sig := qSN2(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_m2sig := qSN2(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_m1sig := qSN2(pNO(-1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_0sig := qSN2(0.5, mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_p1sig := qSN2(pNO(1.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_p2sig := qSN2(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)]
+    reconstructed_model_fit[, percentile_p3sig := qSN2(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma, nu = reconstructed_model_fit$nu)] },
   error = function(cond) { cat('ERROR - Failed to construct percentile curves for the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -257,7 +243,7 @@ tryCatch(
   { npar_mu = model_obj$mu.df
     npar_sigma = model_obj$sigma.df
     npar_nu = model_obj$nu.df
-    npar_tau = model_obj$tau.df
+    npar_tau = 0
     npar_all = model_obj$df.fit
     gdev = model_obj$G.deviance
     aic = model_obj$aic
@@ -269,16 +255,15 @@ tryCatch(
 # Where possible, extract physical parameter values from the model fit object for the fit summary
 tryCatch(
   { q_0 = 0.0
-    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = 0.0), type = 'terms', data = traffic_data)
+    tmp_vals = predict(model_obj, what = 'mu', newdata = data.table(V2 = c(0.0, k_jam), tmpcol = c(0.0, 0.0)), type = 'terms', data = traffic_data)
     v_ff = exp(model_obj$mu.coefficients[1] + tmp_vals[1])
     dvdk_0 = NA
     k_crit = NA
     k_vmax = NA
     q_cap = NA
     v_max = NA
-    k_jam = NA
-    v_bw = NA
-    dvdk_kjam = NA },
+    v_bw = exp(model_obj$mu.coefficients[1] + tmp_vals[2])
+    dvdk_kjam = -v_bw/k_jam },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
 )
