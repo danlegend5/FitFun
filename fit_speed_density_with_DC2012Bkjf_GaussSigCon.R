@@ -1,8 +1,8 @@
-fit_flow_density_with_DC2012Bkjf_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
+fit_speed_density_with_DC2012Bkjf_GaussSigCon = function(traffic_data, ngrid, upper_density, output_files) {
 
-# Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Del Castillo model B with
-#              fixed jam density (DC2012Bkjf). The model component for the noise in the flow-density relationship is defined as independent
+# Description: This function fits a GAMLSS model to the speed-density values in "traffic_data", and it is designed to be called directly from the R
+#              script "FitFun.R". The model component for the functional form of the speed-density relationship is the Del Castillo model B with
+#              fixed jam density (DC2012Bkjf). The model component for the noise in the speed-density relationship is defined as independent
 #              observations that follow a Gaussian distribution with constant variance (GaussSigCon).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
@@ -33,7 +33,7 @@ noise_model = 'GaussSigCon'
 cat('\n')
 cat('>-----------------------------------------------------------------------------<\n')
 cat('\n')
-cat('The following GAMLSS model will be fit to the flow-density data:\n')
+cat('The following GAMLSS model will be fit to the speed-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
 cat('  Del Castillo\n')
@@ -51,17 +51,17 @@ tryCatch(
     data_range_density = range(traffic_data$V2)
     data_min_density = data_range_density[1]
     data_max_density = data_range_density[2]
-    data_range_flow = range(traffic_data$V3)
-    data_min_flow = data_range_flow[1]
-    data_max_flow = data_range_flow[2] },
+    data_range_speed = range(traffic_data$V3)
+    data_min_speed = data_range_speed[1]
+    data_max_speed = data_range_speed[2] },
   error = function(cond) { cat('ERROR - Failed to determine the data properties...\n')
                            q(save = 'no', status = 1) }
 )
-cat('  No. of flow-density measurement pairs (Ndat):', ntraffic_data, '\n')
-cat('  Minimum density in the data:                 ', data_min_density, '\n')
-cat('  Maximum density in the data:                 ', data_max_density, '\n')
-cat('  Minimum flow in the data:                    ', data_min_flow, '\n')
-cat('  Maximum flow in the data:                    ', data_max_flow, '\n')
+cat('  No. of speed-density measurement pairs (Ndat):', ntraffic_data, '\n')
+cat('  Minimum density in the data:                  ', data_min_density, '\n')
+cat('  Maximum density in the data:                  ', data_max_density, '\n')
+cat('  Minimum speed in the data:                    ', data_min_speed, '\n')
+cat('  Maximum speed in the data:                    ', data_max_speed, '\n')
 cat('\n')
 cat('Model reconstruction:\n')
 tryCatch(
@@ -84,7 +84,7 @@ tryCatch(
       cat('ERROR - The jam density (fixed) is less than or equal to the maximum observed density...\n')
       q(save = 'no', status = 1)
     }
-    init_model_obj = gamlss(V3 ~ 0 + I(V2*(1.0 - (V2/k_jam))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    init_model_obj = gamlss(V3 ~ 0 + I(1.0 - (V2/k_jam)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
       cat('ERROR - The initial fit of a Greenshields model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
@@ -92,7 +92,7 @@ tryCatch(
     v_ff_init = init_model_obj$mu.coefficients[1]
 
     # Fit a Greenberg model with fixed jam density to estimate an initial value for (v_bw*k_jam)/v_ff
-    init_model_obj = gamlss(V3 ~ 0 + I(V2*log(k_jam/V2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    init_model_obj = gamlss(V3 ~ 0 + log(k_jam/V2), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (init_model_obj$converged != TRUE) {
       cat('ERROR - The initial fit of a Greenberg model with fixed jam density did not converge...\n')
       q(save = 'no', status = 1)
@@ -101,7 +101,7 @@ tryCatch(
 
     # Perform the intermediate fits
     k_jam_use = data.frame(k_jam_use = k_jam)
-    model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 + ((p[1]*((1.0/V2) - (1.0/k_jam_use)))^(-p[2])))^(-1.0/p[2]))), sigma.formula = ~ 1, family = NO()))
+    model_formula = quote(gamlss(V3 ~ 0 + I((1.0 + ((p[1]*((1.0/V2) - (1.0/k_jam_use)))^(-p[2])))^(-1.0/p[2])), sigma.formula = ~ 1, family = NO()))
     attach(k_jam_use)
     attach(traffic_data)
     optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), lower = c(par1_min, par2_min),
@@ -110,7 +110,7 @@ tryCatch(
     if (optim_obj$convergence != 0) {
       par1_min_use = data.frame(par1_min_use = par1_min)
       par2_min_use = data.frame(par2_min_use = par2_min)
-      model_formula = quote(gamlss(V3 ~ 0 + I(V2*((1.0 + (((par1_min_use + abs(p[1]))*((1.0/V2) - (1.0/k_jam_use)))^(-(par2_min_use + abs(p[2])))))^(-1.0/(par2_min_use + abs(p[2]))))),
+      model_formula = quote(gamlss(V3 ~ 0 + I((1.0 + (((par1_min_use + abs(p[1]))*((1.0/V2) - (1.0/k_jam_use)))^(-(par2_min_use + abs(p[2])))))^(-1.0/(par2_min_use + abs(p[2])))),
                                    sigma.formula = ~ 1, family = NO()))
       attach(par1_min_use)
       attach(par2_min_use)
@@ -135,7 +135,7 @@ tryCatch(
     }
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(V2*((1.0 + ((par1*((1.0/V2) - (1.0/k_jam)))^(-par2)))^(-1.0/par2))), sigma.formula = ~ 1, family = NO(), data = traffic_data)
+    model_obj = gamlss(V3 ~ 0 + I((1.0 + ((par1*((1.0/V2) - (1.0/k_jam)))^(-par2)))^(-1.0/par2)), sigma.formula = ~ 1, family = NO(), data = traffic_data)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)
@@ -209,6 +209,7 @@ tryCatch(
     } else {
       predicted_values_for_mu[2:(ngrid - 1)] = predict(model_obj, what = 'mu', newdata = reconstructed_model_fit[2:(ngrid - 1)], type = 'response', data = traffic_data)
     }
+    predicted_values_for_mu[1] = model_obj$mu.coefficients[1]
     predicted_values_for_sigma = predict(model_obj, what = 'sigma', newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
     if (!all(is.finite(predicted_values_for_mu))) {
       cat('ERROR - The reconstructed fitted model for "mu" includes at least one value that is infinite...\n')
@@ -249,7 +250,7 @@ cat('Estimating useful properties of the fitted model using the reconstruction..
 tryCatch(
   { selection = reconstructed_model_fit$V2 < (data_max_density + grid_density_step)
     reconstructed_model_fit_selection = reconstructed_model_fit[selection]
-    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Flow.Density')
+    curve_properties_for_mu_over_data_range = get_curve_properties_for_mu(reconstructed_model_fit_selection, 'Speed.Density')
     curve_properties_for_sigma_over_data_range = get_curve_properties_for_sigma(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_nu_over_data_range = get_curve_properties_for_nu(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range)
     curve_properties_for_tau_over_data_range = get_curve_properties_for_tau(reconstructed_model_fit_selection, curve_properties_for_mu_over_data_range) },
@@ -259,7 +260,7 @@ tryCatch(
 
 # Estimate useful properties of the fitted model over the density range from zero to "upper_density" using the reconstruction
 tryCatch(
-  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Flow.Density')
+  { curve_properties_for_mu_over_full_range = get_curve_properties_for_mu(reconstructed_model_fit, 'Speed.Density')
     curve_properties_for_sigma_over_full_range = get_curve_properties_for_sigma(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_nu_over_full_range = get_curve_properties_for_nu(reconstructed_model_fit, curve_properties_for_mu_over_full_range)
     curve_properties_for_tau_over_full_range = get_curve_properties_for_tau(reconstructed_model_fit, curve_properties_for_mu_over_full_range) },
@@ -344,7 +345,7 @@ cat('  sigma_con:        ', exp(model_obj$sigma.coefficients[1]), '\n')
 cat('\n')
 cat('Writing out the fit summary file:    ', output_files[1], '\n')
 tryCatch(
-  { write_fit_summary(output_files[1], 'Flow.Density', ntraffic_data, data_min_density, data_max_density, data_min_flow, data_max_flow,
+  { write_fit_summary(output_files[1], 'Speed.Density', ntraffic_data, data_min_density, data_max_density, data_min_speed, data_max_speed,
                       npar_mu, npar_sigma, npar_nu, npar_tau, npar_all, gdev, aic, bic,
                       q_0, v_ff, dvdk_0, k_crit, k_vmax, q_cap, v_max, k_jam, v_bw, dvdk_kjam,
                       curve_properties_for_mu_over_data_range, curve_properties_for_sigma_over_data_range,
@@ -395,7 +396,7 @@ if (length(output_files) > 3) {
   cat('Creating the plots for the GAMLSS model fit...\n')
   tryCatch(
     { create_all_plots(traffic_data, ntraffic_data, data_max_density, upper_density, reconstructed_model_fit_selection, reconstructed_model_fit, ngrid,
-                       'Flow.Density', functional_form_model, noise_model, output_files) },
+                       'Speed.Density', functional_form_model, noise_model, output_files) },
     error = function(cond) { cat('ERROR - Failed to create the plot...\n')
                              remove_file_list(output_files)
                              q(save = 'no', status = 1) }
