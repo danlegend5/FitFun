@@ -4,7 +4,7 @@ fit_flow_density_with_BM1977_GaussSigNS5p = function(traffic_data, ngrid, upper_
 #              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Boardman model (BM1977). The
 #              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
 #              distribution. The density dependence of the log of the standard deviation is modelled using natural cubic splines with five effective
-#              free parameters (GaussSigNS5p). 
+#              free parameters (GaussSigNS5p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.

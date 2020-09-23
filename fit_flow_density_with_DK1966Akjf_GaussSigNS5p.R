@@ -1,10 +1,10 @@
-fit_flow_density_with_WG2011C_GaussSigNS5p = function(traffic_data, ngrid, upper_density, output_files) {
+fit_flow_density_with_DK1966Akjf_GaussSigNS5p = function(traffic_data, ngrid, upper_density, output_files) {
 
 # Description: This function fits a GAMLSS model to the flow-density values in "traffic_data", and it is designed to be called directly from the R
-#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Wang model C (WG2011C). The
-#              model component for the noise in the flow-density relationship is defined as independent observations that follow a Gaussian
-#              distribution. The density dependence of the log of the standard deviation is modelled using natural cubic splines with five effective
-#              free parameters (GaussSigNS5p).
+#              script "FitFun.R". The model component for the functional form of the flow-density relationship is the Drake multi-regime model A
+#              with fixed jam density (DK1966Akjf). The model component for the noise in the flow-density relationship is defined as independent
+#              observations that follow a Gaussian distribution. The density dependence of the log of the standard deviation is modelled using
+#              natural cubic splines with five effective free parameters (GaussSigNS5p).
 #                The input parameters "ngrid" and "upper_density" are used to define an equally spaced grid of "ngrid" density values ranging from
 #              zero to "upper_density". The function employs this density grid to reconstruct the fitted model at the grid points for use in plots
 #              and for estimating certain properties of the fitted model that are not directly accessible from the fitted parameter values.
@@ -18,9 +18,9 @@ fit_flow_density_with_WG2011C_GaussSigNS5p = function(traffic_data, ngrid, upper
 #
 # Configuration Parameters:
 #
-par1_init = 1.0        # Initial value for the free parameter c_3 (must be non-zero)
-par1_step = 0.0001     # Step size for the free parameter c_3 (must be positive)
-par2_step = 0.0001     # Step size for the free parameter k_ref (must be positive)
+k_jam = 1.0            # Fixed jam density (must be positive, and greater than or equal to the maximum observed density in the data)
+par1_nsteps = 50       # Number of steps to be used for the initial profiling of the free parameter k_b (must be greater than or equal to 2)
+par1_nrefine = 7       # Number of refinement iterations to be performed for fitting the free parameter k_b (must be greater than or equal to 1)
 inner_ccrit = 0.05     # Convergence criterion for the inner iteration of the GAMLSS fitting algorithm
 inner_ncyc = 10        # Maximum number of cycles of the inner iteration of the GAMLSS fitting algorithm
 outer_ccrit = 0.05     # Convergence criterion for the outer iteration of the GAMLSS fitting algorithm
@@ -28,7 +28,7 @@ outer_ncyc = 1000      # Maximum number of cycles of the outer iteration of the 
 
 
 # Define some useful variables
-functional_form_model = 'WG2011C'
+functional_form_model = 'DK1966Akjf'
 noise_model = 'GaussSigNS5p'
 
 # Report on the GAMLSS model and the data
@@ -38,8 +38,10 @@ cat('\n')
 cat('The following GAMLSS model will be fit to the flow-density data:\n')
 cat('\n')
 cat('Model component for the functional form:\n')
-cat('  Wang\n')
-cat('  Model C (WG2011C)\n')
+cat('  Drake\n')
+cat('  Multi-regime\n')
+cat('  Model A\n')
+cat('  Fixed jam density (DK1966Akjf)\n')
 cat('\n')
 cat('Model component for the noise:\n')
 cat('  Independent observations\n')
@@ -80,57 +82,83 @@ cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
 
-  # Perform the intermediate fits
-  { par2_init = 0.0
-    inner_ccrit_use = data.frame(inner_ccrit_use = inner_ccrit)
-    inner_ncyc_use = data.frame(inner_ncyc_use = inner_ncyc)
-    outer_ccrit_use = data.frame(outer_ccrit_use = outer_ccrit)
-    outer_ncyc_use = data.frame(outer_ncyc_use = outer_ncyc)
-    model_formula = quote(gamlss(V3 ~ 0 + I(V2/(1.0 + exp(p[1]*(V2 - p[2])))), sigma.formula = ~ ns(V2, df = 4), family = NO(),
-                                 c.crit = outer_ccrit_use, n.cyc = outer_ncyc_use, i.control = glim.control(cc = inner_ccrit_use, cyc = inner_ncyc_use)))
-    attach(traffic_data)
-    attach(inner_ccrit_use)
-    attach(inner_ncyc_use)
-    attach(outer_ccrit_use)
-    attach(outer_ncyc_use)
-    optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), maxit = 500))
-    if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
-    if (optim_obj$convergence != 0) {
-      optim_obj = try(find.hyper(model = model_formula, parameters = c(par1_init, par2_init), k = 0.0, steps = c(par1_step, par2_step), method = 'Nelder-Mead', maxit = 500))
-      if (class(optim_obj) == 'try-error') { optim_obj = list(convergence = 1) }
-      detach(outer_ncyc_use)
-      detach(outer_ccrit_use)
-      detach(inner_ncyc_use)
-      detach(inner_ccrit_use)
-      detach(traffic_data)
-      if (optim_obj$convergence != 0) {
-        cat('ERROR - The intermediate fits did not converge...\n')
+  # Perform the fits for the initial profiling of k_b
+  { if (k_jam < data_max_density) {
+      cat('ERROR - The jam density (fixed) is less than the maximum observed density...\n')
+      q(save = 'no', status = 1)
+    }
+    k_b_vec = sort(traffic_data$V2)
+    k_b_lo = k_b_vec[2]
+    k_b_hi = k_b_vec[ntraffic_data - 1]
+    k_b_vec = seq(from = k_b_lo, to = k_b_hi, length.out = par1_nsteps + 2)
+    k_b_vec = k_b_vec[2:(par1_nsteps + 1)]
+    gdev_vec = double(length = par1_nsteps)
+    for (i in 1:par1_nsteps) {
+      curr_k_b = k_b_vec[i]
+      model_obj = gamlss(V3 ~ 0 + ifelse(V2 > curr_k_b, 0.0, V2) + ifelse(V2 > curr_k_b, 0.0, V2^2) + ifelse(V2 > curr_k_b, V2*(1.0 - (V2/k_jam)), 0.0),
+                         sigma.formula = ~ ns(V2, df = 4), family = NO(), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc,
+                         i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
+      if (model_obj$converged != TRUE) {
+        cat('ERROR - The initial profiling fits did not converge...\n')
         q(save = 'no', status = 1)
       }
-      par1 = optim_obj$par[1]
-      par2 = optim_obj$par[2]
-    } else {
-      detach(outer_ncyc_use)
-      detach(outer_ccrit_use)
-      detach(inner_ncyc_use)
-      detach(inner_ccrit_use)
-      detach(traffic_data)
-      par1 = optim_obj$par[1]
-      par2 = optim_obj$par[2]
+      gdev_vec[i] = model_obj$G.deviance
     }
+    min_gdev = min(gdev_vec)
+    ind_min_gdev = which(gdev_vec == min_gdev)
+    ind_min_gdev = ind_min_gdev[ceiling(0.5*length(ind_min_gdev))]
+
+    # Iteratively refine the best fitting model
+    for (j in 1:par1_nrefine) {
+      ind_lo = max(1, ind_min_gdev - 3)
+      ind_hi = min(par1_nsteps, ind_min_gdev + 3)
+      curr_par1_nsteps = 2*(ind_hi - ind_lo) + 1
+      curr_k_b_vec = double(length = curr_par1_nsteps)
+      curr_gdev_vec = rep_len(NA, curr_par1_nsteps)
+      for (i in ind_lo:ind_hi) {
+        tmp_ind = 2*(i - ind_lo) + 1
+        curr_k_b_vec[tmp_ind] = k_b_vec[i]
+        curr_gdev_vec[tmp_ind] = gdev_vec[i]
+      }
+      for (i in 1:(ind_hi - ind_lo)) {
+        tmp_ind = 2*i
+        curr_k_b_vec[tmp_ind] = 0.5*(curr_k_b_vec[tmp_ind - 1] + curr_k_b_vec[tmp_ind + 1])
+      }
+      for (i in 1:curr_par1_nsteps) {
+        if (!is.na(curr_gdev_vec[i])) { next }
+        curr_k_b = curr_k_b_vec[i]
+        model_obj = gamlss(V3 ~ 0 + ifelse(V2 > curr_k_b, 0.0, V2) + ifelse(V2 > curr_k_b, 0.0, V2^2) + ifelse(V2 > curr_k_b, V2*(1.0 - (V2/k_jam)), 0.0),
+                           sigma.formula = ~ ns(V2, df = 4), family = NO(), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc,
+                           i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
+        if (model_obj$converged != TRUE) {
+          cat('ERROR - The refining fits did not converge...\n')
+          q(save = 'no', status = 1)
+        }
+        curr_gdev_vec[i] = model_obj$G.deviance
+      }
+      curr_min_gdev = min(curr_gdev_vec)
+      curr_ind_min_gdev = which(curr_gdev_vec == curr_min_gdev)
+      curr_ind_min_gdev = curr_ind_min_gdev[ceiling(0.5*length(curr_ind_min_gdev))]
+      par1_nsteps = curr_par1_nsteps
+      k_b_vec = curr_k_b_vec
+      gdev_vec = curr_gdev_vec
+      ind_min_gdev = curr_ind_min_gdev
+    }
+    par1 = k_b_vec[ind_min_gdev]
 
     # Perform the final fit
-    model_obj = gamlss(V3 ~ 0 + I(V2/(1.0 + exp(par1*(V2 - par2)))), sigma.formula = ~ ns(V2, df = 4), family = NO(), data = traffic_data,
-                       c.crit = outer_ccrit, n.cyc = outer_ncyc, i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
+    model_obj = gamlss(V3 ~ 0 + ifelse(V2 > par1, 0.0, V2) + ifelse(V2 > par1, 0.0, V2^2) + ifelse(V2 > par1, V2*(1.0 - (V2/k_jam)), 0.0),
+                       sigma.formula = ~ ns(V2, df = 4), family = NO(), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc,
+                       i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
     if (model_obj$converged != TRUE) {
       cat('ERROR - The final fit did not converge...\n')
       q(save = 'no', status = 1)
     }
-    model_obj$mu.df = model_obj$mu.df + 2
-    model_obj$df.fit = model_obj$df.fit + 2
-    model_obj$df.residual = model_obj$df.residual - 2
-    model_obj$aic = model_obj$aic + 4.0
-    model_obj$sbc = model_obj$sbc + 2.0*log(ntraffic_data) },
+    model_obj$mu.df = model_obj$mu.df + 1
+    model_obj$df.fit = model_obj$df.fit + 1
+    model_obj$df.residual = model_obj$df.residual - 1
+    model_obj$aic = model_obj$aic + 2.0
+    model_obj$sbc = model_obj$sbc + log(ntraffic_data) },
   error = function(cond) { cat('ERROR - Failed to fit the GAMLSS model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -267,19 +295,17 @@ tryCatch(
 tryCatch(
   { q_0 = 0.0
     v_ff = NA
-    tmpval1 = exp(-par1*par2)
-    tmpval2 = 1.0 + tmpval1
-    dvdk_0 = -model_obj$mu.coefficients[1]*par1*tmpval1/(tmpval2*tmpval2)
-    k_crit = NA     # Can be computed numerically - not yet implemented
-    k_vmax = NA     # Can be computed - not yet implemented
+    dvdk_0 = model_obj$mu.coefficients[2]
+    k_crit = NA     # Can be computed analytically - not yet implemented
+    k_vmax = NA     # Can be computed analytically - not yet implemented
     q_cap = NA      # Can be computed once k_crit is available - not yet implemented
     v_max = NA      # Can be computed once k_vmax is available - not yet implemented
-    k_jam = NA
     v_bw = NA
     dvdk_kjam = NA
-    tmpval3 = model_obj$mu.coefficients[1]/tmpval2
-    if (tmpval3 > 0.0) {
-      v_ff = tmpval3
+    if (model_obj$mu.coefficients[1] > 0.0) { v_ff = model_obj$mu.coefficients[1] }
+    if (model_obj$mu.coefficients[3] > 0.0) {
+      v_bw = model_obj$mu.coefficients[3]
+      dvdk_kjam = -v_bw/k_jam
     } },
   error = function(cond) { cat('ERROR - Failed to extract physical parameter values from the model fit object for the fit summary...\n')
                            q(save = 'no', status = 1) }
@@ -314,9 +340,10 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
-cat('  c_2:  ', model_obj$mu.coefficients[1], '\n')
-cat('  c_3:  ', par1, '\n')
-cat('  k_ref:', par2, '\n')
+cat('  v_ff:', model_obj$mu.coefficients[1], '\n')
+cat('  c:   ', -model_obj$mu.coefficients[2], '\n')
+cat('  k_b: ', par1, '\n')
+cat('  v_bw:', model_obj$mu.coefficients[3], '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -333,9 +360,10 @@ tryCatch(
         '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
-        model_obj$mu.coefficients[1], '           # c_2\n',
-        par1, '           # c_3\n',
-        par2, '           # k_ref\n',
+        model_obj$mu.coefficients[1], '           # v_ff\n',
+        -model_obj$mu.coefficients[2], '           # c\n',
+        par1, '           # k_b\n',
+        model_obj$mu.coefficients[3], '           # v_bw\n',
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)
