@@ -824,7 +824,7 @@ plotA = function(traffic_data, reconstructed_model_fit, density_hi, title_str, x
 ylo = min(0.0, traffic_data$V3, reconstructed_model_fit$mu)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -858,7 +858,7 @@ ylo = min(0.0, range_resid[1])
 yhi = max(0.0, range_resid[2])
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -889,7 +889,7 @@ plotC = function(traffic_data, reconstructed_model_fit, density_hi, title_str, x
 ylo = min(0.0, traffic_data$V3, reconstructed_model_fit$mu, reconstructed_model_fit$percentile_m3sig)
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -930,7 +930,7 @@ background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -972,7 +972,7 @@ background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -1014,7 +1014,7 @@ background_area[, ylo := rep_len(-1.0, 2)]
 background_area[, yhi := rep_len(1.0, 2)]
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -1063,7 +1063,7 @@ ci_plot = data.table(zseq = zseq, ciseq = ciseq)
 yhi = max(12.0/sqrt(ntraffic_data), abs(data_plot$detrended_nqr))
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str) +
@@ -1104,7 +1104,7 @@ slotted_acf = compute_slotted_acf(tvec, yvec, time_lag_bin_size, time_lag_nbins)
 # Create the plot object
 plot_obj = ggplot() +
            theme_pubr(base_size = 16, border = TRUE) +
-           theme(plot.title = element_text(hjust = 0.5)) +
+           theme(plot.title = element_text(size = 16, hjust = 0.5)) +
            ggtitle(title_str) +
            xlab(xlab_str) +
            ylab(ylab_str)
