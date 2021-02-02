@@ -1240,7 +1240,7 @@ if (ntraffic_data_filtered > 0) {
 if (ntraffic_data_filtered > 0) {
   cat('Creating the plot:', output_files[14], '\n')
   title_str = paste0('Detrended Normal Q-Q Plot : ', functional_form_model, ' : ', noise_model, ' : 95% Confidence Interval')
-  plotG(traffic_data_filtered, ntraffic_data_filtered, title_str, 'Theoretical Quantiles (Units Of Sigma)', 'Deviation From Theoretical Quantiles (Units Of Sigma)', output_files[14])
+  plotG(traffic_data_filtered, ntraffic_data_filtered, title_str, 'Standard Normal Quantiles (Units Of Sigma)', 'Detrended NQR Quantiles (Units Of Sigma)', output_files[14])
 } else {
   cat('WARNING - Cannot create the plot: ', output_files[14], '\n')
 }
