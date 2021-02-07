@@ -173,6 +173,7 @@ tryCatch(
       cat('ERROR - The reconstructed fitted model for "sigma" includes at least one value that is zero or negative...\n')
       q(save = 'no', status = 1)
     }
+    reconstructed_model_fit[, tmpcol := NULL]
     reconstructed_model_fit[, mu := predicted_values_for_mu]
     reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
@@ -318,7 +319,8 @@ tryCatch(
 # Write out the fit predictions file "Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
-  { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
+  { traffic_data[, tmpcol := NULL]
+    cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
         'Normalised Quantile Residual ("-Inf" Or "Inf" Values May Be Present)\n', file = output_files[3])
     write.table(traffic_data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
