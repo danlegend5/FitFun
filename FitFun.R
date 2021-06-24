@@ -252,8 +252,7 @@
 #                                                                         along with the normalised quantile residuals, at the density values in
 #                                                                         the data. A header line provides the column descriptions. For more
 #                                                                         information on what a normalised quantile residual is, please see
-#                                                                         Chapter 12 in the book "Flexible Regression and Smoothing: Using GAMLSS
-#                                                                         in R" by Stasinopoulos et al.
+#                                                                         Chapter 12 in Stasinopoulos et al. (2017, CRC Press LLC, Boca Raton).
 #   Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to the maximum observed
@@ -272,7 +271,7 @@
 #                                                                    The percentile ranges corresponding to 50.0 to 84.13, 84.13 to 97.72, and 97.72
 #                                                                    to 99.865 are plotted as darker to lighter grey regions, respectively, above
 #                                                                    the median curve. The percentile boundaries correspond to -3*sigma, -2*sigma,
-#                                                                    -1*sigma, the median, 1*sigma, 2*sigma, and 3*sigma in a Normal distibution.
+#                                                                    -1*sigma, the median, 1*sigma, 2*sigma, and 3*sigma in a Normal distribution.
 #   Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
 #                                                                    density (red points). The plot density range is from zero to the maximum
@@ -297,7 +296,7 @@
 #                                                                    corresponding to 50.0 to 84.13, 84.13 to 97.72, and 97.72 to 99.865 are plotted
 #                                                                    as darker to lighter grey regions, respectively, above the median curve. The
 #                                                                    percentile boundaries correspond to -3*sigma, -2*sigma, -1*sigma, the median,
-#                                                                    1*sigma, 2*sigma, and 3*sigma in a Normal distibution.
+#                                                                    1*sigma, 2*sigma, and 3*sigma in a Normal distribution.
 #   Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
 #                                                                    density (red points). The plot density range is from zero to "upper_density".
@@ -315,12 +314,12 @@
 #                                                                    line.
 #   Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Given a relevant set of theoretical quantiles from a standard Normal distribution,
-#                                                                    this output file displays a plot of the deviation of the normalised quantile
-#                                                                    residuals from the theoretical quantiles (units of sigma) versus the theoretical
-#                                                                    quantiles (units of sigma; red points). The 95% confidence interval is plotted
-#                                                                    as a pair of dashed curves. This sort of plot is referred to as a detrended
-#                                                                    Normal quantile-quantile plot (or worm plot). For more details, see van Buuren
-#                                                                    & Fredriks (2001, Statistics in Medicine, 20, 1259).
+#                                                                    this output file displays a plot of the difference between the empirical NQR
+#                                                                    quantiles and the theoretical quantiles (units of sigma) versus the theoretical
+#                                                                    quantiles (units of sigma; red points). The approximate point-wise 95% confidence
+#                                                                    interval is plotted as a pair of dashed curves. This sort of plot is referred
+#                                                                    to as a detrended Normal quantile-quantile plot (or worm plot). For more details,
+#                                                                    see van Buuren & Fredriks (2001, Statistics In Medicine, 20, 1259).
 #   Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the slotted auto-correlation function (slotted ACF) versus time lag
 #                                                                    (light grey bars) for the normalised quantile residuals. Uncertainties on the
@@ -631,7 +630,7 @@ if (upper_density < max(traffic_data$V2)) {
 ################################################################################################################################################
 # Flow-density empirical fundamental diagrams
 
-# If the form of the FD relationship is flow-density
+# If the EFD data are flow-density
 cat('\n')
 cat('Calling the required R module for performing the fit...\n')
 if (fd_type == 'Flow.Density') {
@@ -643,7 +642,7 @@ if (fd_type == 'Flow.Density') {
                              q(save = 'no', status = 1) }
   )
 
-  # Fit the chosen GAMLSS model to the data
+  # Fit the chosen GAMLSS model to the EFD data
   tryCatch(
     { fit_function = get(paste0('fit_flow_density_with_', functional_form_model, '_', noise_model))
       model_obj = fit_function(traffic_data, ngrid, upper_density, output_files) },
@@ -656,7 +655,7 @@ if (fd_type == 'Flow.Density') {
 ################################################################################################################################################
 # Speed-density empirical fundamental diagrams
 
-# If the form of the FD relationship is speed-density
+# If the EFD data are speed-density
 } else if (fd_type == 'Speed.Density') {
 
   # Load the required R module for performing the fit
@@ -666,7 +665,7 @@ if (fd_type == 'Flow.Density') {
                              q(save = 'no', status = 1) }
   )
 
-  # Fit the chosen GAMLSS model to the data
+  # Fit the chosen GAMLSS model to the EFD data
   tryCatch(
     { fit_function = get(paste0('fit_speed_density_with_', functional_form_model, '_', noise_model))
       model_obj = fit_function(traffic_data, ngrid, upper_density, output_files) },
