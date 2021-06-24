@@ -230,15 +230,15 @@
 #   data file should not contain any header lines, or any lines that are not data lines, and it should have at least 5 data lines. The required
 #   columns are:
 #
-#   Column 1 - INTEGER/FLOAT - A time stamp corresponding to the start/midpoint/end of the time interval over which the traffic measurements were
-#                              taken. The units of time, and the point within the time interval to which the time stamp corresponds, are not
-#                              important, so long as they are consistent over all of the traffic measurement intervals, since this allows reliable
-#                              time differences to be computed. Currently, the data in this column are only used for the computation of the slotted
-#                              auto-correlation function for the normalised quantile residuals.
-#   Column 2 - INTEGER/FLOAT - The measured value of the independent variable (i.e. density or occupancy) in the corresponding time interval. All
-#                              values in this column must be positive.
-#   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed) in the corresponding time interval. All values in
-#                              this column must be non-negative, and there must be at least one value that is non-zero.
+#   Column 1 - INTEGER/FLOAT - The time stamp corresponding to each traffic measurement. For traffic measurements made over time intervals, this
+#                              could be the start/midpoint/end of the time interval. The units of time, and, if relevant, the point within a time
+#                              interval to which the time stamp corresponds, are not important, so long as they are consistent over all of the time
+#                              stamps since this allows reliable time differences to be computed. Currently, the data in this column are only used
+#                              for the computation of the slotted auto-correlation function for the normalised quantile residuals.
+#   Column 2 - INTEGER/FLOAT - The measured value of the independent variable (i.e. density or occupancy). All values in this column must be
+#                              positive.
+#   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed). All values in this column must be non-negative,
+#                              and there must be at least one value that is non-zero.
 #
 # Output Files:
 #
