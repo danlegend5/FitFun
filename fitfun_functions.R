@@ -87,7 +87,7 @@ while (curr_i < N_p2) {
 
   # If the previous value in the temporary vector is less than the current value, then there is no trough at the current value. However, it is
   # possible that there is a peak at, or near, the current value (N.B: Due to the way that this algorithm is designed, it is impossible that the
-  # previous value in the temporary vector is equal to the current value)
+  # previous value in the temporary vector is equal to the current value).
   } else {
 
     # If the next value in the temporary vector is greater than the current value, then there is no peak at the current value. Move on to the next
@@ -162,44 +162,44 @@ curve_properties = list(y_0 = NA, dydx_0 = NA, x_ymax = NA, y_max = NA, x_ymin =
 ngrid = length(xvec)
 grid_density_step = xvec[2]
 
-# Determine y at zero density
+# Determine the value of the curve at zero density
 curve_properties$y_0 = yvec[1]
 
-# Estimate the gradient of y (with respect to density) at zero density
+# Estimate the gradient of the curve (with respect to density) at zero density
 curve_properties$dydx_0 = (yvec[2] - yvec[1])/grid_density_step
 
-# If all of the values in the "mu" curve are non-positive, then return the computed properties of the y curve so far
+# If all of the values in the curve are non-positive, then return the computed properties of the curve so far
 if (is.na(ind_hi)) {
   return(curve_properties)
 }
 
-# If the first run of positive numbers in the "mu" curve ends before the end of the "mu" curve
+# If the first run of positive numbers in the curve ends before the end of the curve
 if (ind_hi < ngrid) {
 
-  # Estimate the gradient of y (with respect to density) at jam density
+  # Estimate the gradient of the curve (with respect to density) at jam density
   ind_hi_p1 = ind_hi + 1
   curve_properties$dydx_kjam = (yvec[ind_hi_p1] - yvec[ind_hi])/grid_density_step
 
-  # Estimate y at jam density
+  # Estimate the value of the curve at jam density
   curve_properties$y_kjam = yvec[ind_hi] + curve_properties$dydx_kjam*(k_jam - xvec[ind_hi])
 
-  # Create a temporary vector containing the y values from zero to jam density
+  # Create a temporary vector containing the values of the curve from zero to jam density
   tmp_yvec = yvec[1:ind_hi_p1]
   tmp_yvec[ind_hi_p1] = curve_properties$y_kjam
 
-  # If all of the values in the y curve from zero to jam density are the same
+  # If all of the values of the curve from zero to jam density are the same
   if (all(tmp_yvec == tmp_yvec[1])) {
 
-    # Record that there are no peaks or troughs in the y curve from zero to jam density
+    # Record that there are no peaks or troughs in the curve from zero to jam density
     curve_properties$y_max = tmp_yvec[1]
     curve_properties$y_min = tmp_yvec[1]
     curve_properties$n_peaks = 0
     curve_properties$n_troughs = 0
 
-  # If not all of the values in the y curve from zero to jam density are the same
+  # If not all of the values of the curve from zero to jam density are the same
   } else {
 
-    # For the y curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak and the
+    # For the curve from zero to jam density, find the number of peaks and troughs while also finding the coordinates of the highest peak and the
     # lowest trough
     tmp_xvec = xvec[1:ind_hi_p1]
     tmp_xvec[ind_hi_p1] = k_jam
@@ -224,22 +224,22 @@ if (ind_hi < ngrid) {
     curve_properties$n_troughs = info_peaks_troughs$n_troughs
   }
 
-# If the first run of positive numbers in the "mu" curve does not end before the end of the "mu" curve
+# If the first run of positive numbers in the curve does not end before the end of the curve
 } else {
 
-  # If all of the values in the y curve are the same
+  # If all of the values of the curve are the same
   if (all(yvec == yvec[1])) {
 
-    # Record that there are no peaks or troughs in the y curve
+    # Record that there are no peaks or troughs in the curve
     curve_properties$y_max = yvec[1]
     curve_properties$y_min = yvec[1]
     curve_properties$n_peaks = 0
     curve_properties$n_troughs = 0
 
-  # If not all of the values in the y curve are the same
+  # If not all of the values of the curve are the same
   } else {
 
-    # Find the number of peaks and troughs in the y curve while also finding the coordinates of the highest peak and the lowest trough
+    # Find the number of peaks and troughs in the curve while also finding the coordinates of the highest peak and the lowest trough
     min_yvec = min(yvec)
     if (min_yvec >= 0.0) {
       edge_value = -1.0
@@ -481,11 +481,11 @@ return(list(tau_0 = curve_properties$y_0, dtaudk_0 = curve_properties$dydx_0, k_
 ################################################################################################################################################
 fix_out_of_data_curves = function(xvec, yvec, min_x, max_x) {
 
-# Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function
-#              does the following. Firstly, it determines the y-value "y_lower" corresponding to the minimum x-value that is greater than or
-#              equal to "min_x", and then, for all x-values less than "min_x", it sets the y-values in the curve to "y_lower". Secondly, it
-#              determines the y-value "y_upper" corresponding to the maximum x-value that is less than or equal to "max_x", and then, for all
-#              x-values greater than "max_x", it sets the y-values in the curve to "y_upper".
+# Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function does
+#              the following. Firstly, it determines the y-value "y_lower" corresponding to the minimum x-value that is greater than or equal to
+#              "min_x", and then, for all x-values less than "min_x", it sets the y-values in the curve to "y_lower". Secondly, it determines the
+#              y-value "y_upper" corresponding to the maximum x-value that is less than or equal to "max_x", and then, for all x-values greater than
+#              "max_x", it sets the y-values in the curve to "y_upper".
 #
 # Authors:
 #
@@ -520,13 +520,13 @@ return(yvec)
 ################################################################################################################################################
 compute_slotted_acf = function(tvec, yvec, tlag_bin_size, tlag_nbins) {
 
-# Description: This function computes the slotted auto-correlation function (slotted ACF) for a set of time series data "yvec" observed at
-#              irregular times "tvec". The time series data must be sorted such that the values in "tvec" are in ascending order. The value of
-#              the slotted ACF for a specific time lag bin is computed by averaging the cross products of sample pairs whose time differences
-#              fall in the given bin (Edelson & Krolik 1988, Astrophysical Journal, 333, 646). As part of the computation, this function employs
-#              the algorithm for calculating the running mean and variance invented by Welford (1962, Technometrics, 4, 419). The time lag bin
-#              size "tlag_bin_size" in combination with the number of time lag bins "tlag_nbins" specifies the maximum time difference to consider
-#              in the computation of the slotted ACF.
+# Description: This function computes the slotted auto-correlation function (slotted ACF) for a set of time series data "yvec" observed at irregular
+#              times "tvec". The time series data must be sorted such that the values in "tvec" are in ascending order. The value of the slotted ACF
+#              for a specific time lag bin is computed by averaging the cross products of sample pairs whose time differences fall in the given bin
+#              (Edelson & Krolik, 1988, Astrophysical Journal, 333, 646). As part of the computation, this function employs the algorithm for
+#              calculating the running mean and variance invented by Welford (1962, Technometrics, 4, 419). The time lag bin size "tlag_bin_size" in
+#              combination with the number of time lag bins "tlag_nbins" specifies the maximum time difference to consider in the computation of the
+#              slotted ACF.
 #
 # Authors:
 #
@@ -665,9 +665,9 @@ cat('###########################################################################
 cat('######################################################################################################################\n',
     '# FIT QUALITY\n',
     '######################################################################################################################\n',
-    format(gdev, nsmall = 4), '           # Global deviance (-2 ln L)\n',
-    format(aic, nsmall = 4), '           # AIC (-2 ln L + 2 Npar)\n',
-    format(bic, nsmall = 4), '           # BIC (-2 ln L + Npar ln Ndat)\n',
+    format(gdev, nsmall = 4), '           # Global deviance [ -2*ln(Lmax) ]\n',
+    format(aic, nsmall = 4), '           # AIC [ -2*ln(Lmax) + 2*Npar ]\n',
+    format(bic, nsmall = 4), '           # BIC [ -2*ln(Lmax) + Npar*ln(Ndat) ]\n',
     file = output_file, sep = '', append = TRUE)
 cat('######################################################################################################################\n',
     '# FITTED PHYSICAL PARAMETERS\n',
@@ -812,7 +812,7 @@ cat('###########################################################################
 plotA = function(traffic_data, reconstructed_model_fit, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Fitted.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -844,7 +844,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotB = function(traffic_data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Residuals.From.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -877,7 +877,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotC = function(traffic_data, reconstructed_model_fit, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Percentiles.And.Mu.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -915,7 +915,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotD = function(traffic_data, density_hi, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.For.XXXX.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -954,7 +954,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotE = function(traffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -996,7 +996,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotF = function(traffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #
@@ -1038,8 +1038,8 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotG = function(traffic_data, ntraffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>" (see
-#              FitFun.R for details). The paper describing the detrended Normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
-#              (2001, Statistics in Medicine, 20, 1259).
+#              "FitFun.R" for details). The paper describing the detrended Normal quantile-quantile plot (or worm plot) is van Buuren & Fredriks
+#              (2001, Statistics In Medicine, 20, 1259).
 #
 # Authors:
 #
@@ -1084,7 +1084,7 @@ ggsave(output_file, plot = plot_obj, scale = 2, width = 6.0, height = 4.0, units
 plotH = function(traffic_data, ntraffic_data, title_str, xlab_str, ylab_str, output_file) {
 
 # Description: This function creates the plot "Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>"
-#              (see FitFun.R for details).
+#              (see "FitFun.R" for details).
 #
 # Authors:
 #

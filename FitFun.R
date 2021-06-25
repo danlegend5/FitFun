@@ -198,6 +198,7 @@
 #                                    'SN2014'     - Sun model
 #                                    'SN2014kjf'  - Sun model (fixed jam density)
 #
+#                                    If this argument is set to any other string, then the script will fail.
 #   noise_model - STRING - The abbreviated name of the noise component of the model that is to be fitted to the EFD data. The acceptable values for
 #                          this argument are (Bramich, Menendez & Ambuhl, 2021b, ???, ???, ???):
 #
@@ -214,6 +215,7 @@
 #                                                      kurtosis parameter is modelled using a straight line function (i.e. an intercept and a
 #                                                      gradient as the two free parameters).
 #
+#                          If this argument is set to any other string, then the script will fail.
 #   ngrid - INTEGER - For the purpose of reconstructing the fitted model, the script will define an equally spaced grid of "ngrid" density values.
 #                     This argument must be a positive number greater than or equal to "11". It is recommended to set this argument to at least
 #                     "10001".
@@ -248,19 +250,19 @@
 #                                                                    percentile curves, for the equally spaced grid of "ngrid" density values
 #                                                                    covering the range from zero to "upper_density". A header line provides the
 #                                                                    column descriptions.
-#   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the model,
-#                                                                         along with the normalised quantile residuals, at the density values in
-#                                                                         the data. A header line provides the column descriptions. For more
-#                                                                         information on what a normalised quantile residual is, please see
-#                                                                         Chapter 12 in Stasinopoulos et al. (2017, CRC Press LLC, Boca Raton).
+#   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the model, along
+#                                                                         with the normalised quantile residuals, at the density values in the data.
+#                                                                         A header line provides the column descriptions. For more information on
+#                                                                         what a normalised quantile residual is, please see Chapter 12 in
+#                                                                         Stasinopoulos et al. (2017, CRC Press LLC, Boca Raton).
 #   Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to the maximum observed
 #                                                                    density is plotted as a black curve.
 #   Plot.Of.Residuals.From.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the residuals of the flow or speed data from the fitted model
-#                                                                    component for "mu" versus density (red points). The plot density range is
-#                                                                    from zero to the maximum observed density.
+#                                                                  - Plot of the residuals of the flow or speed data from the fitted model component
+#                                                                    for "mu" versus density (red points). The plot density range is from zero to
+#                                                                    the maximum observed density.
 #   Plot.Of.Percentiles.And.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to the maximum observed
@@ -283,9 +285,9 @@
 #                                                                    component for "mu" over the density range from zero to "upper_density" is
 #                                                                    plotted as a black curve.
 #   Plot.Of.Residuals.From.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the residuals of the flow or speed data from the fitted model
-#                                                                    component for "mu" versus density (red points). The plot density range is
-#                                                                    from zero to "upper_density".
+#                                                                  - Plot of the residuals of the flow or speed data from the fitted model component
+#                                                                    for "mu" versus density (red points). The plot density range is from zero to
+#                                                                    "upper_density".
 #   Plot.Of.Percentiles.And.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to "upper_density" is
@@ -303,23 +305,24 @@
 #                                                                    The grey regions are percentile ranges as described for previous plots while
 #                                                                    the median line is coincident with the horizontal dotted line.
 #   Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
-#                                                                    the fitted values for "mu" (red points). The grey regions are percentile
-#                                                                    ranges as described for previous plots while the median line is coincident
-#                                                                    with the horizontal dotted line.
+#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus the
+#                                                                    fitted values for "mu" (red points). The grey regions are percentile ranges as
+#                                                                    described for previous plots while the median line is coincident with the
+#                                                                    horizontal dotted line.
 #   Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
 #                                                                    time (red points). The grey regions are percentile ranges as described for
 #                                                                    previous plots while the median line is coincident with the horizontal dotted
 #                                                                    line.
 #   Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Given a relevant set of theoretical quantiles from a standard Normal distribution,
-#                                                                    this output file displays a plot of the difference between the empirical NQR
-#                                                                    quantiles and the theoretical quantiles (units of sigma) versus the theoretical
-#                                                                    quantiles (units of sigma; red points). The approximate point-wise 95% confidence
-#                                                                    interval is plotted as a pair of dashed curves. This sort of plot is referred
-#                                                                    to as a detrended Normal quantile-quantile plot (or worm plot). For more details,
-#                                                                    see van Buuren & Fredriks (2001, Statistics In Medicine, 20, 1259).
+#                                                                  - Given a relevant set of theoretical quantiles from a standard Normal
+#                                                                    distribution, this output file displays a plot of the difference between the
+#                                                                    empirical NQR quantiles and the theoretical quantiles (units of sigma) versus
+#                                                                    the theoretical quantiles (units of sigma; red points). The approximate
+#                                                                    point-wise 95% confidence interval is plotted as a pair of dashed curves. This
+#                                                                    sort of plot is referred to as a detrended Normal quantile-quantile plot (or
+#                                                                    worm plot). For more details, see van Buuren & Fredriks (2001, Statistics In
+#                                                                    Medicine, 20, 1259).
 #   Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the slotted auto-correlation function (slotted ACF) versus time lag
 #                                                                    (light grey bars) for the normalised quantile residuals. Uncertainties on the
@@ -450,7 +453,7 @@ cat('Loading the "gamlss" R library...\n')
 cat('----------------------------------------------------------------\n')
 tryCatch(
   { library(gamlss) },
-  error = function(cond) { cat('ERROR - Failed to load the "gamlss" R library...\n') 
+  error = function(cond) { cat('ERROR - Failed to load the "gamlss" R library...\n')
                            cat('----------------------------------------------------------------\n')
                            q(save = 'no', status = 1) }
 )
