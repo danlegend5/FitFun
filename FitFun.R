@@ -645,7 +645,7 @@ if (fd_type == 'Flow.Density') {
                              q(save = 'no', status = 1) }
   )
 
-  # Fit the chosen GAMLSS model to the EFD data
+  # Fit the chosen GAMLSS model to the flow-density EFD data
   tryCatch(
     { fit_function = get(paste0('fit_flow_density_with_', functional_form_model, '_', noise_model))
       model_obj = fit_function(traffic_data, ngrid, upper_density, output_files) },
@@ -668,7 +668,7 @@ if (fd_type == 'Flow.Density') {
                              q(save = 'no', status = 1) }
   )
 
-  # Fit the chosen GAMLSS model to the EFD data
+  # Fit the chosen GAMLSS model to the speed-density EFD data
   tryCatch(
     { fit_function = get(paste0('fit_speed_density_with_', functional_form_model, '_', noise_model))
       model_obj = fit_function(traffic_data, ngrid, upper_density, output_files) },

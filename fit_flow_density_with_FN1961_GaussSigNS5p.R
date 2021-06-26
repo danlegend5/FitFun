@@ -213,7 +213,7 @@ tryCatch(
       }
     }
     traffic_data[, normalised_quantile_residuals := nqr] },
-#    traffic_data[, normalised_quantile_residuals := model_obj$residuals]     # The normalised quantile residuals provided by GAMLSS include more "-Inf" and "Inf" values
+#    traffic_data[, normalised_quantile_residuals := model_obj$residuals]     # The normalised quantile residuals provided by "gamlss()" include more "-Inf" and "Inf" values
   error = function(cond) { cat('ERROR - Failed to compute and store the normalised quantile residuals...\n')
                            q(save = 'no', status = 1) }
 )
