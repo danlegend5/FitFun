@@ -355,7 +355,7 @@ if (!is.na(k_jam)) { cat('  Jam density:                                        
 if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:            ', v_bw, '\n') }
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
 cat('\n')
-cat('Fitted model parameters (see the accompanying paper by Bramich, Menendez & Ambuhl for details):\n')
+cat('Fitted model parameters (see the accompanying papers by Bramich, Menendez & Ambuhl for details):\n')
 cat('  v_ff:                 ', model_obj$mu.coefficients[1], '\n')
 cat('  (v_bw*k_jam)/(m*v_ff):', par1, '\n')
 cat('  m:                    ', par2, '\n')
@@ -372,7 +372,7 @@ tryCatch(
                       curve_properties_for_mu_over_full_range, curve_properties_for_sigma_over_full_range,
                       curve_properties_for_nu_over_full_range, curve_properties_for_tau_over_full_range)
     cat('######################################################################################################################\n',
-        '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPER BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
+        '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPERS BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
         model_obj$mu.coefficients[1], '           # v_ff\n',
