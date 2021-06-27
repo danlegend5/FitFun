@@ -479,6 +479,42 @@ return(list(tau_0 = curve_properties$y_0, dtaudk_0 = curve_properties$dydx_0, k_
 
 
 ################################################################################################################################################
+calculate_normalised_quantile_residuals = function(cprobs_lower, cprobs_upper) {
+
+# Description: This function converts lower cumulative probabilities "cprobs_lower" and upper cumulative probabilities "cprobs_upper" to standard
+#              Normal quantiles using the inverse cumulative distribution function (CDF) of the standard Normal distribution. If these cumulative
+#              probabilities correspond to the CDF values of a fitted GAMLSS model at the values of a set of response observations, then the
+#              output standard Normal quantiles are referred to as normalised quantile residuals. This function has been implemented to provide
+#              normalised quantile residuals with less occurrences of "-Inf" and "Inf" values than those provided by the "gamlss()" function.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+
+
+# Calculate the normalised quantile residuals
+ndata = length(cprobs_lower)
+selection = cprobs_lower < 0.5
+nselection = sum(selection)
+if (nselection == ndata) {
+  nqr = qNO(cprobs_lower)
+} else {
+  if (nselection == 0) {
+    nqr = qNO(cprobs_upper, lower.tail = FALSE)
+  } else {
+    nqr = double(length = ndata)
+    nqr[selection] = qNO(cprobs_lower[selection])
+    selection = !selection
+    nqr[selection] = qNO(cprobs_upper[selection], lower.tail = FALSE)
+  }
+}
+
+# Return the normalised quantile residuals
+return(nqr)
+}
+
+
+################################################################################################################################################
 fix_out_of_data_curves = function(xvec, yvec, min_x, max_x) {
 
 # Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function does

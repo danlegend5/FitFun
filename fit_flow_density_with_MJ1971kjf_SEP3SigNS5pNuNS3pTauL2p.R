@@ -211,24 +211,8 @@ tryCatch(
 cat('Computing the normalised quantile residuals and storing them in the data table...\n')
 tryCatch(
   { cumulative_probs_lower = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv)
-    selection = cumulative_probs_lower < 0.5
-    nselection = sum(selection)
-    if (nselection == ntraffic_data) {
-      nqr = qNO(cumulative_probs_lower)
-    } else {
-      cumulative_probs_upper = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv,
-                                     lower.tail = FALSE)
-      if (nselection == 0) {
-        nqr = qNO(cumulative_probs_upper, lower.tail = FALSE)
-      } else {
-        nqr = double(length = ntraffic_data)
-        nqr[selection] = qNO(cumulative_probs_lower[selection])
-        selection = !selection
-        nqr[selection] = qNO(cumulative_probs_upper[selection], lower.tail = FALSE)
-      }
-    }
-    traffic_data[, normalised_quantile_residuals := nqr] },
-#    traffic_data[, normalised_quantile_residuals := model_obj$residuals]     # The normalised quantile residuals provided by "gamlss()" include more "-Inf" and "Inf" values
+    cumulative_probs_upper = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv, lower.tail = FALSE)
+    traffic_data[, normalised_quantile_residuals := calculate_normalised_quantile_residuals(cumulative_probs_lower, cumulative_probs_upper)] },
   error = function(cond) { cat('ERROR - Failed to compute and store the normalised quantile residuals...\n')
                            q(save = 'no', status = 1) }
 )
