@@ -204,6 +204,20 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
+# Compute the percentiles for the fitted model at the density values in the data and store them in the data table
+cat('Computing the percentiles for the fitted model at the density values in the data...\n')
+tryCatch(
+  { traffic_data[, percentile_m3sig := qSN2(pNO(-3.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_m2sig := qSN2(pNO(-2.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_m1sig := qSN2(pNO(-1.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_0sig := qSN2(0.5, mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_p1sig := qSN2(pNO(1.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_p2sig := qSN2(pNO(2.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)]
+    traffic_data[, percentile_p3sig := qSN2(pNO(3.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma, nu = traffic_data$fitted_values_nu)] },
+  error = function(cond) { cat('ERROR - Failed to compute the percentiles for the fitted model at the density values in the data...\n')
+                           q(save = 'no', status = 1) }
+)
+
 # Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
