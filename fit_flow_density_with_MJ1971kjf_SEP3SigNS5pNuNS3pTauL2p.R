@@ -166,9 +166,9 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
-# Store the predicted values for the model at the density values in the data in the data table
+# Store the predicted values for the fitted model at the density values in the data in the data table
 cat('\n')
-cat('Storing the predicted values for the model in the data table...\n')
+cat('Storing the predicted values for the fitted model in the data table...\n')
 tryCatch(
   { if (!all(is.finite(model_obj$mu.fv))) {
       cat('ERROR - The predicted values for "mu" at the density values in the data include at least one value that is infinite...\n')
@@ -202,18 +202,39 @@ tryCatch(
     traffic_data[, fitted_values_sigma := model_obj$sigma.fv]
     traffic_data[, fitted_values_nu := model_obj$nu.fv]
     traffic_data[, fitted_values_tau := model_obj$tau.fv] },
-  error = function(cond) { cat('ERROR - Failed to store the predicted values for the model...\n')
+  error = function(cond) { cat('ERROR - Failed to store the predicted values for the fitted model...\n')
                            q(save = 'no', status = 1) }
 )
 
 # Compute the normalised quantile residuals and store them in the data table. Note that the normalised quantile residuals may include some "-Inf"
 # or "Inf" values for particularly bad outliers.
-cat('Computing the normalised quantile residuals and storing them in the data table...\n')
+cat('Computing the normalised quantile residuals...\n')
 tryCatch(
   { cumulative_probs_lower = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv)
     cumulative_probs_upper = pSEP3(traffic_data$V3, mu = model_obj$mu.fv, sigma = model_obj$sigma.fv, nu = model_obj$nu.fv, tau = model_obj$tau.fv, lower.tail = FALSE)
     traffic_data[, normalised_quantile_residuals := calculate_normalised_quantile_residuals(cumulative_probs_lower, cumulative_probs_upper)] },
-  error = function(cond) { cat('ERROR - Failed to compute and store the normalised quantile residuals...\n')
+  error = function(cond) { cat('ERROR - Failed to compute the normalised quantile residuals...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Compute the percentiles for the fitted model at the density values in the data and store them in the data table
+cat('Computing the percentiles for the fitted model at the density values in the data...\n')
+tryCatch(
+  { traffic_data[, percentile_m3sig := qSEP3(pNO(-3.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_m2sig := qSEP3(pNO(-2.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_m1sig := qSEP3(pNO(-1.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_0sig := qSEP3(0.5, mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                            nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_p1sig := qSEP3(pNO(1.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_p2sig := qSEP3(pNO(2.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)]
+    traffic_data[, percentile_p3sig := qSEP3(pNO(3.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma,
+                                             nu = traffic_data$fitted_values_nu, tau = traffic_data$fitted_values_tau)] },
+  error = function(cond) { cat('ERROR - Failed to compute the percentiles for the fitted model at the density values in the data...\n')
                            q(save = 'no', status = 1) }
 )
 

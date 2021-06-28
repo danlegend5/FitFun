@@ -246,15 +246,19 @@
 #
 #   Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides a set of summary information for the fitted
 #                                                                     model. The contents of the file are fully documented within the file itself.
-#   Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the reconstructed fitted model, along with
-#                                                                    percentile curves, for the equally spaced grid of "ngrid" density values
-#                                                                    covering the range from zero to "upper_density". A header line provides the
-#                                                                    column descriptions.
-#   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the model, along
-#                                                                         with the normalised quantile residuals, at the density values in the data.
-#                                                                         A header line provides the column descriptions. For more information on
-#                                                                         what a normalised quantile residual is, please see Chapter 12 in
-#                                                                         Stasinopoulos et al. (2017, CRC Press LLC, Boca Raton).
+#   Fit.Curves.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the reconstructed fitted model, percentile
+#                                                                    curves, and curves of distributional measures (e.g. mean, mode, standard
+#                                                                    deviation, moment skewness, etc.), for the equally spaced grid of "ngrid"
+#                                                                    density values covering the range from zero to "upper_density". A header line
+#                                                                    provides the column descriptions.
+#   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the fitted model
+#                                                                         at the density values in the data and the normalised quantile residuals.
+#                                                                         It also provides the values of the percentiles and a set of distributional
+#                                                                         measures (e.g. mean, mode, standard deviation, moment skewness, etc.) for
+#                                                                         the fitted model at the density values in the data. A header line provides
+#                                                                         the column descriptions. For more information on what a normalised quantile
+#                                                                         residual is, please see Chapter 12 of Stasinopoulos et al. (2017, CRC Press
+#                                                                         LLC, Boca Raton).
 #   Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to the maximum observed
