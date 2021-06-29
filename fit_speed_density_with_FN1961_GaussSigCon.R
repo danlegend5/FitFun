@@ -163,7 +163,7 @@ tryCatch(
     traffic_data[, fitted_values_mu := model_obj$mu.fv]
     traffic_data[, fitted_values_sigma := model_obj$sigma.fv]
     traffic_data[, fitted_values_nu := double(length = ntraffic_data)]
-    traffic_data[, fitted_values_tau := rep_len(3.0, ntraffic_data)] },
+    traffic_data[, fitted_values_tau := double(length = ntraffic_data)] },
   error = function(cond) { cat('ERROR - Failed to store the predicted values for the fitted model...\n')
                            q(save = 'no', status = 1) }
 )
@@ -190,6 +190,19 @@ tryCatch(
     traffic_data[, percentile_p2sig := qNO(pNO(2.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma)]
     traffic_data[, percentile_p3sig := qNO(pNO(3.0), mu = traffic_data$fitted_values_mu, sigma = traffic_data$fitted_values_sigma)] },
   error = function(cond) { cat('ERROR - Failed to compute the percentiles for the fitted model at the density values in the data...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Compute a set of distributional measures for the fitted model at the density values in the data and store them in the data table
+cat('Computing a set of distributional measures for the fitted model at the density values in the data...\n')
+tryCatch(
+  { traffic_data[, mean := traffic_data$fitted_values_mu]
+    traffic_data[, median := traffic_data$fitted_values_mu]
+    traffic_data[, mode := traffic_data$fitted_values_mu]
+    traffic_data[, standard_deviation := traffic_data$fitted_values_sigma]
+    traffic_data[, moment_skewness := traffic_data$fitted_values_nu]
+    traffic_data[, moment_excess_kurtosis := traffic_data$fitted_values_tau] },
+  error = function(cond) { cat('ERROR - Failed to compute a set of distributional measures for the fitted model at the density values in the data...\n')
                            q(save = 'no', status = 1) }
 )
 
