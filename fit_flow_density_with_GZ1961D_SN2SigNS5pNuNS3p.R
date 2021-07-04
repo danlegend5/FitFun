@@ -197,6 +197,20 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
+# Compute a set of distributional measures for the fitted model at the density values in the data and store them in the data table
+cat('Computing a set of distributional measures for the fitted model at the density values in the data...\n')
+tryCatch(
+  { distributional_measures = calculate_distributional_measures_for_SN2(traffic_data$fitted_values_mu, traffic_data$fitted_values_sigma, traffic_data$fitted_values_nu)
+    traffic_data[, mean := distributional_measures$mean]
+    traffic_data[, median := distributional_measures$median]
+    traffic_data[, mode := distributional_measures$mode]
+    traffic_data[, standard_deviation := distributional_measures$standard_deviation]
+    traffic_data[, moment_skewness := distributional_measures$moment_skewness]
+    traffic_data[, moment_excess_kurtosis := distributional_measures$moment_excess_kurtosis] },
+  error = function(cond) { cat('ERROR - Failed to compute a set of distributional measures for the fitted model at the density values in the data...\n')
+                           q(save = 'no', status = 1) }
+)
+
 # Reconstruct the fitted model over the density range from zero to "upper_density"
 cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
 tryCatch(
