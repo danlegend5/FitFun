@@ -515,6 +515,114 @@ return(nqr)
 
 
 ################################################################################################################################################
+calculate_distributional_measures_for_SN2 = function(mu, sigma, nu) {
+
+# Description: Given the location, scale, and skewness parameters "mu", "sigma", and "nu", respectively, of a Skew Normal Type II distribution,
+#              this function calculates the corresponding mean, median, mode, standard deviation, moment skewness, and moment excess kurtosis of
+#              the distribution. These distributional measures are calculated using the formulae given in Rigby et al. (2019, CRC Press LLC, New
+#              York).
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+
+
+# Calculate the mean of the distribution
+fac = sqrt(2.0/pi)
+inv_nu = 1.0/nu
+ez = fac*(nu - inv_nu)
+mean = mu + (sigma*ez)
+
+# Calculate the median of the distribution
+nu2 = nu*nu
+median = (1.0 + nu2)/4.0
+selection = nu > 1.0
+nselection = sum(selection)
+if (nselection > 0) {
+  tmpvec = nu2[selection]
+  median[selection] = ((3.0*tmpvec) - 1.0)/(4.0*tmpvec)
+}
+median = (sigma/nu)*qNO(median)
+if (nselection > 0) {
+  median[selection] = median[selection]*tmpvec
+}
+median = median + mu
+
+# Calculate the mode of the distribution
+mode = mu
+
+# Calculate the standard deviation of the distribution
+inv_nu2 = inv_nu*inv_nu
+ez2 = ez*ez
+varz = nu2 + inv_nu2 - 1.0 - ez2
+stddev = sigma*sqrt(varz)
+
+# Calculate the moment skewness of the distribution
+nu_p_inv_nu = nu + inv_nu
+nu4 = nu2*nu2
+inv_nu4 = inv_nu2*inv_nu2
+tmpvec1 = (2.0*fac)*((nu4 - inv_nu4)/nu_p_inv_nu)
+skewness = (tmpvec1 - (3.0*varz*ez) - (ez2*ez))/(varz^1.5)
+
+# Calculate the moment excess kurtosis of the distribution
+tmpvec2 = 3.0*((nu4*nu) + (inv_nu4*inv_nu))/nu_p_inv_nu
+excess_kurtosis = ((tmpvec2 - (4.0*tmpvec1*ez) + (6.0*varz*ez2) + (3.0*ez2*ez2))/(varz*varz)) - 3.0
+
+# Return the distributional measures
+return(data.table(mean = mean, median = median, mode = mode, standard_deviation = stddev, moment_skewness = skewness, moment_excess_kurtosis = excess_kurtosis))
+}
+
+
+################################################################################################################################################
+calculate_distributional_measures_for_SEP3 = function(mu, sigma, nu, tau) {
+
+# Description: Given the location, scale, skewness, and kurtosis parameters "mu", "sigma", "nu", and "tau", respectively, of a Skew Exponential
+#              Power Type III distribution, this function calculates the corresponding mean, mode, standard deviation, moment skewness, and moment
+#              excess kurtosis of the distribution. These distributional measures are calculated using the formulae given in Rigby et al. (2019, CRC
+#              Press LLC, New York). This reference does not supply an analytical formula for the median which could be because it does not exist.
+#              Consequently, this function does not calculate the median.
+#
+# Authors:
+#
+#   Dan Bramich (dan.bramich@hotmail.co.uk)
+
+
+# Calculate the mean of the distribution
+inv_nu = 1.0/nu
+inv_tau = 1.0/tau
+two_power_inv_tau = 2.0^inv_tau
+gamma_inv_tau = gamma(inv_tau)
+ez = two_power_inv_tau*gamma(2.0*inv_tau)*(nu - inv_nu)/gamma_inv_tau
+mean = mu + (sigma*ez)
+
+# Calculate the mode of the distribution
+mode = mu
+
+# Calculate the standard deviation of the distribution
+two_power_inv_tau_squared = two_power_inv_tau*two_power_inv_tau
+nu2 = nu*nu
+inv_nu2 = inv_nu*inv_nu
+ez2 = ez*ez
+varz = (two_power_inv_tau_squared*gamma(3.0*inv_tau)*(nu2 + inv_nu2 - 1.0)/gamma_inv_tau) - ez2
+stddev = sigma*sqrt(varz)
+
+# Calculate the moment skewness of the distribution
+nu4 = nu2*nu2
+inv_nu4 = inv_nu2*inv_nu2
+denom = gamma_inv_tau*(nu + inv_nu)
+tmpvec1 = two_power_inv_tau_squared*two_power_inv_tau*gamma(4.0*inv_tau)*(nu4 - inv_nu4)/denom
+skewness = (tmpvec1 - (3.0*varz*ez) - (ez2*ez))/(varz^1.5)
+
+# Calculate the moment excess kurtosis of the distribution
+tmpvec2 = two_power_inv_tau_squared*two_power_inv_tau_squared*gamma(5.0*inv_tau)*((nu4*nu) + (inv_nu4*inv_nu))/denom
+excess_kurtosis = ((tmpvec2 - (4.0*tmpvec1*ez) + (6.0*varz*ez2) + (3.0*ez2*ez2))/(varz*varz)) - 3.0
+
+# Return the distributional measures
+return(data.table(mean = mean, mode = mode, standard_deviation = stddev, moment_skewness = skewness, moment_excess_kurtosis = excess_kurtosis))
+}
+
+
+################################################################################################################################################
 fix_out_of_data_curves = function(xvec, yvec, min_x, max_x) {
 
 # Description: For a curve in the xy-plane that is represented by a discrete set of N points with (x,y) pairs "xvec" and "yvec", this function does
