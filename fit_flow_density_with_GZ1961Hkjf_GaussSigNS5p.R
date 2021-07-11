@@ -235,7 +235,7 @@ tryCatch(
     reconstructed_model_fit[, mu := predicted_values$mu]
     reconstructed_model_fit[, sigma := predicted_values$sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
-    reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
+    reconstructed_model_fit[, tau := double(length = ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
