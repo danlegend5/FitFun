@@ -371,6 +371,20 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 
+# Construct curves of a set of distributional measures for the fitted model over the density range from zero to "upper_density"
+cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', upper_density, '...\n')
+tryCatch(
+  { distributional_measures = calculate_distributional_measures_for_SN2(reconstructed_model_fit$mu, reconstructed_model_fit$sigma, reconstructed_model_fit$nu)
+    reconstructed_model_fit[, mean := distributional_measures$mean]
+    reconstructed_model_fit[, median := distributional_measures$median]
+    reconstructed_model_fit[, mode := distributional_measures$mode]
+    reconstructed_model_fit[, standard_deviation := distributional_measures$standard_deviation]
+    reconstructed_model_fit[, moment_skewness := distributional_measures$moment_skewness]
+    reconstructed_model_fit[, moment_excess_kurtosis := distributional_measures$moment_excess_kurtosis] },
+  error = function(cond) { cat('ERROR - Failed to construct curves of a set of distributional measures for the fitted model over the required density range...\n')
+                           q(save = 'no', status = 1) }
+)
+
 # Estimate useful properties of the fitted model over the density range from zero to the maximum observed density using the reconstruction
 cat('Estimating useful properties of the fitted model using the reconstruction...\n')
 tryCatch(
