@@ -164,7 +164,7 @@ tryCatch(
     reconstructed_model_fit[, mu := predicted_values_for_mu]
     reconstructed_model_fit[, sigma := predicted_values_for_sigma]
     reconstructed_model_fit[, nu := double(length = ngrid)]
-    reconstructed_model_fit[, tau := rep_len(3.0, ngrid)] },
+    reconstructed_model_fit[, tau := double(length = ngrid)] },
   error = function(cond) { cat('ERROR - Failed to reconstruct the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
@@ -180,6 +180,19 @@ tryCatch(
     reconstructed_model_fit[, percentile_p2sig := qNO(pNO(2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_p3sig := qNO(pNO(3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)] },
   error = function(cond) { cat('ERROR - Failed to construct percentile curves for the fitted model over the required density range...\n')
+                           q(save = 'no', status = 1) }
+)
+
+# Construct curves of a set of distributional measures for the fitted model over the density range from zero to "upper_density"
+cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', upper_density, '...\n')
+tryCatch(
+  { reconstructed_model_fit[, mean := reconstructed_model_fit$mu]
+    reconstructed_model_fit[, median := reconstructed_model_fit$mu]
+    reconstructed_model_fit[, mode := reconstructed_model_fit$mu]
+    reconstructed_model_fit[, standard_deviation := reconstructed_model_fit$sigma]
+    reconstructed_model_fit[, moment_skewness := reconstructed_model_fit$nu]
+    reconstructed_model_fit[, moment_excess_kurtosis := reconstructed_model_fit$tau] },
+  error = function(cond) { cat('ERROR - Failed to construct curves of a set of distributional measures for the fitted model over the required density range...\n')
                            q(save = 'no', status = 1) }
 )
 
