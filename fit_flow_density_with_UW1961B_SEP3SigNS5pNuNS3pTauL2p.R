@@ -449,7 +449,11 @@ tryCatch(
 cat('Writing out the fit predictions file:', output_files[3], '\n')
 tryCatch(
   { cat('# Data Column 1 : Data Column 2 : Data Column 3 : Fitted Value For Mu : Fitted Value For Sigma : Fitted Value For Nu : Fitted Value For Tau :',
-        'Normalised Quantile Residual ("-Inf" Or "Inf" Values May Be Present)\n', file = output_files[3])
+        'Normalised Quantile Residual ("-Inf" Or "Inf" Values May Be Present) : 0.135 Percentile (Corresponding To -3*Sigma In A Normal Distribution) :',
+        '2.28 Percentile (Corresponding To -2*Sigma In A Normal Distribution) : 15.87 Percentile (Corresponding To -1*Sigma In A Normal Distribution) :',
+        '50.00 Percentile (Median) : 84.13 Percentile (Corresponding To 1*Sigma In A Normal Distribution) : 97.72 Percentile (Corresponding To 2*Sigma',
+        'In A Normal Distribution) : 99.865 Percentile (Corresponding To 3*Sigma In A Normal Distribution) : Mean : Median : Mode : Standard Deviation :',
+        'Moment Skewness : Moment Excess Kurtosis\n', file = output_files[3])
     write.table(traffic_data, file = output_files[3], append = TRUE, quote = FALSE, row.names = FALSE, col.names = FALSE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit predictions file...\n')
                            remove_file_list(output_files)
