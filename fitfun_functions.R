@@ -1241,7 +1241,7 @@ plotH = function(traffic_data, ntraffic_data, title_str, xlab_str, ylab_str, out
 # residuals (i.e. E(X^2) = 1 for X ~ N(0,1)).
 tvec = traffic_data$V1
 yvec = traffic_data$normalised_quantile_residuals
-time_lag_bin_size = median(tvec[2:ntraffic_data] -  tvec[1:(ntraffic_data - 1)])
+time_lag_bin_size = median(tvec[2:ntraffic_data] - tvec[1:(ntraffic_data - 1)])
 time_lag_nbins = 51
 slotted_acf = compute_slotted_acf(tvec, yvec, time_lag_bin_size, time_lag_nbins)
 
