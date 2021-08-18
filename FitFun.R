@@ -347,7 +347,7 @@
 #                                                                    the maximum time difference that is considered in the computation of the
 #                                                                    slotted ACF as dTbinsize*(Nbin - 0.5). Since these parameters are not
 #                                                                    available as command-line arguments in this script, they must be changed
-#                                                                    directly in the code in "fitfun_functions.R" if necessary.
+#                                                                    directly in the code in "fitfun_functions.R" if so required.
 #
 # Requirements:
 #
