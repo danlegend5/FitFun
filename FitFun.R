@@ -36,6 +36,19 @@
 #              (ML) estimation, or maximum penalised likelihood (MPL) estimation, as appropriate (for more details see Bramich, Menendez & Ambuhl,
 #              2021b, ???, ???, ???). The script also computes the values of two different information criteria for any model fit, which enables
 #              model comparisons based on the Principle of Parsimony to be performed (see below).
+#                While the values of the information criteria provided by this script can be used to select the most parsimonious model for an EFD
+#              from a set of candidate models, there is no guarantee that the selected model actually provides an acceptable fit to the data (e.g.
+#              this situation typically occurs when none of the candidate models considered are capable of achieving acceptable fit quality for the
+#              data in question). Hence it is essential to assess the quality of any model fit, and this can be done through the analysis of the fit
+#              residuals. For this purpose, this script computes the fit residuals as normalised quantile residuals (NQR). For more information on
+#              what NQR are, please see Chapter 12 of Stasinopoulos et al. (2017, CRC Press LLC, Boca Raton) and Bramich, Menendez & Ambuhl (2021b,
+#              ???, ???, ???). However, this script does not provide any analysis of the NQR with regards to fit quality, and this important task is
+#              deferred to the user. Since the definition of the NQR ensures that they follow a standard Normal distribution whenever the fitted model
+#              is the true model, it is standard procedure to check the distribution of the NQR against the standard Normal distribution. For example,
+#              one way that this can be done is by testing whether or not the null hypothesis that the NQR follow the standard Normal distribution can
+#              be rejected at a specific significance level such as 1% or 5% (e.g. by employing the Anderson-Darling test). We stress that, wherever
+#              possible, decisions on which fundamental diagram model to use should be informed through a combination of appropriate model comparisons
+#              (e.g. via information criteria) and analysis of fit residuals (e.g. via hypothesis testing on the NQR).
 #                The specific procedures for fitting each individual model that is available in this script are separated out into a single R module
 #              per model. These modules have names of the form "fit_flow_density_with_<functional_form_model>_<noise_model>.R" or
 #              "fit_speed_density_with_<functional_form_model>_<noise_model>.R", and they each contain a single function of the same name (see below
@@ -236,7 +249,7 @@
 #                              could be the start/midpoint/end of the time interval. The units of time, and, if relevant, the point within a time
 #                              interval to which the time stamp corresponds, are not important, so long as they are consistent over all of the time
 #                              stamps since this allows reliable time differences to be computed. Currently, the data in this column are only used
-#                              for the computation of the slotted auto-correlation function for the normalised quantile residuals.
+#                              for the computation of the slotted auto-correlation function for the NQR.
 #   Column 2 - INTEGER/FLOAT - The measured value of the independent variable (i.e. density or occupancy). All values in this column must be
 #                              positive.
 #   Column 3 - INTEGER/FLOAT - The measured value of the dependent variable (i.e. flow or speed). All values in this column must be non-negative,
@@ -252,13 +265,10 @@
 #                                                                    density values covering the range from zero to "upper_density". A header line
 #                                                                    provides the column descriptions.
 #   Fit.Predictions.<fd_type>.<functional_form_model>.<noise_model>.txt - This output text file provides the predicted values for the fitted model
-#                                                                         at the density values in the data and the normalised quantile residuals.
-#                                                                         It also provides the values of the percentiles and a set of distributional
-#                                                                         measures (e.g. mean, mode, standard deviation, moment skewness, etc.) for
-#                                                                         the fitted model at the density values in the data. A header line provides
-#                                                                         the column descriptions. For more information on what a normalised quantile
-#                                                                         residual is, please see Chapter 12 of Stasinopoulos et al. (2017, CRC Press
-#                                                                         LLC, Boca Raton).
+#                                                                         at the density values in the data and the NQR. It also provides the values
+#                                                                         of the percentiles and a set of distributional measures (e.g. mean, mode,
+#                                                                         standard deviation, moment skewness, etc.) for the fitted model at the
+#                                                                         density values in the data. A header line provides the column descriptions.
 #   Plot.Of.Fitted.Mu.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to the maximum observed
@@ -279,11 +289,10 @@
 #                                                                    the median curve. The percentile boundaries correspond to -3*sigma, -2*sigma,
 #                                                                    -1*sigma, the median, 1*sigma, 2*sigma, and 3*sigma in a Normal distribution.
 #   Plot.Of.Normalised.Quantile.Residuals.For.Data.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
-#                                                                    density (red points). The plot density range is from zero to the maximum
-#                                                                    observed density. The grey regions are percentile ranges as described for
-#                                                                    previous plots while the median line is coincident with the horizontal dotted
-#                                                                    line.
+#                                                                  - Plot of the NQR for the flow or speed data versus density (red points). The plot
+#                                                                    density range is from zero to the maximum observed density. The grey regions are
+#                                                                    percentile ranges as described for previous plots while the median line is
+#                                                                    coincident with the horizontal dotted line.
 #   Plot.Of.Fitted.Mu.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the flow or speed data versus density (red points). The fitted model
 #                                                                    component for "mu" over the density range from zero to "upper_density" is
@@ -304,20 +313,18 @@
 #                                                                    percentile boundaries correspond to -3*sigma, -2*sigma, -1*sigma, the median,
 #                                                                    1*sigma, 2*sigma, and 3*sigma in a Normal distribution.
 #   Plot.Of.Normalised.Quantile.Residuals.For.Full.Density.Range.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
-#                                                                    density (red points). The plot density range is from zero to "upper_density".
-#                                                                    The grey regions are percentile ranges as described for previous plots while
-#                                                                    the median line is coincident with the horizontal dotted line.
+#                                                                  - Plot of the NQR for the flow or speed data versus density (red points). The plot
+#                                                                    density range is from zero to "upper_density". The grey regions are percentile
+#                                                                    ranges as described for previous plots while the median line is coincident with
+#                                                                    the horizontal dotted line.
 #   Plot.Of.Normalised.Quantile.Residuals.Versus.Mu.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus the
-#                                                                    fitted values for "mu" (red points). The grey regions are percentile ranges as
-#                                                                    described for previous plots while the median line is coincident with the
-#                                                                    horizontal dotted line.
+#                                                                  - Plot of the NQR for the flow or speed data versus the fitted values for "mu"
+#                                                                    (red points). The grey regions are percentile ranges as described for previous
+#                                                                    plots while the median line is coincident with the horizontal dotted line.
 #   Plot.Of.Normalised.Quantile.Residuals.Versus.Time.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
-#                                                                  - Plot of the normalised quantile residuals for the flow or speed data versus
-#                                                                    time (red points). The grey regions are percentile ranges as described for
-#                                                                    previous plots while the median line is coincident with the horizontal dotted
-#                                                                    line.
+#                                                                  - Plot of the NQR for the flow or speed data versus time (red points). The grey
+#                                                                    regions are percentile ranges as described for previous plots while the median
+#                                                                    line is coincident with the horizontal dotted line.
 #   Plot.Of.Detrended.Normal.QQ.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Given a relevant set of theoretical quantiles from a standard Normal
 #                                                                    distribution, this output file displays a plot of the difference between the
@@ -329,9 +336,9 @@
 #                                                                    Medicine, 20, 1259).
 #   Plot.Of.Slotted.ACF.For.Normalised.Quantile.Residuals.<fd_type>.<functional_form_model>.<noise_model>.<plot_format>
 #                                                                  - Plot of the slotted auto-correlation function (slotted ACF) versus time lag
-#                                                                    (light grey bars) for the normalised quantile residuals. Uncertainties on the
-#                                                                    slotted ACF values are plotted as error bars. For more details, see Edelson &
-#                                                                    Krolik (1988, Astrophysical Journal, 333, 646).
+#                                                                    (light grey bars) for the NQR. Uncertainties on the slotted ACF values are
+#                                                                    plotted as error bars. For more details, see Edelson & Krolik (1988,
+#                                                                    Astrophysical Journal, 333, 646).
 #
 # Requirements:
 #
