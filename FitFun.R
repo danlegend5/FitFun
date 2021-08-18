@@ -338,7 +338,15 @@
 #                                                                  - Plot of the slotted auto-correlation function (slotted ACF) versus time lag
 #                                                                    (light grey bars) for the NQR. Uncertainties on the slotted ACF values are
 #                                                                    plotted as error bars. For more details, see Edelson & Krolik (1988,
-#                                                                    Astrophysical Journal, 333, 646).
+#                                                                    Astrophysical Journal, 333, 646). In the implementation in this script, the
+#                                                                    time lag bin size dTbinsize is set to the median time difference between
+#                                                                    consecutive traffic measurements, and the number of time lag bins Nbin is
+#                                                                    hard-coded in the parameter "time_lag_nbins" in the function "plotH" in
+#                                                                    "fitfun_functions.R". Taken together, these two parameters define the maximum
+#                                                                    time difference that is considered in the computation of the slotted ACF as
+#                                                                    dTbinsize*(Nbin - 0.5). Since these parameters are not available as
+#                                                                    command-line arguments in this script, they must be changed directly in the
+#                                                                    code in "fitfun_functions.R" if necessary.
 #
 # Requirements:
 #

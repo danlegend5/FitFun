@@ -669,8 +669,8 @@ compute_slotted_acf = function(tvec, yvec, tlag_bin_size, tlag_nbins) {
 #              for a specific time lag bin is computed by averaging the cross products of sample pairs whose time differences fall in the given bin
 #              (Edelson & Krolik, 1988, Astrophysical Journal, 333, 646). As part of the computation, this function employs the algorithm for
 #              calculating the running mean and variance invented by Welford (1962, Technometrics, 4, 419). The time lag bin size "tlag_bin_size" in
-#              combination with the number of time lag bins "tlag_nbins" specifies the maximum time difference to consider in the computation of the
-#              slotted ACF.
+#              combination with the number of time lag bins "tlag_nbins" specifies the maximum time difference to be considered in the computation
+#              of the slotted ACF.
 #
 # Authors:
 #
