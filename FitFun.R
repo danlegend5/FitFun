@@ -453,7 +453,7 @@ if (upper_density <= 0.0) {
   cat('ERROR - The command-line argument "upper_density" is a number that is zero or negative...\n')
   q(save = 'no', status = 1)
 }
-cat('Upper density for model reconstruction:             ', upper_density, '\n')
+cat('Upper density for model reconstruction:             ', sprintf('%.8g', upper_density), '\n')
 acceptable_values = c('ps', 'pdf', 'png', 'none')
 if (!is.element(plot_format, acceptable_values)) {
   cat('ERROR - The command-line argument "plot_format" does not have an acceptable value...\n')
