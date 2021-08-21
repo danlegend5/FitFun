@@ -56,10 +56,10 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 cat('  No. of flow-density measurement pairs (Ndat):', ntraffic_data, '\n')
-cat('  Minimum density in the data:                 ', data_min_density, '\n')
-cat('  Maximum density in the data:                 ', data_max_density, '\n')
-cat('  Minimum flow in the data:                    ', data_min_flow, '\n')
-cat('  Maximum flow in the data:                    ', data_max_flow, '\n')
+cat('  Minimum density in the data:                 ', sprintf('%.8g', data_min_density), '\n')
+cat('  Maximum density in the data:                 ', sprintf('%.8g', data_max_density), '\n')
+cat('  Minimum flow in the data:                    ', sprintf('%.8g', data_min_flow), '\n')
+cat('  Maximum flow in the data:                    ', sprintf('%.8g', data_max_flow), '\n')
 cat('\n')
 cat('Model reconstruction:\n')
 tryCatch(

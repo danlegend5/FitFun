@@ -58,10 +58,10 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 cat('  No. of speed-density measurement pairs (Ndat):', ntraffic_data, '\n')
-cat('  Minimum density in the data:                  ', data_min_density, '\n')
-cat('  Maximum density in the data:                  ', data_max_density, '\n')
-cat('  Minimum speed in the data:                    ', data_min_speed, '\n')
-cat('  Maximum speed in the data:                    ', data_max_speed, '\n')
+cat('  Minimum density in the data:                  ', sprintf('%.8g', data_min_density), '\n')
+cat('  Maximum density in the data:                  ', sprintf('%.8g', data_max_density), '\n')
+cat('  Minimum speed in the data:                    ', sprintf('%.8g', data_min_speed), '\n')
+cat('  Maximum speed in the data:                    ', sprintf('%.8g', data_max_speed), '\n')
 cat('\n')
 cat('Model reconstruction:\n')
 tryCatch(
