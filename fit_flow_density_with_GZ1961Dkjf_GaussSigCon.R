@@ -150,7 +150,7 @@ tryCatch(
 
 # Reconstruct the fitted model over the density range from zero to "upper_density" (N.B: This particular model is only defined up to the fixed
 # value for k_jam)
-cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Reconstructing the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, k_jam), length.out = ngrid))
     predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
@@ -175,7 +175,7 @@ tryCatch(
 )
 
 # Construct percentile curves for the fitted model over the density range from zero to "upper_density"
-cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing percentile curves for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit[, percentile_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
     reconstructed_model_fit[, percentile_m2sig := qNO(pNO(-2.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
@@ -189,7 +189,7 @@ tryCatch(
 )
 
 # Construct curves of a set of distributional measures for the fitted model over the density range from zero to "upper_density"
-cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit[, mean := reconstructed_model_fit$mu]
     reconstructed_model_fit[, median := reconstructed_model_fit$mu]

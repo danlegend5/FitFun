@@ -265,7 +265,7 @@ tryCatch(
 )
 
 # Reconstruct the fitted model over the density range from zero to "upper_density"
-cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Reconstructing the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = min(upper_density, par2), length.out = ngrid))
     predicted_values_for_mu = double(length = ngrid)
@@ -317,7 +317,7 @@ tryCatch(
 )
 
 # Construct percentile curves for the fitted model over the density range from zero to "upper_density"
-cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing percentile curves for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit[, percentile_m3sig := qSEP3(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma,
                                                         nu = reconstructed_model_fit$nu, tau = reconstructed_model_fit$tau)]
@@ -338,7 +338,7 @@ tryCatch(
 )
 
 # Construct curves of a set of distributional measures for the fitted model over the density range from zero to "upper_density"
-cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { distributional_measures = calculate_distributional_measures_for_SEP3(reconstructed_model_fit$mu, reconstructed_model_fit$sigma, reconstructed_model_fit$nu, reconstructed_model_fit$tau)
     reconstructed_model_fit[, mean := distributional_measures$mean]
