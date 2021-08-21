@@ -322,28 +322,28 @@ cat('\n')
 cat('Fit summary (abridged):\n')
 cat('\n')
 cat('Model parameter counts:\n')
-cat('  No. of free parameters (mu):        ', npar_mu, '\n')
-cat('  No. of free parameters (sigma):     ', npar_sigma, '\n')
-cat('  No. of free parameters (nu):        ', npar_nu, '\n')
-cat('  No. of free parameters (tau):       ', npar_tau, '\n')
-cat('  Total no. of free parameters (Npar):', npar_all, '\n')
+cat('  No. of free parameters (mu):        ', sprintf('%.6f', npar_mu), '\n')
+cat('  No. of free parameters (sigma):     ', sprintf('%.6f', npar_sigma), '\n')
+cat('  No. of free parameters (nu):        ', sprintf('%.6f', npar_nu), '\n')
+cat('  No. of free parameters (tau):       ', sprintf('%.6f', npar_tau), '\n')
+cat('  Total no. of free parameters (Npar):', sprintf('%.6f', npar_all), '\n')
 cat('\n')
 cat('Fit quality:\n')
-cat('  Global deviance [ -2*ln(Lmax) ]:    ', format(gdev, nsmall = 4), '\n')
-cat('  AIC [ -2*ln(Lmax) + 2*Npar ]:       ', format(aic, nsmall = 4), '\n')
-cat('  BIC [ -2*ln(Lmax) + Npar*ln(Ndat) ]:', format(bic, nsmall = 4), '\n')
+cat('  Global deviance [ -2*ln(Lmax) ]:    ', sprintf('%.4f', gdev), '\n')
+cat('  AIC [ -2*ln(Lmax) + 2*Npar ]:       ', sprintf('%.4f', aic), '\n')
+cat('  BIC [ -2*ln(Lmax) + Npar*ln(Ndat) ]:', sprintf('%.4f', bic), '\n')
 cat('\n')
 cat('Fitted physical parameters (where available):\n')
-if (!is.na(q_0)) { cat('  Flow at zero density:                                  ', q_0, '\n') }
-if (!is.na(v_ff)) { cat('  Free-flow speed:                                       ', v_ff, '\n') }
-if (!is.na(dvdk_0)) { cat('  Gradient of the speed (w.r.t. density) at zero density:', dvdk_0, '\n') }
-if (!is.na(k_crit)) { cat('  Critical density:                                      ', k_crit, '\n') }
-if (!is.na(k_vmax)) { cat('  Density at maximum speed:                              ', k_vmax, '\n') }
-if (!is.na(q_cap)) { cat('  Capacity:                                              ', q_cap, '\n') }
-if (!is.na(v_max)) { cat('  Maximum speed:                                         ', v_max, '\n') }
-if (!is.na(k_jam)) { cat('  Jam density:                                           ', k_jam, '\n') }
-if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:            ', v_bw, '\n') }
-if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
+if (!is.na(q_0)) { cat('  Flow at zero density:                                  ', sprintf('%.8g', q_0), '\n') }
+if (!is.na(v_ff)) { cat('  Free-flow speed:                                       ', sprintf('%.8g', v_ff), '\n') }
+if (!is.na(dvdk_0)) { cat('  Gradient of the speed (w.r.t. density) at zero density:', sprintf('%.8g', dvdk_0), '\n') }
+if (!is.na(k_crit)) { cat('  Critical density:                                      ', sprintf('%.8g', k_crit), '\n') }
+if (!is.na(k_vmax)) { cat('  Density at maximum speed:                              ', sprintf('%.8g', k_vmax), '\n') }
+if (!is.na(q_cap)) { cat('  Capacity:                                              ', sprintf('%.8g', q_cap), '\n') }
+if (!is.na(v_max)) { cat('  Maximum speed:                                         ', sprintf('%.8g', v_max), '\n') }
+if (!is.na(k_jam)) { cat('  Jam density:                                           ', sprintf('%.8g', k_jam), '\n') }
+if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:            ', sprintf('%.8g', v_bw), '\n') }
+if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', sprintf('%.8g', dvdk_kjam), '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying papers by Bramich, Menendez & Ambuhl for details):\n')
 cat('  Npar_mu:', npar_mu, '\n')
