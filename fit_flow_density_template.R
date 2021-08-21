@@ -59,10 +59,10 @@ tryCatch(
                            q(save = 'no', status = 1) }
 )
 cat('  No. of flow-density measurement pairs (Ndat):', ntraffic_data, '\n')
-cat('  Minimum density in the data:                 ', data_min_density, '\n')
-cat('  Maximum density in the data:                 ', data_max_density, '\n')
-cat('  Minimum flow in the data:                    ', data_min_flow, '\n')
-cat('  Maximum flow in the data:                    ', data_max_flow, '\n')
+cat('  Minimum density in the data:                 ', sprintf('%.8g', data_min_density), '\n')
+cat('  Maximum density in the data:                 ', sprintf('%.8g', data_max_density), '\n')
+cat('  Minimum flow in the data:                    ', sprintf('%.8g', data_min_flow), '\n')
+cat('  Maximum flow in the data:                    ', sprintf('%.8g', data_max_flow), '\n')
 cat('\n')
 cat('Model reconstruction:\n')
 tryCatch(
@@ -72,8 +72,8 @@ tryCatch(
 )
 cat('  No. of density grid points:', ngrid, '\n')
 cat('  Grid lower density:         0\n')
-cat('  Grid upper density:        ', upper_density, '\n')
-cat('  Grid density step:         ', grid_density_step, '\n')
+cat('  Grid upper density:        ', sprintf('%.8g', upper_density), '\n')
+cat('  Grid density step:         ', sprintf('%.8g', grid_density_step), '\n')
 
 #### EDIT HERE BELOW ####
 # Fit the GAMLSS model to the data
@@ -161,7 +161,7 @@ tryCatch(
 )
 
 # Reconstruct the fitted model over the density range from zero to "upper_density"
-cat('Reconstructing the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Reconstructing the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
   { reconstructed_model_fit = data.table(V2 = seq(from = 0.0, to = upper_density, length.out = ngrid))
     predicted_values = predictAll(model_obj, newdata = reconstructed_model_fit, type = 'response', data = traffic_data)
@@ -188,7 +188,7 @@ tryCatch(
 )
 
 # Construct percentile curves for the fitted model over the density range from zero to "upper_density"
-cat('Constructing percentile curves for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing percentile curves for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
 #### EDIT HERE BELOW ####
   { reconstructed_model_fit[, percentile_m3sig := qNO(pNO(-3.0), mu = reconstructed_model_fit$mu, sigma = reconstructed_model_fit$sigma)]
@@ -204,7 +204,7 @@ tryCatch(
 )
 
 # Construct curves of a set of distributional measures for the fitted model over the density range from zero to "upper_density"
-cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', upper_density, '...\n')
+cat('Constructing curves of a set of distributional measures for the fitted model over the density range from 0 to', sprintf('%.8g', upper_density), '...\n')
 tryCatch(
 #### EDIT HERE BELOW ####
   { reconstructed_model_fit[, mean := reconstructed_model_fit$mu]
@@ -282,33 +282,33 @@ cat('\n')
 cat('Fit summary (abridged):\n')
 cat('\n')
 cat('Model parameter counts:\n')
-cat('  No. of free parameters (mu):        ', npar_mu, '\n')
-cat('  No. of free parameters (sigma):     ', npar_sigma, '\n')
-cat('  No. of free parameters (nu):        ', npar_nu, '\n')
-cat('  No. of free parameters (tau):       ', npar_tau, '\n')
-cat('  Total no. of free parameters (Npar):', npar_all, '\n')
+cat('  No. of free parameters (mu):        ', sprintf('%.6f', npar_mu), '\n')
+cat('  No. of free parameters (sigma):     ', sprintf('%.6f', npar_sigma), '\n')
+cat('  No. of free parameters (nu):        ', sprintf('%.6f', npar_nu), '\n')
+cat('  No. of free parameters (tau):       ', sprintf('%.6f', npar_tau), '\n')
+cat('  Total no. of free parameters (Npar):', sprintf('%.6f', npar_all), '\n')
 cat('\n')
 cat('Fit quality:\n')
-cat('  Global deviance [ -2*ln(Lmax) ]:    ', format(gdev, nsmall = 4), '\n')
-cat('  AIC [ -2*ln(Lmax) + 2*Npar ]:       ', format(aic, nsmall = 4), '\n')
-cat('  BIC [ -2*ln(Lmax) + Npar*ln(Ndat) ]:', format(bic, nsmall = 4), '\n')
+cat('  Global deviance [ -2*ln(Lmax) ]:    ', sprintf('%.4f', gdev), '\n')
+cat('  AIC [ -2*ln(Lmax) + 2*Npar ]:       ', sprintf('%.4f', aic), '\n')
+cat('  BIC [ -2*ln(Lmax) + Npar*ln(Ndat) ]:', sprintf('%.4f', bic), '\n')
 cat('\n')
 cat('Fitted physical parameters (where available):\n')
-if (!is.na(q_0)) { cat('  Flow at zero density:                                  ', q_0, '\n') }
-if (!is.na(v_ff)) { cat('  Free-flow speed:                                       ', v_ff, '\n') }
-if (!is.na(dvdk_0)) { cat('  Gradient of the speed (w.r.t. density) at zero density:', dvdk_0, '\n') }
-if (!is.na(k_crit)) { cat('  Critical density:                                      ', k_crit, '\n') }
-if (!is.na(k_vmax)) { cat('  Density at maximum speed:                              ', k_vmax, '\n') }
-if (!is.na(q_cap)) { cat('  Capacity:                                              ', q_cap, '\n') }
-if (!is.na(v_max)) { cat('  Maximum speed:                                         ', v_max, '\n') }
-if (!is.na(k_jam)) { cat('  Jam density:                                           ', k_jam, '\n') }
-if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:            ', v_bw, '\n') }
-if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', dvdk_kjam, '\n') }
+if (!is.na(q_0)) { cat('  Flow at zero density:                                  ', sprintf('%.8g', q_0), '\n') }
+if (!is.na(v_ff)) { cat('  Free-flow speed:                                       ', sprintf('%.8g', v_ff), '\n') }
+if (!is.na(dvdk_0)) { cat('  Gradient of the speed (w.r.t. density) at zero density:', sprintf('%.8g', dvdk_0), '\n') }
+if (!is.na(k_crit)) { cat('  Critical density:                                      ', sprintf('%.8g', k_crit), '\n') }
+if (!is.na(k_vmax)) { cat('  Density at maximum speed:                              ', sprintf('%.8g', k_vmax), '\n') }
+if (!is.na(q_cap)) { cat('  Capacity:                                              ', sprintf('%.8g', q_cap), '\n') }
+if (!is.na(v_max)) { cat('  Maximum speed:                                         ', sprintf('%.8g', v_max), '\n') }
+if (!is.na(k_jam)) { cat('  Jam density:                                           ', sprintf('%.8g', k_jam), '\n') }
+if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:            ', sprintf('%.8g', v_bw), '\n') }
+if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', sprintf('%.8g', dvdk_kjam), '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying papers by Bramich, Menendez & Ambuhl for details):\n')
 #### EDIT HERE BELOW ####
-cat('  v_ff:     ', model_obj$mu.coefficients[1], '\n')
-cat('  sigma_con:', exp(model_obj$sigma.coefficients[1]), '\n')
+cat('  v_ff:     ', sprintf('%.8g', model_obj$mu.coefficients[1]), '\n')
+cat('  sigma_con:', sprintf('%.8g', exp(model_obj$sigma.coefficients[1])), '\n')
 #### EDIT HERE ABOVE ####
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
@@ -327,8 +327,8 @@ tryCatch(
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
 #### EDIT HERE BELOW ####
-        model_obj$mu.coefficients[1], '           # v_ff\n',
-        exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
+        sprintf('%.8g', model_obj$mu.coefficients[1]), '           # v_ff\n',
+        sprintf('%.8g', exp(model_obj$sigma.coefficients[1])), '           # sigma_con\n',
 #### EDIT HERE ABOVE ####
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
