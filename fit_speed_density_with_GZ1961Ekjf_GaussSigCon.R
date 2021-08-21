@@ -66,8 +66,8 @@ tryCatch(
 )
 cat('  No. of density grid points:', ngrid, '\n')
 cat('  Grid lower density:         0\n')
-cat('  Grid upper density:        ', upper_density, '\n')
-cat('  Grid density step:         ', grid_density_step, '\n')
+cat('  Grid upper density:        ', sprintf('%.8g', upper_density), '\n')
+cat('  Grid density step:         ', sprintf('%.8g', grid_density_step), '\n')
 
 # Fit the GAMLSS model to the data
 cat('\n')
