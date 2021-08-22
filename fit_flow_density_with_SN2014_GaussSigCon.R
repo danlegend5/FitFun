@@ -284,8 +284,8 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', sprintf('%.8g', dvdk_kjam), '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying papers by Bramich, Menendez & Ambuhl for details):\n')
-cat('  Npar_mu:  ', npar_mu, '\n')
-cat('  sigma_con:', exp(model_obj$sigma.coefficients[1]), '\n')
+cat('  Npar_mu:  ', sprintf('%.8g', npar_mu), '\n')
+cat('  sigma_con:', sprintf('%.8g', exp(model_obj$sigma.coefficients[1])), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -302,8 +302,8 @@ tryCatch(
         '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPERS BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
-        npar_mu, '           # Npar_mu\n',
-        exp(model_obj$sigma.coefficients[1]), '           # sigma_con\n',
+        sprintf('%.8g', npar_mu), '           # Npar_mu\n',
+        sprintf('%.8g', exp(model_obj$sigma.coefficients[1])), '           # sigma_con\n',
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)

@@ -405,9 +405,9 @@ if (!is.na(v_bw)) { cat('  Back-propagating wave speed at jam density:          
 if (!is.na(dvdk_kjam)) { cat('  Gradient of the speed (w.r.t. density) at jam density: ', sprintf('%.8g', dvdk_kjam), '\n') }
 cat('\n')
 cat('Fitted model parameters (see the accompanying papers by Bramich, Menendez & Ambuhl for details):\n')
-cat('  v_ff:                 ', model_obj$mu.coefficients[1], '\n')
-cat('  (v_bw*k_jam)/(m*v_ff):', par1, '\n')
-cat('  m:                    ', par2, '\n')
+cat('  v_ff:                 ', sprintf('%.8g', model_obj$mu.coefficients[1]), '\n')
+cat('  (v_bw*k_jam)/(m*v_ff):', sprintf('%.8g', par1), '\n')
+cat('  m:                    ', sprintf('%.8g', par2), '\n')
 
 # Write out the fit summary file "Fit.Summary.<fd_type>.<functional_form_model>.<noise_model>.txt"
 cat('\n')
@@ -424,9 +424,9 @@ tryCatch(
         '# FITTED MODEL PARAMETERS (SEE THE ACCOMPANYING PAPERS BY BRAMICH, MENENDEZ & AMBUHL FOR DETAILS)\n',
         '# N.B: FITTED COEFFICIENTS FOR ANY NON-PARAMETRIC SMOOTHING FUNCTIONS IN THE MODEL ARE NOT REPORTED HERE\n',
         '######################################################################################################################\n',
-        model_obj$mu.coefficients[1], '           # v_ff\n',
-        par1, '           # (v_bw*k_jam)/(m*v_ff)\n',
-        par2, '           # m\n',
+        sprintf('%.8g', model_obj$mu.coefficients[1]), '           # v_ff\n',
+        sprintf('%.8g', par1), '           # (v_bw*k_jam)/(m*v_ff)\n',
+        sprintf('%.8g', par2), '           # m\n',
         file = output_files[1], sep = '', append = TRUE) },
   error = function(cond) { cat('ERROR - Failed to write out the fit summary file...\n')
                            remove_file_list(output_files)
