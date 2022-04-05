@@ -82,8 +82,8 @@ tryCatch(
     }
     traffic_data[, tmpcol := log(1.0 - (traffic_data$V2/k_jam))]     # Variable names cannot be accessed within "offset()" when using the model fit object. Hence, in this
                                                                      # case, a new column must be added to the data.
-    model_obj = gamlss(V3 ~ offset(tmpcol) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ 1,
-                       family = NO(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc)
+    model_obj = gamlss(V3 ~ offset(tmpcol) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, order = 2, method = 'ML'),
+                       sigma.formula = ~ 1, family = NO(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc)
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)

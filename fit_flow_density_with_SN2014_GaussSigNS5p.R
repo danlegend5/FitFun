@@ -77,9 +77,9 @@ cat('  Grid density step:         ', sprintf('%.8g', grid_density_step), '\n')
 cat('\n')
 cat('Fitting the GAMLSS model...\n')
 tryCatch(
-  { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, method = 'ML'), sigma.formula = ~ ns(V2, df = 4),
-                       family = NO(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit, n.cyc = outer_ncyc,
-                       i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
+  { model_obj = gamlss(V3 ~ offset(log(V2)) + pbm(V2, mono = 'down', inter = nknots - 1, degree = bdegree, order = 2, method = 'ML'),
+                       sigma.formula = ~ ns(V2, df = 4), family = NO(mu.link = 'log'), data = traffic_data, c.crit = outer_ccrit,
+                       n.cyc = outer_ncyc, i.control = glim.control(cc = inner_ccrit, cyc = inner_ncyc))
     if (model_obj$converged != TRUE) {
       cat('ERROR - The fit did not converge...\n')
       q(save = 'no', status = 1)
