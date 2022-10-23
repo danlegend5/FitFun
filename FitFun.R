@@ -31,11 +31,11 @@
 #              relationship.
 #                This script implements a wide range of fundamental diagram models specified within the FitFun framework. The available models employ
 #              all of the 50 previously proposed model components for the functional form of the fundamental diagram relationship that have been
-#              comprehensively collated and reviewed by Bramich, Menendez & Ambuhl (2021a, ???, ???, ???). They also employ the four noise model
-#              components described in Bramich, Menendez & Ambuhl (2021b, ???, ???, ???). The models are fit to the EFD data using maximum likelihood
-#              (ML) estimation, or maximum penalised likelihood (MPL) estimation, as appropriate (for more details see Bramich, Menendez & Ambuhl,
-#              2021b, ???, ???, ???). The script also computes the values of two different information criteria for any model fit, which enables
-#              model comparisons based on the Principle of Parsimony to be performed (see below).
+#              comprehensively collated and reviewed by Bramich, Menendez & Ambuhl (2022, IEEE Transactions On Intelligent Transportation Systems, 23,
+#              14104). They also employ the four noise model components described in Bramich, Menendez & Ambuhl (2021b, ???, ???, ???). The models are
+#              fit to the EFD data using maximum likelihood (ML) estimation, or maximum penalised likelihood (MPL) estimation, as appropriate (for
+#              more details see Bramich, Menendez & Ambuhl, 2021b, ???, ???, ???). The script also computes the values of two different information
+#              criteria for any model fit, which enables model comparisons based on the Principle of Parsimony to be performed (see below).
 #                While the values of the information criteria provided by this script can be used to select the most parsimonious model for an EFD
 #              from a set of candidate models, there is no guarantee that the selected model actually provides an acceptable fit to the data (e.g.
 #              this situation typically occurs when none of the candidate models considered are capable of achieving acceptable fit quality for the
@@ -54,7 +54,9 @@
 #              "fit_speed_density_with_<functional_form_model>_<noise_model>.R", and they each contain a single function of the same name (see below
 #              under "Command-Line Arguments" for the definitions of "functional_form_model" and "noise_model"). Any parameters that are specific to
 #              a procedure for fitting a particular model are defined within the relevant module itself, and their default values can be modified if
-#              necessary.
+#              necessary. For example, in the modules that fit models with a fixed jam density, the jam density is set by default to "1.0", which may
+#              be appropriate for fits to flow-occupancy or speed-occupancy data, but will surely not be appropriate for fits to flow-density or
+#              speed-density data.
 #
 # Important Notes On Model Selection Criteria:
 #
@@ -158,7 +160,8 @@
 #   fd_type - STRING - The form of the EFD data as a string in the format "<dependent_variable>.<independent_variable>". The acceptable values for
 #                      this argument are 'Flow.Density' and 'Speed.Density'. If this argument is set to any other string, then the script will fail.
 #   functional_form_model - STRING - The abbreviated name of the functional form component of the model that is to be fitted to the EFD data. The
-#                                    acceptable values for this argument are (Bramich, Menendez & Ambuhl, 2021a, ???, ???, ???):
+#                                    acceptable values for this argument are (Bramich, Menendez & Ambuhl, 2022, IEEE Transactions On Intelligent
+#                                    Transportation Systems, 23, 14104):
 #
 #                                    'FF'         - Free-flow model
 #                                    'GS1935'     - Greenshields model
