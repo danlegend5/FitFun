@@ -11,5 +11,5 @@ Please cite the following papers in any works/publications/papers that are creat
 [Fitting Empirical Fundamental Diagrams of Road Traffic: A Comprehensive Review and Comparison of Models Using an Extensive Data Set](https://ieeexplore.ieee.org/document/9703273) \
 Bramich D.M., Menendez M. & Ambuhl L. 2022, IEEE Transactions on Intelligent Transportation Systems, 23, 14104
 
-[FitFun: A Modelling Framework for Successfully Capturing the Functional Form and Noise of Observed Traffic Flow-Density-Speed Relationships]() \
-Bramich D.M., Menendez M. & Ambuhl L. 2023, Transportation Research Part C, In Press
+[FitFun: A Modelling Framework for Successfully Capturing the Functional Form and Noise of Observed Traffic Flow-Density-Speed Relationships](https://www.sciencedirect.com/science/article/pii/S0968090X23000578) \
+Bramich D.M., Menendez M. & Ambuhl L. 2023, Transportation Research Part C, 151, 104068
